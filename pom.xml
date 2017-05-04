@@ -69,6 +69,12 @@
 			<artifactId>sansa-rdf-spark-bundle</artifactId>
 			<version>${sansa.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sansa-stack</groupId>
+			<artifactId>sansa-rdf-spark-core</artifactId>
+			<version>${sansa.version}</version>
+		</dependency>
+
 
 		<!-- SANSA ML -->
 		<dependency>
