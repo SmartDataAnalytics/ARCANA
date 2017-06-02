@@ -18,9 +18,9 @@ object App {
          println( x )
       }
       
-    val Junit = new JWI();
+    //val Junit = new JWI();
  
-		Junit.printz();
+		//Junit.printz();
     
   }
 
