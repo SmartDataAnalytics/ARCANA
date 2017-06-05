@@ -57,4 +57,4 @@ object BigDlReference {
   println(weights)
   * */
   }
-}
+} 

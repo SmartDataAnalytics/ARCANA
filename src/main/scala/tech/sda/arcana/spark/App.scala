@@ -8,7 +8,9 @@ import net.sansa_stack.rdf.spark.io.NTripleReader
 object App {
 
   def main(args: Array[String]) = {
-    val input = "./src/main/resources/rdf.nt"
+
+    //val input = args(0)
+    val input = "src/main/resources/rdf.nt"
 
     println("======================================")
     println("|        Triple reader example       |")
