@@ -23,7 +23,7 @@ object textclassification_using_keras_model {
     
   
  def main(args: Array[String]): Unit = {
-
+/*
     val localParser = new OptionParser[TextClassificationParams]("BigDL Example") {
       opt[String]('b', "baseDir")
         .required()
@@ -51,7 +51,7 @@ object textclassification_using_keras_model {
       val textClassification = new TextClassifier(param)
       textClassification.train()
     }
-
+*/
     
 }
   

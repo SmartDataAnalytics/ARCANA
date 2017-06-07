@@ -4,7 +4,7 @@ import org.apache.spark.sql.SparkSession
 import com.mongodb
 import org.bson.Document
 import com.mongodb.spark.config._
-object AppDB {
+object AppDBM {
 
 
   def main(args: Array[String]) = {

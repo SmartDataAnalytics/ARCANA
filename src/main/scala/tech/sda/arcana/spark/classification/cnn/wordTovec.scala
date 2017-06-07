@@ -8,7 +8,7 @@ import org.apache.spark.sql.SQLContext
 object wordTovec {
   
   def main(args:Array[String]){
-      
+/*      
     val conf = Engine.createSparkConf()
      .setAppName("WordToVec")
     val sc = new SparkContext(conf)
@@ -27,7 +27,7 @@ object wordTovec {
     
     println(s" the Engine status is ${Engine.init}")
     println("Hello")
-    
+  */  
   }
   
 }
