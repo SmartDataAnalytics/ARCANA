@@ -15,11 +15,15 @@ object AppDBM {
     println("|        DB       |")
     println("===================")
     
+    val inputUri = "spark.mongodb.input.uri"  
+    val outputUri = "spark.mongodb.output.uri"
+    val conn = new DBConf()  
+    
     val spark = SparkSession.builder()
       .master("local")
       .appName("MongoSparkConnectorIntro")
-      .config("spark.mongodb.input.uri", "mongodb://127.0.0.1/myDBN.military")
-      .config("spark.mongodb.output.uri", "mongodb://127.0.0.1/myDBN.military")
+      .config(inputUri, conn.host + conn.dbName + "." + conn.defaultCollection)
+      .config(outputUri, conn.host + conn.dbName + "." + conn.defaultCollection)
       //.config("spark.sql.warehouse.dir", "file:///c:/tmp/spark-warehouse")
       .getOrCreate()
     
@@ -30,7 +34,8 @@ object AppDBM {
     val configMap:Map[String, String] = spark.conf.getAll
     println(configMap)
     println("===================LOADING===================")
-    val rdd = sc.loadFromMongoDB(ReadConfig(Map("spark.mongodb.input.uri" -> "mongodb://127.0.0.1/myDBN.military")))
+    val rdd = MongoSpark.load(spark)
+    //val rdd = sc.loadFromMongoDB(ReadConfig(Map("spark.mongodb.input.uri" -> "mongodb://127.0.0.1/myDBN.military")))
 
     println("===================RDD===================")
     /*
