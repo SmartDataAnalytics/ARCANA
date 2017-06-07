@@ -101,7 +101,7 @@
 		<!-- Logging -->
         <!-- dublicated with SANSA logger -->
 
-				<!-- https://mvnrepository.com/artifact/org.mongodb.spark/mongo-spark-connector_2.11 -->
+		<!-- https://mvnrepository.com/artifact/org.mongodb.spark/mongo-spark-connector_2.11 -->
 		<dependency>
 			<groupId>org.mongodb.spark</groupId>
 			<artifactId>mongo-spark-connector_2.11</artifactId>
