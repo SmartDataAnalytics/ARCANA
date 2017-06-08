@@ -5,7 +5,6 @@ import com.mongodb
 import org.bson.Document
 import com.mongodb.spark.config._
 import org.apache.spark.SparkContext
-import play.api.libs.json._
 import org.bson.Document
 import scala.util.parsing.json._
 
@@ -36,40 +35,10 @@ object AppDBM {
     println(configMap)
     println("===================Writing===================")
     
-    
-    val result = JSON.parseFull("""
-      {"name": "Naoki",  "lang": ["Java", "Scala"]}
-    """)
-    
-    var reso="""
-      {"name": "Naoki",  "lang": ["Java", "Scala"]}
-    """
-    /*
-    val jsonStr = 
-    "{word:" +"\"troops\","+
-    "rank:"+  "\"4\","+
-    "rsc:[" +
-        "\"http://dbpedia.org/resource/Territorial_Troops1\"," +
-        "\"http://dbpedia.org/resource/Territorial_Troops2\"," +
-        "\"http://dbpedia.org/resource/Territorial_Troops3\""+
-    "]}"
-    */
-    
-    //val jsonStr = """{"word":"sroops","rank":"3","rsc":["http://dbpedia.org/resource/Territorial_Troops1","http://dbpedia.org/resource/Territorial_Troops2"]}"""    
-            
-    //println(jsonStr)
-
-    //val TRDD = sc.parallelize(result:: Nil)
-    //val JSRDD = sc.parallelize(Seq(jsonStr))
-    """{"name": "Naoki",  "lang": ["Java", "Scala"]}"""
-    
-
-    val jsonStr = """{ "metadata": { "key": 84896, "value": 54 }}"""
-    val rddw = sc.parallelize(Seq(jsonStr))
-  //  val documents = Document.parse(reso)
-    //val rddw = sc.parallelize(Seq((1, "Spark"), (2, "Databricks")))
-    
-    val documents = sc.parallelize((1 to 2).map(i => Document.parse(s"""{"word":"sroops","rank":"3","rsc":["http://dbpedia.org/resource/Territorial_Troops1","http://dbpedia.org/resource/Territorial_Troops2"]}""")))    
+  
+    val doc = Document.parse(s"""{"word":"ALIroops","rank":"3","rsc":["http://dbpedia.org/resource/Territorial_Troops1","http://dbpedia.org/resource/Territorial_Troops2"]}""")
+    val documents = sc.parallelize(Seq(doc))
+    //val documents = sc.parallelize((1 to 2).map(i => Document.parse(s"""{"word":"sroops","rank":"3","rsc":["http://dbpedia.org/resource/Territorial_Troops1","http://dbpedia.org/resource/Territorial_Troops2"]}""")))    
     
     MongoSpark.save(documents)          
     println("===================Closing Writing===================")
