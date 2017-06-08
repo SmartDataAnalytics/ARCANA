@@ -123,13 +123,9 @@
 				<scope>system</scope>
 				<systemPath>${pom.basedir}/src/main/resources/libs/jwi/jwi-sdk/2.4.0/edu.mit.jwi-2.4.0.jar</systemPath>
 		</dependency>	
-		
-	
+
 	</dependencies>
 
-	
-
-	
 	<build>
 		<sourceDirectory>src/main/scala</sourceDirectory>
 		<testSourceDirectory>src/test/scala</testSourceDirectory>
