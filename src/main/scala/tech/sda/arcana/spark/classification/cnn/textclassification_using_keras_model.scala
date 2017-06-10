@@ -23,7 +23,9 @@ object textclassification_using_keras_model {
     
   
  def main(args: Array[String]): Unit = {
-
+   //to solve the memory problem check the log on the desktop which suggests to minimize
+   //the number of threads or the allocated memroy 
+      
     val localParser = new OptionParser[TextClassificationParams]("BigDL Example") {
       opt[String]('b', "baseDir")
         .required()
