@@ -14,10 +14,16 @@ import com.intel.analytics.bigdl.utils.Engine
 
 import org.apache.spark.SparkContext
 */
-
+import com.intel.analytics.bigdl.nn
 import com.intel.analytics.bigdl.utils.Engine
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
+
+import com.intel.analytics.bigdl.numeric.NumericFloat
+
+import com.intel.analytics.bigdl.nn._
+
+import com.intel.analytics.bigdl._
 
 object BigDlReference {
   def main(args:Array[String]){
@@ -32,8 +38,7 @@ object BigDlReference {
 
    println(s" the Engine status is ${Engine.init}")
    println("Hello")
-    
-    
+
     
     
     

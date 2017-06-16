@@ -53,7 +53,7 @@ object textclassification_using_keras_model {
       val textClassification = new TextClassifier(param)
       textClassification.train()
     }
-    
+   
 }
   
 }
