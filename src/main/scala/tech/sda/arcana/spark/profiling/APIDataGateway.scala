@@ -12,6 +12,19 @@ import org.apache.log4j._
 import org.apache.spark.sql.SparkSession;
 import java.net.{URI => JavaURI}
 import scala.collection.mutable
+import spray.json._
+import DefaultJsonProtocol._ // if you don't supply your own Protocol (see below)
+
+/*
+ * My Keys      
+      Key (Dictionary):7a94d88d-4647-416b-bb3c-74bed96d4188
+      Key (Thesaurus): e8c94890-746e-4df8-98da-08cdf5d84e53
+ * 
+ * My Keys -> Big Huge Thesaurus
+ *    Key is fe297721a04ca9641ae3a5b1ae3033a2 
+ */
+
+
 object APIData {
   
   // 1st way to do it
@@ -24,12 +37,18 @@ object APIData {
     println("============================")
     println("|        API Gateway       |")
     println("============================")
-    val input = "src/main/resources/rdf.nt"
     
-    val result = fetch("http://words.bighugelabs.com/api/2/fe297721a04ca9641ae3a5b1ae3033a2/germany/json")
+    val result = fetch("http://words.bighugelabs.com/api/2/fe297721a04ca9641ae3a5b1ae3033a2/bottle/json")
     val parsed = JSON.parseFull(result)
     println(parsed)
     
+
+    val jsonAst = result.parseJson // or JsonParser(source)
+    val json = jsonAst.prettyPrint // or .compactPrint
+    println(json)
+    
+    val result2 = fetch("http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/war?key=e8c94890-746e-4df8-98da-08cdf5d84e53")
+    println(result2)
   }
 
 }
