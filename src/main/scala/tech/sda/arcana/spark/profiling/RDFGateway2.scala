@@ -4,11 +4,13 @@ import java.io.File
 import scala.collection.mutable
 import org.apache.spark.sql.SparkSession
 import net.sansa_stack.rdf.spark.io.NTripleReader
+import net.sansa_stack.rdf.spark.model.{JenaSparkRDDOps, TripleRDD}
 import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.log4j._
 import org.apache.spark.sql.SparkSession;
-
+import java.net.{URI => JavaURI}
+import scala.collection.mutable
 object RDFGatewayApp {
   //rdf subject predicate object
   case class Triple(Subject:String, Predicate:String, Object:String)
@@ -33,14 +35,21 @@ object RDFGatewayApp {
       .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .appName("Triple reader example (" + input + ")")
       .getOrCreate()
-/*
+      
+      val ops = JenaSparkRDDOps(sparkSession.sparkContext)
+      import ops._
+   // val triplesRDD = NTripleReader.load(sparkSession, new File(input))
+
+    //triplesRDD.take(5).foreach(println(_))
+     
     val triplesRDD = NTripleReader.load(sparkSession, new File(input))
 
-    triplesRDD.take(5).foreach(println(_))
     
+    val graph: TripleRDD = triplesRDD
     //Triples filtered by subject ( "http://dbpedia.org/resource/Charles_Dickens" )
-println("All triples related to Dickens:\n" + graph.find(URI("http://dbpedia.org/resource/Charles_Dickens"), ANY, ANY).collect().mkString("\n"))
- 
+    // <http://commons.dbpedia.org/resource/Category:Public_domain>
+    println("All triples related to File:Lijn10:\n" + graph.find(URI("http://commons.dbpedia.org/resource/File:Lijn10.jpg"), ANY, ANY).collect().mkString("\n"))
+ /*
 //Triples filtered by predicate ( "http://dbpedia.org/ontology/influenced" )
 println("All triples for predicate influenced:\n" + graph.find(ANY, URI("http://dbpedia.org/ontology/influenced"), ANY).collect().mkString("\n"))
  
