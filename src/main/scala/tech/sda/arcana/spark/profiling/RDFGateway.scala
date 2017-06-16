@@ -13,9 +13,7 @@ import org.apache.spark.sql.SparkSession;
 object RDFApp {
   //rdf subject predicate object
   case class Triple(Subject:String, Predicate:String, Object:String)
-  
-  case class Person(ID:Int, name:String, age:Int, numFriends:Int)
-  
+    
   def mapperRDF(line:String): Triple = {
     val fields = line.split(" ")  
     
@@ -23,12 +21,6 @@ object RDFApp {
     return triple
   }
   
-  def mapper(line:String): Person = {
-    val fields = line.split(',')  
-    
-    val person:Person = Person(fields(0).toInt, fields(1), fields(2).toInt, fields(3).toInt)
-    return person
-  }
   
   def main(args: Array[String]) = {
   
@@ -49,7 +41,7 @@ object RDFApp {
 
 
    triples.select("Object").show()
-   //people.foreach(println)
+
    spark.stop()
   }
 
