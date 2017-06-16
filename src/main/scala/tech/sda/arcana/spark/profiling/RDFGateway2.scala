@@ -28,19 +28,26 @@ object RDFGatewayApp {
     println("============================")
     val input = "src/main/resources/rdf.nt"
     
-    val spark = SparkSession.builder()
-      .master("local")
-      .appName("RDFApp")
+     val sparkSession = SparkSession.builder
       .master("local[*]")
+      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .appName("Triple reader example (" + input + ")")
       .getOrCreate()
+/*
+    val triplesRDD = NTripleReader.load(sparkSession, new File(input))
+
+    triplesRDD.take(5).foreach(println(_))
     
-   import spark.implicits._ 
-    val lines = spark.sparkContext.textFile(input)
-    val triples = lines.map(mapperRDF).toDS().cache()
-
-   triples.select("Object").show()
-
-   spark.stop()
+    //Triples filtered by subject ( "http://dbpedia.org/resource/Charles_Dickens" )
+println("All triples related to Dickens:\n" + graph.find(URI("http://dbpedia.org/resource/Charles_Dickens"), ANY, ANY).collect().mkString("\n"))
+ 
+//Triples filtered by predicate ( "http://dbpedia.org/ontology/influenced" )
+println("All triples for predicate influenced:\n" + graph.find(ANY, URI("http://dbpedia.org/ontology/influenced"), ANY).collect().mkString("\n"))
+ 
+//Triples filtered by object ( <http://dbpedia.org/resource/Henry_James> )
+println("All triples influenced by Henry_James:\n" + graph.find(ANY, ANY, URI("<http://dbpedia.org/resource/Henry_James>")).collect().mkString("\n"))
+  */  
+    sparkSession.stop
   }
 
 }

@@ -63,7 +63,7 @@
 			<type>pom</type>
 			<version>${jena.version}</version>
 		</dependency>
-
+		
 		<!-- SANSA RDF -->
 		<dependency>
 			<groupId>net.sansa-stack</groupId>
@@ -78,11 +78,11 @@
 
 
 		<!-- SANSA ML -->
-		<dependency>
-			<groupId>net.sansa-stack</groupId>
-			<artifactId>sansa-ml-spark</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
-		</dependency>
+		<!--<dependency> -->
+		<!--	<groupId>net.sansa-stack</groupId> -->
+		<!--	<artifactId>sansa-ml-spark</artifactId> -->
+		<!--	<version>0.1.0-SNAPSHOT</version>-->
+		<!--</dependency>-->
 
 		<!-- Test -->
 		<dependency>
@@ -123,6 +123,39 @@
 				<scope>system</scope>
 				<systemPath>${pom.basedir}/src/main/resources/libs/jwi/jwi-sdk/2.4.0/edu.mit.jwi-2.4.0.jar</systemPath>
 		</dependency>	
+		<!-- SANSA RDF -->
+		<dependency>
+		  <groupId>net.sansa-stack</groupId>
+		  <artifactId>sansa-rdf-spark-bundle_2.11</artifactId>
+		  <version>0.2.0</version>
+		</dependency>
+		 
+		<!-- SANSA OWL -->
+		<dependency>
+		  <groupId>net.sansa-stack</groupId>
+		  <artifactId>sansa-owl-spark_2.11</artifactId>
+		  <version>0.2.0</version>
+		</dependency>
+		 
+		<!-- SANSA Inference -->
+		<dependency>
+		  <groupId>net.sansa-stack</groupId>
+		  <artifactId>sansa-inference-spark_2.11</artifactId>
+		  <version>0.2.0</version>
+		</dependency>
+		 
+		<!-- SANSA Querying -->
+		<dependency>
+		  <groupId>net.sansa-stack</groupId>
+		  <artifactId>sansa-query-spark-bundle_2.11</artifactId>
+		  <version>0.2.0</version>
+		</dependency>
+		<!-- net.sansa-stack : sansa-query-parent_2.11 : 0.2.0 -->
+		<!-- 	<dependency>										-->
+		<!-- 		<groupId>net.sansa-stack</groupId>				-->
+		<!-- 		<artifactId>sansa-query-parent_2.11</artifactId>-->
+		<!-- 		<version>0.2.0</version>						-->
+		<!-- 	</dependency>										-->
 
 	</dependencies>
 
@@ -319,9 +352,10 @@
 		<repository>
 			<id>oss-sonatype</id>
 			<name>oss-sonatype</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<!--<url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
+			<url>https://oss.sonatype.org/content/repositories/releases/net/sansa-stack/</url>
 			<snapshots>
-				<enabled>true</enabled>
+				<enabled>false</enabled>
 			</snapshots>
 		</repository>
 		<repository>
