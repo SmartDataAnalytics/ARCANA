@@ -9,7 +9,7 @@ import org.apache.spark.SparkContext._
 import org.apache.log4j._
 import org.apache.spark.sql.SparkSession;
 
-object RDFApp {
+object RDFGatewayApp {
   //rdf subject predicate object
   case class Triple(Subject:String, Predicate:String, Object:String)
     
