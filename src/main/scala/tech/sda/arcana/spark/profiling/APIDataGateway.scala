@@ -16,12 +16,15 @@ import spray.json._
 import DefaultJsonProtocol._ // if you don't supply your own Protocol (see below)
 
 /*
- * My Keys      
+ * My Keys -> merriam webster      
       Key (Dictionary):7a94d88d-4647-416b-bb3c-74bed96d4188
       Key (Thesaurus): e8c94890-746e-4df8-98da-08cdf5d84e53
  * 
  * My Keys -> Big Huge Thesaurus
  *    Key is fe297721a04ca9641ae3a5b1ae3033a2 
+ *    
+ * My Keys -> uclassify.com
+ *    Key is L5ZjO3PO2YlO
  */
 
 
@@ -40,15 +43,19 @@ object APIData {
     
     val result = fetch("http://words.bighugelabs.com/api/2/fe297721a04ca9641ae3a5b1ae3033a2/bottle/json")
     val parsed = JSON.parseFull(result)
-    println(parsed)
+    //println(parsed)
     
 
     val jsonAst = result.parseJson // or JsonParser(source)
     val json = jsonAst.prettyPrint // or .compactPrint
-    println(json)
+    //println(json)
     
     val result2 = fetch("http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/war?key=e8c94890-746e-4df8-98da-08cdf5d84e53")
-    println(result2)
+    //println(result2)
+    
+    val result3 = fetch("https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text=kill")
+    println(result3)
+    
   }
 
 }
