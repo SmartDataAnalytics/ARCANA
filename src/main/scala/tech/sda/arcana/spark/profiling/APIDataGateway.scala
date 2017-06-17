@@ -52,8 +52,8 @@ object APIData {
     
     val result2 = fetch("http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/war?key=e8c94890-746e-4df8-98da-08cdf5d84e53")
     //println(result2)
-    
-    val result3 = fetch("https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text=kill")
+    val x= "How+to+kill+a+person?"
+    val result3 = fetch("https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text="+x)
     println(result3)
     
   }
