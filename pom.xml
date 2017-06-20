@@ -63,7 +63,7 @@
 			<type>pom</type>
 			<version>${jena.version}</version>
 		</dependency>
-
+		
 		<!-- SANSA RDF -->
 		<dependency>
 			<groupId>net.sansa-stack</groupId>
@@ -78,11 +78,11 @@
 
 
 		<!-- SANSA ML -->
-		<dependency>
-			<groupId>net.sansa-stack</groupId>
-			<artifactId>sansa-ml-spark</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
-		</dependency>
+		<!--<dependency> -->
+		<!--	<groupId>net.sansa-stack</groupId> -->
+		<!--	<artifactId>sansa-ml-spark</artifactId> -->
+		<!--	<version>0.1.0-SNAPSHOT</version>-->
+		<!--</dependency>-->
 
 		<!-- Test -->
 		<dependency>
@@ -97,14 +97,10 @@
 			<version>2.2.6</version>
 			<scope>test</scope>
 		</dependency>
-
+        
 		<!-- Logging -->
-		<dependency>
-			<groupId>com.typesafe.scala-logging</groupId>
-			<artifactId>scala-logging-slf4j_${scala.binary.version}</artifactId>
-			<version>2.1.2</version>
-		</dependency>
-		
+        <!-- dublicated with SANSA logger -->
+
 		<!-- https://mvnrepository.com/artifact/org.mongodb.spark/mongo-spark-connector_2.11 -->
 		<dependency>
 			<groupId>org.mongodb.spark</groupId>
@@ -112,14 +108,73 @@
 			<version>2.0.0</version>
 		</dependency>
 
+        <!-- BigDL Linking  -->
+		<dependency>
+			<groupId>com.intel.analytics.bigdl</groupId>
+			<artifactId>bigdl-SPARK_2.0</artifactId>
+			<version>${BIGDL_VERSION}</version>
+		</dependency>
+
+		<!-- JWI (the MIT Java Wordnet Interface) -->
+		<dependency>
+				<groupId>jwi</groupId>
+				<artifactId>jwi-sdk</artifactId>
+				<version>2.4.0</version>
+				<scope>system</scope>
+				<systemPath>${pom.basedir}/src/main/resources/libs/jwi/jwi-sdk/2.4.0/edu.mit.jwi-2.4.0.jar</systemPath>
+		</dependency>	
+		<!-- SANSA RDF -->
+		<dependency>
+		  <groupId>net.sansa-stack</groupId>
+		  <artifactId>sansa-rdf-spark-bundle_2.11</artifactId>
+		  <version>0.2.0</version>
+		</dependency>
+		 
+		<!-- SANSA OWL -->
+		<dependency>
+		  <groupId>net.sansa-stack</groupId>
+		  <artifactId>sansa-owl-spark_2.11</artifactId>
+		  <version>0.2.0</version>
+		</dependency>
+		 
+		<!-- SANSA Inference -->
+		<dependency>
+		  <groupId>net.sansa-stack</groupId>
+		  <artifactId>sansa-inference-spark_2.11</artifactId>
+		  <version>0.2.0</version>
+		</dependency>
+		 
+		<!-- SANSA Querying -->
+		<dependency>
+		  <groupId>net.sansa-stack</groupId>
+		  <artifactId>sansa-query-spark-bundle_2.11</artifactId>
+		  <version>0.2.0</version>
+		</dependency>
+		<!-- net.sansa-stack : sansa-query-parent_2.11 : 0.2.0 -->
+		<!-- 	<dependency>										-->
+		<!-- 		<groupId>net.sansa-stack</groupId>				-->
+		<!-- 		<artifactId>sansa-query-parent_2.11</artifactId>-->
+		<!-- 		<version>0.2.0</version>						-->
+		<!-- 	</dependency>										-->
 		
-	
+
+		<!-- https://mvnrepository.com/artifact/org.mongodb.spark/mongo-spark-connector_2.11 -->
+		<dependency>
+			<groupId>org.mongodb.spark</groupId>
+			<artifactId>mongo-spark-connector_2.11</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/io.spray/spray-json_2.11 -->
+		<dependency>
+			<groupId>io.spray</groupId>
+			<artifactId>spray-json_2.11</artifactId>
+			<version>1.3.3</version>
+		</dependency>
 
 	</dependencies>
 
-	
-
-	
 	<build>
 		<sourceDirectory>src/main/scala</sourceDirectory>
 		<testSourceDirectory>src/test/scala</testSourceDirectory>
@@ -313,9 +368,10 @@
 		<repository>
 			<id>oss-sonatype</id>
 			<name>oss-sonatype</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<!--<url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
+			<url>https://oss.sonatype.org/content/repositories/releases/net/sansa-stack/</url>
 			<snapshots>
-				<enabled>true</enabled>
+				<enabled>false</enabled>
 			</snapshots>
 		</repository>
 		<repository>

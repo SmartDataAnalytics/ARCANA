@@ -17,6 +17,11 @@ object App {
     for ( x <- category.categories ) {
          println( x )
       }
+
+    //val Junit = new JWI();
+ 
+		//Junit.printz();
+
   }
 
 }

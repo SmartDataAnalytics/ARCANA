@@ -1,0 +1,6 @@
+-Dspark.master=local[1] 
+-Dspark.executor.cores=1 
+-Dspark.total.executor.cores=1 
+-Dspark.executor.memory=1g 
+-Dspark.driver.memory=1g 
+-Xmx1024m -Xms1024m
