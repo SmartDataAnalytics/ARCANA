@@ -13,8 +13,10 @@ object App {
     println("|        Profiling       |")
     println("==========================")
 
-
-
+    val category = new Category()    
+    for ( x <- category.categories ) {
+         println( x )
+      }
   }
 
 }

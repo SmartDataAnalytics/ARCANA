@@ -1,4 +1,4 @@
-package tech.sda.arcana.spark.classification.cnn
+/*package tech.sda.arcana.spark.classification.cnn
 //1
 import com.intel.analytics.bigdl.tensor.Tensor
 //2
@@ -22,4 +22,4 @@ object BigDlReference {
   val weights=f.weight
   println(weights)
   }
-} 
+}*/ 
