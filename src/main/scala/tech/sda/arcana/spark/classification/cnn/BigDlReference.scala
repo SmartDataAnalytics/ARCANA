@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-/*package tech.sda.arcana.spark.classification.cnn
-=======
 package tech.sda.arcana.spark.classification.cnn
 /*
->>>>>>> 381e5c8acdcf1eab776dced9093199e7a4660305
 //1
 import com.intel.analytics.bigdl.tensor.Tensor
 //2
@@ -66,4 +62,4 @@ object BigDlReference {
   println(weights)
   * */
   }
-}*/ 
+}
