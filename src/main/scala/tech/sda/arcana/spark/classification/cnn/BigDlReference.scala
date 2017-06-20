@@ -28,7 +28,7 @@ import com.intel.analytics.bigdl._
 object BigDlReference {
   def main(args:Array[String]){
 
-    
+ /*  
     val conf = Engine.createSparkConf()
      .setAppName("Train Lenet on MNIST")
      .set("spark.task.maxFailures", "1")
@@ -38,10 +38,11 @@ object BigDlReference {
 
    println(s" the Engine status is ${Engine.init}")
    println("Hello")
-
+*/
     
-    
-    
+    println(Array(1, 28, 28))
+    Reshape(Array(1, 28, 28))
+    println("you idiote")
 /*
    val conf = Engine.createSparkConf()
    val sc = new SparkContext(conf)

@@ -1,22 +1,38 @@
 package tech.sda.arcana.spark.classification.cnn
+import com.intel.analytics.bigdl.numeric.NumericFloat
+import com.intel.analytics.bigdl.nn._
+import com.intel.analytics.bigdl._
+import com.intel.analytics.bigdl.utils.Engine
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.SQLContext
 
 object AlexNetModel {
-  //Test of the AlexNetModel
+  
+    //initiate spark using the engine
+   val conf = Engine.createSparkConf()
+     .setAppName("First Convolutional network Module")
+     .set("spark.task.maxFailures", "1")
+     .setMaster("local")
+   val sc = new SparkContext(conf)
+   Engine.init
+  
+   
+  
+  val firstbranch=Sequential()
+  firstbranch.add(SpatialConvolution(3,48,11,11,4,4,2,2)) //-- 224 -> 55
+  firstbranch.add(ReLU())// maybe needs a true here as an argument
+  firstbranch.add(SpatialMaxPooling(3,3,2,2)) //55 ->  27
+  firstbranch.add(SpatialConvolution(48,128,5,5,1,1,2,2)) //27 -> 27
+  firstbranch.add(ReLU())
+  firstbranch.add(SpatialMaxPooling(3,3,2,2)) //27 ->  13
+  firstbranch.add(SpatialConvolution(128,192,3,3,1,1,1,1)) //13 -> 13
+  firstbranch.add(ReLU())
+  firstbranch.add(SpatialConvolution(192,192,3,3,1,1,1,1)) //13 -> 13
+  firstbranch.add(ReLU())
+  firstbranch.add(SpatialConvolution(192,128,3,3,1,1,1,1)) //13 -> 13
+  firstbranch.add(ReLU())
+  firstbranch.add(SpatialMaxPooling(3,3,2,2)) //13 ->  6
   /*
-  local fb1 = nn.Sequential() -- branch 1
-fb1:add(nn.SpatialConvolution(3,48,11,11,4,4,2,2))       -- 224 -> 55
-fb1:add(nn.ReLU(true))
-fb1:add(nn.SpatialMaxPooling(3,3,2,2))                   -- 55 ->  27
-fb1:add(nn.SpatialConvolution(48,128,5,5,1,1,2,2))       --  27 -> 27
-fb1:add(nn.ReLU(true))
-fb1:add(nn.SpatialMaxPooling(3,3,2,2))                   --  27 ->  13
-fb1:add(nn.SpatialConvolution(128,192,3,3,1,1,1,1))      --  13 ->  13
-fb1:add(nn.ReLU(true))
-fb1:add(nn.SpatialConvolution(192,192,3,3,1,1,1,1))      --  13 ->  13
-fb1:add(nn.ReLU(true))
-fb1:add(nn.SpatialConvolution(192,128,3,3,1,1,1,1))      --  13 ->  13
-fb1:add(nn.ReLU(true))
-fb1:add(nn.SpatialMaxPooling(3,3,2,2))                   -- 13 -> 6
 
 local fb2 = fb1:clone() -- branch 2
 for k,v in ipairs(fb2:findModules('nn.SpatialConvolution')) do
