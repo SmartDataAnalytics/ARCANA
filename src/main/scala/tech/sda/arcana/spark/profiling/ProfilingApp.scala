@@ -6,6 +6,15 @@ import org.apache.spark.sql.SparkSession
 import net.sansa_stack.rdf.spark.io.NTripleReader
 
 
+import java.util.Properties
+
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation
+import edu.stanford.nlp.pipeline.{ Annotation, StanfordCoreNLP }
+import edu.stanford.nlp.sentiment.SentimentCoreAnnotations.SentimentClass
+import edu.stanford.nlp.util.CoreMap
+import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation
+import edu.stanford.nlp.ling.CoreAnnotations
+
 
 object App {
 
