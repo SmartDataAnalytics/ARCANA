@@ -22,7 +22,6 @@ import edu.stanford.nlp.process.CoreLabelTokenFactory;
 import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.process.PTBTokenizer;
 
-
 import java.util.Properties
 import scala.collection.JavaConversions._ 
 import scala.collection.immutable.ListMap
@@ -78,7 +77,7 @@ object Stanford {
   // This one is hosted on the site and works nicely ==> By token 
   def PTBTokenizer_Token(sentence: String): PTBTokenizer[CoreLabel] = {
 
-    val ptbt: PTBTokenizer[CoreLabel] = new PTBTokenizer[CoreLabel](new StringReader("HEY THERE GUYS"), new CoreLabelTokenFactory(), "")
+    val ptbt: PTBTokenizer[CoreLabel] = new PTBTokenizer[CoreLabel](new StringReader(sentence), new CoreLabelTokenFactory(), "")
 
     ptbt
 }
@@ -90,7 +89,7 @@ object Stanford {
             coreNLP.annotate(annotation)
             annotation.get(classOf[TokensAnnotation]).map(_.toString)
                        
-          }
+     }
   def normalizeToken(t: String) = {
     val ts = t.toLowerCase
     val num = "[0-9]+[,0-9]*".r
@@ -101,16 +100,13 @@ object Stanford {
 }
   def main(args: Array[String]) = {
 
-    //val ptbt: PTBTokenizer[CoreLabel] = new PTBTokenizer[CoreLabel](new StringReader("HEY THERE GUYS"), new CoreLabelTokenFactory(), "")
     val ptbt_Sentence = PTBTokenizer_Sentence("HEY THERE GUYS Home. Did you have a good time? ")
-    val ptbt_Token = PTBTokenizer_Token("HEY THERE GUYS")
+    val ptbt_Token = PTBTokenizer_Token("HEY THERE GUYS TERZ")
     
     while (ptbt_Token.hasNext) { 
       val label: CoreLabel = ptbt_Token.next() 
       println(label) }
     
-
-
     println("DONE")
   }
 }
