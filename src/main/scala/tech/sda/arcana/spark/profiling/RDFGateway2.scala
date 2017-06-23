@@ -49,13 +49,24 @@ object RDFGatewayApp {
     //Triples filtered by subject ( "http://dbpedia.org/resource/Charles_Dickens" )
     // <http://commons.dbpedia.org/resource/Category:Public_domain>
     println("All triples related to File:Lijn10:\n" + graph.find(URI("http://commons.dbpedia.org/resource/File:Lijn10.jpg"), ANY, ANY).collect().mkString("\n"))
- /*
-//Triples filtered by predicate ( "http://dbpedia.org/ontology/influenced" )
-println("All triples for predicate influenced:\n" + graph.find(ANY, URI("http://dbpedia.org/ontology/influenced"), ANY).collect().mkString("\n"))
- 
-//Triples filtered by object ( <http://dbpedia.org/resource/Henry_James> )
-println("All triples influenced by Henry_James:\n" + graph.find(ANY, ANY, URI("<http://dbpedia.org/resource/Henry_James>")).collect().mkString("\n"))
-  */  
+     /*
+    //Triples filtered by predicate ( "http://dbpedia.org/ontology/influenced" )
+    println("All triples for predicate influenced:\n" + graph.find(ANY, URI("http://dbpedia.org/ontology/influenced"), ANY).collect().mkString("\n"))
+     
+    //Triples filtered by object ( <http://dbpedia.org/resource/Henry_James> )
+    println("All triples influenced by Henry_James:\n" + graph.find(ANY, ANY, URI("<http://dbpedia.org/resource/Henry_James>")).collect().mkString("\n"))
+      */  
+    
+    
+    
+    println("_.isLiteral()")
+    val objects = graph.filterSubjects(_.isLiteral()).collect.mkString("\n")
+    
+    println(objects)
+    
+    
+    
+    println("Stopping the session")
     sparkSession.stop
   }
 
