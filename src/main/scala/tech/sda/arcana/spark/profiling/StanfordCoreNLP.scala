@@ -1,6 +1,17 @@
 package tech.sda.arcana.spark.profiling
 
 import java.io.File
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
+
+import edu.stanford.nlp.ling.CoreAnnotations.LemmaAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.util.CoreMap;
 import scala.collection.mutable
 import org.apache.spark.sql.SparkSession
 import net.sansa_stack.rdf.spark.io.NTripleReader
@@ -98,14 +109,40 @@ object Stanford {
       case _ => ts
     }
 }
+  
+  
+      def lemmatize(documentText: String): List[String] = {
+        
+            val lemmas: List[String] = new LinkedList[String]()
+               // Create an empty Annotation just with the given text
+            val document: Annotation = new Annotation(documentText)
+              // run all Annotators on this text
+            this.pipeline.annotate(document)
+              // Iterate over all of the sentences found
+            val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation])
+            for (sentence <- sentences; token <- sentence.get(classOf[TokensAnnotation])) {
+              // list of lemmas
+              lemmas.add(token.get(classOf[LemmaAnnotation]))
+            }
+              // Retrieve and add the lemma for each word into the
+              lemmas
+        }
+      
+        
+  
   def main(args: Array[String]) = {
 
+    /*
     val ptbt_Sentence = PTBTokenizer_Sentence("HEY THERE GUYS Home. Did you have a good time? ")
     val ptbt_Token = PTBTokenizer_Token("HEY THERE GUYS TERZ")
     
     while (ptbt_Token.hasNext) { 
       val label: CoreLabel = ptbt_Token.next() 
       println(label) }
+    */
+    
+   val lemmas: List[String]  = lemmatize("He was going to do some sports today, then he left and bumped in the wall, he was running and running")
+   lemmas.foreach { println }
     
     println("DONE")
   }
