@@ -67,9 +67,16 @@ object Stanford {
 
     dependencies.toString()
 }
-  
-  // This one is hosted on the sit and works nicely 
-  def PTBTokenizer(sentence: String): PTBTokenizer[CoreLabel] = {
+  // Token Sentences 
+   def PTBTokenizer_Sentence(sentencete: String)= {
+
+      val dp: DocumentPreprocessor = new DocumentPreprocessor(new StringReader(sentencete));
+      for(sentence <- dp) { 
+        println(sentence) 
+        }  
+}
+  // This one is hosted on the site and works nicely ==> By token 
+  def PTBTokenizer_Token(sentence: String): PTBTokenizer[CoreLabel] = {
 
     val ptbt: PTBTokenizer[CoreLabel] = new PTBTokenizer[CoreLabel](new StringReader("HEY THERE GUYS"), new CoreLabelTokenFactory(), "")
 
@@ -93,23 +100,18 @@ object Stanford {
     }
 }
   def main(args: Array[String]) = {
- 
-     //val dp: DocumentPreprocessor = new DocumentPreprocessor("Hey let us go and play") 
-     //for (sentence <- dp) { println(sentence) }
-    
+
     //val ptbt: PTBTokenizer[CoreLabel] = new PTBTokenizer[CoreLabel](new StringReader("HEY THERE GUYS"), new CoreLabelTokenFactory(), "")
-    val ptbt = PTBTokenizer("HEY THERE GUYS")
+    val ptbt_Sentence = PTBTokenizer_Sentence("HEY THERE GUYS Home. Did you have a good time? ")
+    val ptbt_Token = PTBTokenizer_Token("HEY THERE GUYS")
     
-    while (ptbt.hasNext) { 
-      val label: CoreLabel = ptbt.next() 
+    while (ptbt_Token.hasNext) { 
+      val label: CoreLabel = ptbt_Token.next() 
       println(label) }
     
-    //val test = tokenize("Hi Hi Let's me go")
-    //   for ( x <- test ) {
-    //     println( x )
-    //  }
-    //println(test)
-    println("DON")
+
+
+    println("DONE")
   }
 }
 
