@@ -1,5 +1,5 @@
 package tech.sda.arcana.spark.profiling
-
+import scala.collection.JavaConversions._
 import java.io.File
 import java.util.LinkedList;
 import java.util.List;
@@ -110,7 +110,7 @@ object Stanford {
     }
 }
   
-  
+    // does combined work such as tokenization, lemmatization etc ...
       def lemmatize(documentText: String): List[String] = {
         
             val lemmas: List[String] = new LinkedList[String]()
@@ -127,8 +127,10 @@ object Stanford {
               // Retrieve and add the lemma for each word into the
               lemmas
         }
-      
-        
+      def removeStopWords(Tokens: List[String]): List[String] = {
+        val testWords = scala.io.Source.fromFile("src/main/resources/stopwords.txt").mkString
+        Tokens.filter(!testWords.contains(_))
+      }
   
   def main(args: Array[String]) = {
 
@@ -142,8 +144,18 @@ object Stanford {
     */
     
    val lemmas: List[String]  = lemmatize("He was going to do some sports today, then he left and bumped in the wall, he was running and running")
-   lemmas.foreach { println }
+   //lemmas.foreach { println }
     
+   
+   //val testWords = scala.io.Source.fromFile("src/main/resources/stopwords.txt").mkString
+   //val stopWords: Array[String] = Array("of", "i", "am", "a", "is")
+   //val data = "he"
+   //val testWords = lines
+    lemmas.foreach { println }
+   println("-------------------")
+   val lemmasMod=removeStopWords(lemmas)
+    // val lemmas2=lemmas.filterNot(elm => elm == data)
+     lemmasMod.foreach { println }
     println("DONE")
   }
 }
