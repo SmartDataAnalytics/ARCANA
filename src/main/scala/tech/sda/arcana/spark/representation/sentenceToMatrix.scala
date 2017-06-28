@@ -2,7 +2,8 @@ package tech.sda.arcana.spark.representation
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 import org.apache.log4j._
-
+import org.apache.spark.rdd.RDD
+import scala.collection.mutable.ListBuffer
 
 object sentenceToMatrix {
   //The user going to choose the approach from those:
@@ -31,6 +32,7 @@ object sentenceToMatrix {
      // }
       (word, representation)
     }
+
   
     def main(args:Array[String]){
       
@@ -51,16 +53,46 @@ object sentenceToMatrix {
             //val representation = parsedLines.filter( (x) => (x._1 == "the") )
             //WARNING check if those vectors are in the same order of the words in the sentence
             val representation = parsedLines.filter( (x) => (sentense.contains(x._1)) )
+            //gather the answers and continue arranging without Spark   
+            val result = representation.collect()
             
-            val vectors=representation.map(x => x._2)
+            //this section has been done locally because the data is rather small
+            val senRep:ListBuffer[Array[String]]=ListBuffer()
+            for(i <- 0 to sentenceWordCount-1)
+              for(j<-result)
+                if(j._1 == sentense(i))
+                  senRep += j._2
             
-            val result = vectors.collect()
+            //achtung this is done localy 
+            for(i<-senRep){
+              for(j<-i){
+                print(j)
+                print(" ")
+              }
+              println()
+            }
             
+            //val vectors=representation.map(x => x._2)
+            
+            /*
             //sentence representation
-            val senRep:Array[Array[String]]=Array.ofDim[String](sentenceWordCount,vectorLength)
+            //val senRep:Array[Array[String]]=Array.ofDim[String](sentenceWordCount,vectorLength)
               
             for(x <- 0 to sentenceWordCount-1)
               senRep(x)=result(x)
+              
+           
+            //for the sake of testing
+            for(x<- 0 to sentenceWordCount-1){
+              for(j<-senRep(x)){
+                print(j)
+                print(" ")
+              }
+              println("------------------")
+            }
+          */
+            
+             
                 
 
     }
