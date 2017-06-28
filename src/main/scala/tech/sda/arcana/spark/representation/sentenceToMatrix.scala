@@ -63,7 +63,7 @@ object sentenceToMatrix {
                 if(j._1 == sentense(i))
                   senRep += j._2
             
-            //achtung this is done localy 
+            //achtung this is done locally 
             for(i<-senRep){
               for(j<-i){
                 print(j)
