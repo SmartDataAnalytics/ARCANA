@@ -129,6 +129,7 @@ object Stanford {
         }
       def removeStopWords(Tokens: List[String]): List[String] = {
         val testWords = scala.io.Source.fromFile("src/main/resources/stopwords.txt").mkString
+         // val lemmas2=lemmas.filterNot(elm => elm == data)
         Tokens.filter(!testWords.contains(_))
       }
   
@@ -143,19 +144,10 @@ object Stanford {
       println(label) }
     */
     
-   val lemmas: List[String]  = lemmatize("He was going to do some sports today, then he left and bumped in the wall, he was running and running")
-   //lemmas.foreach { println }
-    
-   
-   //val testWords = scala.io.Source.fromFile("src/main/resources/stopwords.txt").mkString
-   //val stopWords: Array[String] = Array("of", "i", "am", "a", "is")
-   //val data = "he"
-   //val testWords = lines
-    lemmas.foreach { println }
-   println("-------------------")
+   val lemmas: List[String]  = lemmatize("How to plant a bomb in Traponia and execute everyone under the ground")
    val lemmasMod=removeStopWords(lemmas)
-    // val lemmas2=lemmas.filterNot(elm => elm == data)
-     lemmasMod.foreach { println }
+   
+    lemmasMod.foreach { println }
     println("DONE")
   }
 }
