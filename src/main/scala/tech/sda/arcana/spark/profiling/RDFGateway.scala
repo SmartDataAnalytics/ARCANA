@@ -10,20 +10,43 @@ import org.apache.spark.SparkContext._
 import org.apache.log4j._
 import org.apache.spark.sql.SparkSession;
 
+import scala.util.matching
+
 object RDFApp {
   //rdf subject predicate object
   case class Triple(Subject:String, Predicate:String, Object:String)
     
+  def SP_Transform(entity:String): String={
+    val newEntity=entity.stripPrefix("<").stripSuffix(">").trim  
+    val path = (new URI(newEntity)).getPath();
+    return path.substring(path.lastIndexOf('/') + 1);
+  }
+  
+  def O_Transform(entity:String): String={
+    if(entity.take(1)=="<"){
+      val newEntity=entity.stripPrefix("<").stripSuffix(">").trim  
+      val path = (new URI(newEntity)).getPath();
+      return path.substring(path.lastIndexOf('/') + 1);
+    }else if(entity.take(1)=="\""){
+    //  return entity.stripPrefix('"').stripSuffix('"').trim;
+      return entity.split("\"")(1)
+    }
+    else{
+      // non
+      return entity
+    }
+    
+  }
   def mapperRDF(line:String): Triple = {
     
     //splitting a comma-separated string but ignoring commas in quotes
     val fields = line.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
   
-     // Clean the Subject
-     fields(0)=fields(0).stripPrefix("<").stripSuffix(">").trim 
-     val path = (new URI(fields(0))).getPath();
-     fields(0) = path.substring(path.lastIndexOf('/') + 1);
-
+    // Clean the Subject
+    fields(0)=SP_Transform(fields(0))
+    fields(1)=SP_Transform(fields(1))
+    fields(2)=O_Transform(fields(2))
+    
     val triple:Triple = Triple(fields(0), fields(1), fields(2))
     return triple
   }
@@ -45,15 +68,22 @@ object RDFApp {
    import spark.implicits._ 
     val lines = spark.sparkContext.textFile(input)
     val triples = lines.map(mapperRDF).toDS().cache()
-    triples.select("Subject").foreach(println(_))
+    triples.select("Object").foreach(println(_))
     //triples.select("Object").show()
     //triples.select("Object").show()
-
-   println("Closing")
+    
    spark.stop()
   }
 
 }
+/*
+ *
+    the subject, which is an RDF URI reference or a blank node
+    the predicate, which is an RDF URI reference
+    the object, which is an RDF URI reference, a literal or a blank node
+ */
+
+
 
 /*
 
