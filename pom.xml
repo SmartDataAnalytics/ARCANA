@@ -165,7 +165,31 @@
 			<artifactId>stanford-corenlp</artifactId>
 			<version>3.8.0</version>
 		</dependency>
-
+		
+		<!-- https://mvnrepository.com/artifact/io.circe/circe-generic_2.11 -->
+		<dependency>
+			<groupId>io.circe</groupId>
+			<artifactId>circe-generic_2.11</artifactId>
+			<version>0.8.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.circe/circe-core_2.11 -->
+		<dependency>
+			<groupId>io.circe</groupId>
+			<artifactId>circe-core_2.11</artifactId>
+			<version>0.8.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.circe/circe-parser_2.11 -->
+		<dependency>
+			<groupId>io.circe</groupId>
+			<artifactId>circe-parser_2.11</artifactId>
+			<version>0.8.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.circe/circe-core_2.12 -->
+		<!--<dependency>												 -->
+		<!--	<groupId>io.circe</groupId>								 -->	
+		<!--	<artifactId>circe-core_2.12</artifactId>				 -->
+		<!--	<version>0.8.0</version>								 -->		
+		<!--</dependency>                                                -->
 
 		<!-- https://mvnrepository.com/artifact/com.typesafe.play/play-ws_2.11 -->
 		<!--	<dependency>												   -->
