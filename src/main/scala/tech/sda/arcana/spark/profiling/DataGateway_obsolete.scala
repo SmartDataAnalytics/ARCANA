@@ -2,6 +2,10 @@ package tech.sda.arcana.spark.profiling
 import com.mongodb.spark._
 import org.apache.spark.sql.SparkSession
 
+/*
+ * An obsolete object to deal with DB
+ * I will keep it for now untill I finish implementing the whole connection with the database (It might still have some valid ideas that I don't want to lose
+ */
 object AppDB {
 
   def main(args: Array[String]) = {

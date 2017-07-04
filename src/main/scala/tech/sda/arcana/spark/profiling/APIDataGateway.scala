@@ -27,7 +27,11 @@ import DefaultJsonProtocol._ // if you don't supply your own Protocol (see below
  *    Key is L5ZjO3PO2YlO
  */
 
-
+/*
+ * An Object to fetch information from different APIs, for example to get the sentiment analysis
+ * This can be improved to include delays and timeout fixing technique
+ * I have a branch that implement a more advanced way than this and which needs to be completed if needed
+ */
 object APIData {
   
   // 1st way to do it
@@ -57,5 +61,4 @@ object APIData {
     println(result3)
     
   }
-
 }

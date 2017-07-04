@@ -9,7 +9,9 @@ import edu.mit.jwi.item.IIndexWord;
 import edu.mit.jwi.item.IWord;
 import edu.mit.jwi.item.IWordID;
 import edu.mit.jwi.item.POS;
-
+/*
+ * A class that implements an API for the Wordnet files
+ */
 public class JWI {
 	public void testDictionary() throws IOException {
 		

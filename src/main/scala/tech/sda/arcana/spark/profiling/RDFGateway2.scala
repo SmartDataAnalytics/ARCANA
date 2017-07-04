@@ -1,6 +1,7 @@
 package tech.sda.arcana.spark.profiling
 
 import java.io.File
+
 import scala.collection.mutable
 import org.apache.spark.sql.SparkSession
 import net.sansa_stack.rdf.spark.io.NTripleReader
@@ -11,6 +12,12 @@ import org.apache.log4j._
 import org.apache.spark.sql.SparkSession;
 import java.net.{URI => JavaURI}
 import scala.collection.mutable
+
+/*
+ * An Obselete Object that I first made to implement SansaQuery but stopped because it turned out to be not so stable 
+ */
+
+
 object RDFGatewayApp {
   //rdf subject predicate object
   case class Triple(Subject:String, Predicate:String, Object:String)

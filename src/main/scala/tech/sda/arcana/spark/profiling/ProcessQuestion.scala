@@ -42,7 +42,11 @@ import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation
 import edu.stanford.nlp.ling.CoreLabel
 import edu.stanford.nlp.pipeline.Annotation
 import edu.stanford.nlp.pipeline.StanfordCoreNLP
-object Stanford {
+
+/*
+ * An Object that responsible for processing the question that the system should analyze
+ */
+object ProcessQuestion {
   
   val properties = new Properties()
   //properties.setProperty("annotators", "tokenize, ssplit, pos, parse, sentiment")

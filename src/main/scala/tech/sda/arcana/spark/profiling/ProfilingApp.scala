@@ -15,7 +15,10 @@ import edu.stanford.nlp.util.CoreMap
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation
 import edu.stanford.nlp.ling.CoreAnnotations
 
-
+/*
+ * Entry Point that should contain the triggering action 
+ * For example trigger answering a question, or trigger filling the database etc 
+ */
 object App {
 
   def main(args: Array[String]) = {

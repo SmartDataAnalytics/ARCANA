@@ -7,7 +7,9 @@ import com.mongodb.spark.config._
 import org.apache.spark.SparkContext
 import org.bson.Document
 import scala.util.parsing.json._
-
+/*
+ * An Object that is responsible for the interaction with MongoDB to store and read data
+ */
 object AppDBM {
   def main(args: Array[String]) = {
     println("===================X===================")

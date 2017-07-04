@@ -12,6 +12,11 @@ import org.apache.spark.sql.SparkSession;
 
 import scala.util.matching
 
+/*
+ * An Object that Deals with the RDF Data and parse it 
+ * Still need to think of a way to a better representation that include a word and its URI 
+ */
+ 
 object RDFApp {
   //rdf subject predicate object
   case class Triple(Subject:String, Predicate:String, Object:String)
