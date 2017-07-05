@@ -1,6 +1,8 @@
 package tech.sda.arcana.spark.profiling
-import io.circe.syntax._
 
+import org.apache.spark.sql._ 
+import io.circe.syntax._
+import scala.collection.JavaConverters._
 import com.mongodb.spark._
 import com.mongodb.spark.config._
 import org.apache.spark.sql.SparkSession
@@ -10,7 +12,7 @@ import com.mongodb.spark.config._
 import org.apache.spark.SparkContext
 import org.bson.Document
 import scala.util.parsing.json._
-
+import org.bson.types.ObjectId
 /*
  * An Object that is responsible for the interaction with MongoDB to store and read data
  */
@@ -57,7 +59,34 @@ object AppDBM {
       {"name": "Bombur"}""".trim.stripMargin.split("[\\r\\n]+").toSeq
     spark.sparkContext.parallelize(docs.map(Document.parse)).saveToMongoDB()
   }
+  
+  // Using the SQL helpers and StructFields helpers
+  def writeRecordToDB(){
+      val objectId = "123400000000000000000000"
+      val newDocs = Seq(new Document("_id", new ObjectId(objectId)).append("a", 1), new Document("_id", new ObjectId()).append("a", 2))
+      MongoSpark.save(sc.parallelize(newDocs))
+      /*
+       * val documents = sc.parallelize(
+       *  Seq(new Document("fruits", List("apples", "oranges", "pears").asJava))
+       * )
+       */
+  }
+  def ChangeCollection(){
+    val characters = MongoSpark.load(spark)
+    characters.createOrReplaceTempView("characters")
     
+    val centenarians = spark.sql("SELECT name, age FROM characters WHERE age >= 100")
+    centenarians.show()
+    
+    MongoSpark.save(centenarians.write.option("collection", "hundredClub").mode("overwrite")) // Append or overwrite <overwrite is buggy when the collection already exists>
+
+    println("Reading from the 'hundredClub' collection:")
+    MongoSpark.load(spark, ReadConfig(Map("collection" -> "hundredClub"), Some(ReadConfig(spark)))).show()
+  }
+  
+  //Schema 
+  case class X(_id: String, indices: Array[Integer], weights: Array[Double] )  
+  
   def main(args: Array[String]) = {
     
     //| Check your session Configurations 
@@ -68,20 +97,33 @@ object AppDBM {
      
     //> writeChunkToMongoDB()
     
-    /*
-    val characters = MongoSpark.load(spark)
-    characters.createOrReplaceTempView("militaryColl")
+ 
+   
+    //val t =test2.collect()
+    //for (ship <- t) {println(ship)} 
+    //val appended = military.union(newDocs)
+    //display(appended)
     
-    val military = spark.sql("SELECT * FROM militaryColl")
-    military.show()
-    MongoSpark.save(military.write.option("collection", "militaryColl").mode("overwrite"))
+    //val newRow = Seq(20)
     
-    println("Reading from the 'military' collection:")
-    MongoSpark.load(spark, ReadConfig(Map("collection" -> "military"), Some(ReadConfig(spark)))).show()  
-    */
+    //val ret = sc.parallelize(newDocs)
+    //val retdf=ret.toDF()
+    //MongoSpark.save(sc.parallelize(newDocs))
     
-    // Work on Updating a value  
+    val sqlContext= new org.apache.spark.sql.SQLContext(sc)
+    import sqlContext.implicits._
     
+    val theRow =Row("1",Array[java.lang.Integer](9,9,9), Array[Double](1.3,1.3,1.3))
+    val theRdd = sc.makeRDD(Array(theRow))
+    
+    val df=theRdd.map{
+        case Row(s0,s1,s2)=>X(s0.asInstanceOf[String],s1.asInstanceOf[Array[Integer]],s2.asInstanceOf[Array[Double]])
+        }.toDF()
+    df.show()
+    
+    
+    //military.show()
+    MongoSpark.save(df.write.option("collection", "testcase").mode("append"))
     
     println("===================CLOSING===================") 
     spark.stop()
