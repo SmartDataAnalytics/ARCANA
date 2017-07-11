@@ -57,7 +57,7 @@ object AppDBM {
       {"name": "Glóin", "age": 158}
       {"name": "Fíli", "age": 82}
       {"name": "Bombur"}""".trim.stripMargin.split("[\\r\\n]+").toSeq
-    spark.sparkContext.parallelize(docs.map(Document.parse)).saveToMongoDB()
+      spark.sparkContext.parallelize(docs.map(Document.parse)).saveToMongoDB()
   }
   
   // Using the SQL helpers and StructFields helpers
@@ -71,6 +71,7 @@ object AppDBM {
        * )
        */
   }
+  
   def ChangeCollection(){
     val characters = MongoSpark.load(spark)
     characters.createOrReplaceTempView("characters")
@@ -84,8 +85,30 @@ object AppDBM {
     MongoSpark.load(spark, ReadConfig(Map("collection" -> "hundredClub"), Some(ReadConfig(spark)))).show()
   }
   
+  def EnterSchemaData(){
+    val sqlContext= new org.apache.spark.sql.SQLContext(sc)
+    import sqlContext.implicits._
+    
+    var z = Array[Integer](8,8,8)
+    
+    val days = List(1,2,3)
+    
+    val theRow =Row(33,"tito",days, Array[Double](1.3,1.3,1.3))
+    val theRow2 =Row(31,"dima",List(9,9,9), Array[Double](1.3,1.3,1.3))
+    //val theRow2 =Row(7,"dima",Array[java.lang.Integer](9,9,9), Array[Double](1.3,1.3,1.3))
+    val theRdd = sc.makeRDD(Array(theRow,theRow2))
+    
+    val df=theRdd.map{
+        case Row(s0,s1,s2,s3)=>X(s0.asInstanceOf[Int],s1.asInstanceOf[String],s2.asInstanceOf[List[Integer]],s3.asInstanceOf[Array[Double]])
+        }.toDF()
+    df.show()
+
+    //military.show()
+    MongoSpark.save(df.write.option("collection", "testcase").mode("append"))
+  }
   //Schema 
-  case class X(_id: String, indices: Array[Integer], weights: Array[Double] )  
+  case class X(_id: Int,_expression: String,indices: List[Integer], weights: Array[Double] )  
+  case class Record(_id: Int, expression: String, rank:Double, rsc: List[String])  
   
   def main(args: Array[String]) = {
     
@@ -110,20 +133,7 @@ object AppDBM {
     //val retdf=ret.toDF()
     //MongoSpark.save(sc.parallelize(newDocs))
     
-    val sqlContext= new org.apache.spark.sql.SQLContext(sc)
-    import sqlContext.implicits._
-    
-    val theRow =Row("1",Array[java.lang.Integer](9,9,9), Array[Double](1.3,1.3,1.3))
-    val theRdd = sc.makeRDD(Array(theRow))
-    
-    val df=theRdd.map{
-        case Row(s0,s1,s2)=>X(s0.asInstanceOf[String],s1.asInstanceOf[Array[Integer]],s2.asInstanceOf[Array[Double]])
-        }.toDF()
-    df.show()
-    
-    
-    //military.show()
-    MongoSpark.save(df.write.option("collection", "testcase").mode("append"))
+   EnterSchemaData()
     
     println("===================CLOSING===================") 
     spark.stop()
