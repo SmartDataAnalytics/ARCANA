@@ -1,10 +1,12 @@
 package tech.sda.arcana.spark.profiling
-
+import org.apache.spark.sql.functions.{min, max}
+import org.apache.spark.sql.Row
 import org.apache.spark.sql._ 
 import io.circe.syntax._
 import scala.collection.JavaConverters._
 import com.mongodb.spark._
 import com.mongodb.spark.config._
+import scala.collection.mutable.ArrayBuffer
 import org.apache.spark.sql.SparkSession
 import com.mongodb
 import org.bson.Document
@@ -44,8 +46,15 @@ object AppDBM {
       val documents = sc.parallelize(Seq(doc))
       MongoSpark.save(documents) 
   }  
-  
-  def writeChunkToMongoDB(){
+  def writeFormedChunkToMongoDB(buffer:String,collection:String){
+    println("S2")
+      println(buffer)
+      val docs=buffer.trim.stripMargin.split("[\\r\\n]+").toSeq
+      //println(docs)
+      println("S3")
+      sc.parallelize(docs.map(Document.parse))saveToMongoDB(WriteConfig(Map("uri" -> s"mongodb://127.0.0.1/myDBN.$collection")))
+  }
+  def writeChunkToMongoDB(collection:String){
     val docs = """
       {"name": "Bilbo Baggins", "age": 50}
       {"name": "Gandalf", "age": 1000}
@@ -57,7 +66,21 @@ object AppDBM {
       {"name": "Glóin", "age": 158}
       {"name": "Fíli", "age": 82}
       {"name": "Bombur"}""".trim.stripMargin.split("[\\r\\n]+").toSeq
-      spark.sparkContext.parallelize(docs.map(Document.parse)).saveToMongoDB()
+      
+      println(docs)
+      //sc.parallelize(docs.map(Document.parse)).saveToMongoDB()
+      
+    //  sc.parallelize(docs.map(Document.parse))saveToMongoDB(WriteConfig(Map("uri" -> s"mongodb://127.0.0.1/myDBN.$collection")))
+      
+      
+      //documents.saveToMongoDB(WriteConfig(Map("uri" -> "mongodb://example.com/database.collection")))
+    
+
+  }
+  def formRecord(id:Integer,word:String,rank:Double,rsclist:List[String]): String ={
+      val rsc = rsclist.asJson
+      val x = s"""{"_id":$id,"word":"$word","rank":$rank,"rsc":$rsc}"""
+      x
   }
   
   // Using the SQL helpers and StructFields helpers
@@ -84,6 +107,15 @@ object AppDBM {
     println("Reading from the 'hundredClub' collection:")
     MongoSpark.load(spark, ReadConfig(Map("collection" -> "hundredClub"), Some(ReadConfig(spark)))).show()
   }
+  
+  def FetchMaxId(collection: String) : Int = {
+
+    val rdd2 = sc.loadFromMongoDB(ReadConfig(Map("spark.mongodb.input.uri" -> s"mongodb://127.0.0.1/myDBN.$collection" )))
+    rdd2.toDF().createOrReplaceTempView("DB")
+    val maxID = spark.sql("SELECT max(cast(_id as int)) FROM DB")
+
+    maxID.collect()(0).getInt(0)   
+}
   
   def EnterSchemaData(){
     val sqlContext= new org.apache.spark.sql.SQLContext(sc)
@@ -120,21 +152,27 @@ object AppDBM {
      
     //> writeChunkToMongoDB()
     
+    //> EnterSchemaData()
+    //> println(FetchMaxId("testcase"))
+    
+    //Writing a chunktto Mongo
+    //> writeChunkToMongoDB("ChunkCase")
+    
+    
+
+    val buf = new ArrayBuffer[String]()
  
-   
-    //val t =test2.collect()
-    //for (ship <- t) {println(ship)} 
-    //val appended = military.union(newDocs)
-    //display(appended)
+    buf += formRecord(100,"A1",10,List("A1Rsc1","A1Rsc2", "A1Rsc3"))
+    buf += "\n"
+    buf += formRecord(101,"A2",20,List("A2Rsc1","A2Rsc2", "A2Rsc3"))
+    buf += "\n"
+    buf += formRecord(102,"A3",30,List("A3Rsc1","A3Rsc2", "A3Rsc3"))
+
+    //Solve the above
     
-    //val newRow = Seq(20)
-    
-    //val ret = sc.parallelize(newDocs)
-    //val retdf=ret.toDF()
-    //MongoSpark.save(sc.parallelize(newDocs))
-    
-   EnterSchemaData()
-    
+    println("S1")
+    //writeFormedChunkToMongoDB(buf.mkString(" "),"ChunkCase")
+    writeChunkToMongoDB("TEST")
     println("===================CLOSING===================") 
     spark.stop()
   }
