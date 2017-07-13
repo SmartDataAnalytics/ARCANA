@@ -48,9 +48,9 @@ object AppDBM {
   }  
   def writeFormedChunkToMongoDB(buffer:String,collection:String){
     println("S2")
-      println(buffer)
-      val docs=buffer.trim.stripMargin.split("[\\r\\n]+").toSeq
-      //println(docs)
+      //println(buffer)
+      val docs=buffer.trim.stripMargin.split("@#@").toSeq
+      println(docs)
       println("S3")
       sc.parallelize(docs.map(Document.parse))saveToMongoDB(WriteConfig(Map("uri" -> s"mongodb://127.0.0.1/myDBN.$collection")))
   }
@@ -163,16 +163,16 @@ object AppDBM {
     val buf = new ArrayBuffer[String]()
  
     buf += formRecord(100,"A1",10,List("A1Rsc1","A1Rsc2", "A1Rsc3"))
-    buf += "\n"
+    buf += "@#@"
     buf += formRecord(101,"A2",20,List("A2Rsc1","A2Rsc2", "A2Rsc3"))
-    buf += "\n"
+    buf += "@#@"
     buf += formRecord(102,"A3",30,List("A3Rsc1","A3Rsc2", "A3Rsc3"))
 
-    //Solve the above
+    //Solve the abo
     
     println("S1")
-    //writeFormedChunkToMongoDB(buf.mkString(" "),"ChunkCase")
-    writeChunkToMongoDB("TEST")
+    writeFormedChunkToMongoDB(buf.mkString(" "),"ChunkCase")
+    //writeChunkToMongoDB("TEST")
     println("===================CLOSING===================") 
     spark.stop()
   }
