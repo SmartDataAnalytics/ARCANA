@@ -32,7 +32,8 @@ public class JWI {
 		//construct the URL to the Wordnet dictionary directory
 		//String wnhome = System . getenv (" WNHOME ");
 		//String path = wnhome + File . separator + " dict ";
-		String path = "C:/Users/ali-d/Documents/WordNet/2.1/dict";
+		//String path = "C:/Users/ali-d/Documents/WordNet/2.1/dict";
+		String path = "src/WordNet/2.1/dict";
 		URL url = new URL("file", null , path );
 
 		// construct the dictionary object and open it
