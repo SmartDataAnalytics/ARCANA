@@ -41,9 +41,9 @@ object APIData {
     println("|        API Gateway       |")
     println("============================")
     
-    val result = fetch("http://words.bighugelabs.com/api/2/fe297721a04ca9641ae3a5b1ae3033a2/bottle/json")
+    val result = fetch("http://words.bighugelabs.com/api/2/fe297721a04ca9641ae3a5b1ae3033a2/bottle/xml")
     val parsed = JSON.parseFull(result)
-    //println(parsed)
+    println(parsed)
     
 
     val jsonAst = result.parseJson // or JsonParser(source)
@@ -54,7 +54,7 @@ object APIData {
     //println(result2)
     val x= "How+to+kill+a+person?"
     val result3 = fetch("https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text="+x)
-    println(result3)
+    //println(result3)
     
   }
 
