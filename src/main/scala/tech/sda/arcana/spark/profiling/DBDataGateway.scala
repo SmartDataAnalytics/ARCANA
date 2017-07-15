@@ -48,11 +48,11 @@ object AppDBM {
   }  
   def writeFormedChunkToMongoDB(buffer:String,collection:String){
     println("S2")
-      //println(buffer)
+      println(buffer)
       val docs=buffer.trim.stripMargin.split("@#@").toSeq
       println(docs)
       println("S3")
-      sc.parallelize(docs.map(Document.parse))saveToMongoDB(WriteConfig(Map("uri" -> s"mongodb://127.0.0.1/myDBN.$collection")))
+      sc.parallelize(docs.map(Document.parse)).saveToMongoDB(WriteConfig(Map("uri" -> s"mongodb://127.0.0.1/myDBN.$collection")))
   }
   def writeChunkToMongoDB(collection:String){
     val docs = """
@@ -65,9 +65,49 @@ object AppDBM {
       {"name": "Óin", "age": 167}
       {"name": "Glóin", "age": 158}
       {"name": "Fíli", "age": 82}
-      {"name": "Bombur"}""".trim.stripMargin.split("[\\r\\n]+").toSeq
-      
-      println(docs)
+      {"name": "Bombur"}"""
+      //.trim.stripMargin.split("[\\r\\n]+").toSeq
+      //println(docs)
+    
+    val sqlContext= new org.apache.spark.sql.SQLContext(sc)
+    val events = sc.parallelize(docs :: Nil)
+
+    // read it
+    val df = sqlContext.read.json(events)
+
+    //df.show
+
+     import sqlContext.implicits._
+     
+     MongoSpark.save(df.write.option("collection", "DFClub").mode("append")) 
+    /*val json: JsValue = Json.parse(docs)
+
+
+      val rdd = sc.parallelize(jsonStr::Nil);
+      var df = sqlContext.read.json(rdd);
+      df.printSchema()
+    
+    
+    val df = spark.read.format("json").json(docs)
+    df.show()
+    */
+    
+   
+    
+    val j = sc.parallelize(docs)
+    
+    //val documents = sc.parallelize(docs.map(Document.parse))
+    //val X2 = documents.toDF()
+    
+    //val t =  docs.toDF()
+    //val df = spark.read.format("json").json()
+    //t.show()
+    //val X = j.toDF()
+    //MongoSpark.save(X.write.option("collection", "DFClub").mode("append")) 
+    //documents.toJavaRDD()
+    //MongoSpark.save(documents)
+    //MongoSpark.save(centenarians.write.option("collection", "hundredClub").mode("overwrite")) 
+    
       //sc.parallelize(docs.map(Document.parse)).saveToMongoDB()
       
     //  sc.parallelize(docs.map(Document.parse))saveToMongoDB(WriteConfig(Map("uri" -> s"mongodb://127.0.0.1/myDBN.$collection")))
@@ -115,6 +155,17 @@ object AppDBM {
     val maxID = spark.sql("SELECT max(cast(_id as int)) FROM DB")
 
     maxID.collect()(0).getInt(0)   
+}
+  def readCollection(collection: String)  {
+
+    val rdd2 = sc.loadFromMongoDB(ReadConfig(Map("spark.mongodb.input.uri" -> s"mongodb://127.0.0.1/myDBN.$collection" )))
+    rdd2.toDF().createOrReplaceTempView("DB")
+    rdd2.toDF().show
+    val word = "nuclearbomb"
+    val res = spark.sql(s"SELECT rsc FROM DB where word = '$word' ")
+    res.show
+    res.collect().foreach(println)
+    //for (e <- res) println(e)
 }
   
   def EnterSchemaData(){
@@ -171,8 +222,10 @@ object AppDBM {
     //Solve the abo
     
     println("S1")
-    writeFormedChunkToMongoDB(buf.mkString(" "),"ChunkCase")
+    //writeFormedChunkToMongoDB(buf.mkString(" "),"ChunkCase")
     //writeChunkToMongoDB("TEST")
+    
+    readCollection("neuclear")
     println("===================CLOSING===================") 
     spark.stop()
   }
