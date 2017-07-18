@@ -1,23 +1,11 @@
 package tech.sda.arcana.spark.classification.cnn
 import com.intel.analytics.bigdl.numeric.NumericFloat
 import com.intel.analytics.bigdl.nn._
-import com.intel.analytics.bigdl._
-import com.intel.analytics.bigdl.utils.Engine
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.SQLContext
 
 object AlexNetModel {
   
-    //initiate spark using the engine
-   val conf = Engine.createSparkConf()
-     .setAppName("First Convolutional network Module")
-     .set("spark.task.maxFailures", "1")
-     .setMaster("local")
-   val sc = new SparkContext(conf)
-   Engine.init
-  
    
-  
+  def build()={
   val firstbranch=Sequential()
   //Achtung 3->1 from me
   firstbranch.add(SpatialConvolution(1,48,11,11,4,4,2,2)) //-- 224 -> 55
@@ -59,6 +47,6 @@ object AlexNetModel {
   classifier.add(Linear(4096,1000))
   classifier.add(LogSoftMax())
   val model=Sequential().add(features).add(classifier)
-  //return model
-  
+  model
+  }
 }
