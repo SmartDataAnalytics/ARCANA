@@ -119,7 +119,7 @@ public class JWI {
 	 
 	public static void main(String[] args) {
 		JWI obj = new JWI();
-		List<String> Synonyms=obj.getSynomyns("War");
+		List<String> Synonyms=obj.getSynomyns("capacity");
 		for (String Synonym : Synonyms) {
 		    // fruit is an element of the `fruits` array.
 			System.out.println(Synonym);
