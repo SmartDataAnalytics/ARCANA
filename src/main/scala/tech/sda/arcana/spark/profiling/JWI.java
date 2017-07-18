@@ -1,18 +1,54 @@
 package tech.sda.arcana.spark.profiling;
-
+import edu.mit.jwi.Dictionary; 
+import edu.mit.jwi.IDictionary; 
+import edu.mit.jwi.item.IIndexWord; 
+import edu.mit.jwi.item.ISynset; 
+import edu.mit.jwi.item.ISynsetID; 
+import edu.mit.jwi.item.IWord; 
+import edu.mit.jwi.item.IWordID; 
+import edu.mit.jwi.item.POS; 
 import java.io.IOException;
 import java.net.URL;
 
-import edu.mit.jwi.Dictionary;
-import edu.mit.jwi.IDictionary;
-import edu.mit.jwi.item.IIndexWord;
-import edu.mit.jwi.item.IWord;
-import edu.mit.jwi.item.IWordID;
-import edu.mit.jwi.item.POS;
+import java.io.File; 
+import java.net.MalformedURLException; 
+
+import java.util.ArrayList; 
+import java.util.Collection; 
+import java.util.Collections; 
+import java.util.Iterator; 
+import java.util.List; 
+import java.util.Map; 
 /*
  * A class that implements an API for the Wordnet files
  */
 public class JWI {
+
+	 static IDictionary dict; 
+	 static { 
+	  //String wnhome = System.getenv("WNHOME"); 
+	  //String path = wnhome + File.separator + "dict"; 
+	  String path = "src/WordNet/2.1/dict";
+	  URL url; 
+	  try { 
+	   url = new URL("file", null, path); 
+	   // construct the dictionary object and open it 
+	   dict = new Dictionary(url); 
+	   try {
+		dict.open();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} 
+	  } catch (MalformedURLException e) { 
+	   // TODO Auto-generated catch block 
+	   System.err.println("The Wordnet directory path is wrong"); 
+	   e.printStackTrace(); 
+	  } 
+	 }
+
+	
+
 	public void testDictionary() throws IOException {
 		
 		/* @Ali
@@ -33,6 +69,9 @@ public class JWI {
 		//String wnhome = System . getenv (" WNHOME ");
 		//String path = wnhome + File . separator + " dict ";
 		//String path = "C:/Users/ali-d/Documents/WordNet/2.1/dict";
+		
+		
+		/*
 		String path = "src/WordNet/2.1/dict";
 		URL url = new URL("file", null , path );
 
@@ -47,17 +86,43 @@ public class JWI {
 		 System .out . println ("Id = " + wordID );
 		 System .out . println ("Lemma = " + word . getLemma ());
 		 System .out . println ("Gloss = " + word . getSynset (). getGloss ());
+		 */
 	}
 	public void printz(){
 		System.out.println("Hi Fun!");
 	}
+
+
+	 private List<String>  getSynomyns(String noun){ 
+		   
+		  List<String> list = new ArrayList<String>(); 
+		   
+		  IIndexWord idxWordNoun = dict.getIndexWord(noun, POS.NOUN); 
+		  if (idxWordNoun != null) { 
+		    
+		   List<IWordID> listWordNoun = idxWordNoun.getWordIDs(); 
+		         
+		   for(Iterator<IWordID> ite = listWordNoun.iterator(); ite.hasNext();){ 
+		    IWordID wordID1 = ite.next(); 
+		    IWord word = dict.getWord(wordID1); 
+		    ISynset synset = word.getSynset(); 
+		    for(IWord w : synset.getWords()) { 
+		     list.add(w.getLemma()); 
+		    } 
+		   } 
+		   
+		  } 
+		   
+		  return list; 
+		   
+		 } 
+	 
 	public static void main(String[] args) {
 		JWI obj = new JWI();
-		try {
-			obj.testDictionary();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		List<String> Synonyms=obj.getSynomyns("capacity");
+		for (String Synonym : Synonyms) {
+		    // fruit is an element of the `fruits` array.
+			System.out.println(Synonym);
 		}
 	}
 }
