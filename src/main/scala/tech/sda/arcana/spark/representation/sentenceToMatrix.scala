@@ -73,27 +73,5 @@ object sentenceToMatrix {
             }
             
             //val vectors=representation.map(x => x._2)
-            
-            /*
-            //sentence representation
-            //val senRep:Array[Array[String]]=Array.ofDim[String](sentenceWordCount,vectorLength)
-              
-            for(x <- 0 to sentenceWordCount-1)
-              senRep(x)=result(x)
-              
-           
-            //for the sake of testing
-            for(x<- 0 to sentenceWordCount-1){
-              for(j<-senRep(x)){
-                print(j)
-                print(" ")
-              }
-              println("------------------")
-            }
-          */
-            
-             
-                
-
     }
 }
