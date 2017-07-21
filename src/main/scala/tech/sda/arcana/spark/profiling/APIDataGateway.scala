@@ -71,7 +71,7 @@ object APIData {
   
   def main(args: Array[String]) = {
 
-     //getSynomyns_bighugelabs("kill")
+     //>getSynomyns_bighugelabs("kill")
 
     val result2 = fetch("http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/war?key=e8c94890-746e-4df8-98da-08cdf5d84e53")
     print(result2)
@@ -85,13 +85,15 @@ object APIData {
     val strings = for {
         e <- tx.child
       
-    } println( (e \\ "syn").text)
+    } println( (e \\ "term").text)
     //strings.foreach { println }
     //println(strings)
-    //val x= "How+to+kill+a+person?"
-    //val result3 = fetch("https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text="+x)
-    //println(result3)
     
+    /*
+    val TERE= "How+to+kill+a+person?"
+    val result3 = fetch("https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text="+TERE)
+    println(result3)
+    */
   }
 }
     //val jsonAst = result.parseJson // or JsonParser(source)
