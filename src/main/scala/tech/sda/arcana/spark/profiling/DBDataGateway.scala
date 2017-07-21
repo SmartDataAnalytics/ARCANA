@@ -47,7 +47,7 @@ object AppDBM {
       MongoSpark.save(documents) 
   }  
   def writeFormedChunkToMongoDB(buffer:String,collection:String){
-    println("S2")
+      println("S2")
       println(buffer)
       val docs=buffer.trim.stripMargin.split("@#@").toSeq
       println(docs)

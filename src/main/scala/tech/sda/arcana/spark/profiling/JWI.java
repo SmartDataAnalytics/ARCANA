@@ -88,10 +88,21 @@ public class JWI {
 		 System .out . println ("Gloss = " + word . getSynset (). getGloss ());
 		 */
 	}
-	public void printz(){
-		System.out.println("Hi Fun!");
-	}
-
+	private static void generateNgrams(int N, String sent, List ngramList) {
+		  String[] tokens = sent.split("\\s+"); //split sentence into tokens
+		 
+		  //GENERATE THE N-GRAMS
+		  for(int k=0; k<(tokens.length-N+1); k++){
+		    String s="";
+		    int start=k;
+		    int end=k+N;
+		    for(int j=start; j<end; j++){
+		     s=s+""+tokens[j];
+		    }
+		    //Add n-gram to a list
+		    ngramList.add(s);
+		  }
+		}//End of method
 
 	 private List<String>  getSynomyns(String noun){ 
 		   
@@ -119,10 +130,11 @@ public class JWI {
 	 
 	public static void main(String[] args) {
 		JWI obj = new JWI();
-		List<String> Synonyms=obj.getSynomyns("capacity");
+		List<String> Synonyms=obj.getSynomyns("bomb");
 		for (String Synonym : Synonyms) {
 		    // fruit is an element of the `fruits` array.
 			System.out.println(Synonym);
 		}
+ 
 	}
 }

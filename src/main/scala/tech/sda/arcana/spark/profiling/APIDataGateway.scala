@@ -55,45 +55,30 @@ object APIData {
     println("------------------------------------")
     Z.verb.syn.foreach { println }
   }
-    def getSynomyns_merriam(expression:String){
-    case class noun(syn: List[String],ant: List[String])
-    case class verb(syn: List[String],ant: List[String])
-    case class Obj(noun:noun,verb:verb)
-    
-    implicit val formats = net.liftweb.json.DefaultFormats
-    val result = fetch(s"http://words.bighugelabs.com/api/2/fe297721a04ca9641ae3a5b1ae3033a2/$expression/json")
-    val json = parse(result)
-    val Z = json.extract[Obj] 
-    Z.noun.syn.foreach { println }
-    println("------------------------------------")
-    Z.verb.syn.foreach { println }
-  }
-  
-  def main(args: Array[String]) = {
-
-     //>getSynomyns_bighugelabs("kill")
-
-    val result2 = fetch("http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/war?key=e8c94890-746e-4df8-98da-08cdf5d84e53")
+  def getSynomyns_merriam(expression:String){
+    val result2 = fetch(s"http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/$expression?key=e8c94890-746e-4df8-98da-08cdf5d84e53")
     print(result2)
     println("===========================================")
     val tx = scala.xml.XML.loadString(result2)
     val json = toJson(tx)
     //pretty(render(json))
-    val x = <div class="content"><p>Hello</p><p>world</p></div>
-    val t = x \ "term"
-    //println(tx.child)
+
     val strings = for {
         e <- tx.child
       
-    } println( (e \\ "term").text)
-    //strings.foreach { println }
-    //println(strings)
-    
-    /*
+    } println( (e \\ "syn").text)
+  }
+  def getRankUclassify(expression:String){
     val TERE= "How+to+kill+a+person?"
     val result3 = fetch("https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text="+TERE)
     println(result3)
-    */
+  }
+  
+  def main(args: Array[String]) = {
+
+      getSynomyns_bighugelabs("bomb")
+      //getSynomyns_merriam("war")
+
   }
 }
     //val jsonAst = result.parseJson // or JsonParser(source)
