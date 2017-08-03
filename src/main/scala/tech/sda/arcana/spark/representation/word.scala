@@ -73,6 +73,11 @@ object word {
               }
               println()
             }
+            //for 2d conversion
+            //matrix.grouped(3).toArra
+            
+            
+            
             
             //val vectors=representation.map(x => x._2)
             

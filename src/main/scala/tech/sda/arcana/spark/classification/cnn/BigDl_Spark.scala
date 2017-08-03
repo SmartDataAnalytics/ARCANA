@@ -5,8 +5,8 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import com.intel.analytics.bigdl.utils.Engine
 
-abstract class BigDl_Spark {
-  
+class BigDl_Spark {
+  //check what will happen if this class was abstract
   //For the sake of building one spark session the following classes should inherent
   //this class
   def initialize(model:String):SparkContext={
