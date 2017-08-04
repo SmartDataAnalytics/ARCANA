@@ -19,7 +19,8 @@ object word {
   val vectorLength:Int=50
   val sentenceWordCount:Int=4
   
-  
+  //return each line of the glov representation as follows:
+  // { String(word),Array[string](the vector representation) }
       def parseLine(line:String)={
       //if(!line.isEmpty()){
             val fields = line.split(" ")

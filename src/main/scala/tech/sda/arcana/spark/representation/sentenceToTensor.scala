@@ -13,37 +13,54 @@ object sentenceToTensor {
   val sentenceWordCount:Int=4
   
   
-      def parseLine(line:String)={
-      //if(!line.isEmpty()){
-            val fields = line.split(" ")
-            val word = fields(0).toString()
-            val representation:Array[String]=new Array[String](vectorLength)
-              for(x<-0 to vectorLength-1){
-                representation(x)=fields(x+1)
-              }
-     // }
-      (word, representation)
-    }
+      //return each line of the glov representation as follows:
+      // { String(word),Array[string](the vector representation) }
+          def parseLine(line:String)={
+          //if(!line.isEmpty()){
+                val fields = line.split(" ")
+                val word = fields(0).toString()
+                val representation:Array[String]=new Array[String](vectorLength)
+                  for(x<-0 to vectorLength-1){
+                    representation(x)=fields(x+1)
+                  }
+         // }
+          (word, representation)
+        }
+      
+      //return each question of the text file as an array of words with an mumber in the
+      //beginning to identify the order of this question
+        def parseQuestion(line:String)={
+          val words=line.split(" ")
+          (words)
+        }
 
   
     def main(args:Array[String]){
       
             
-            val sentense=Array("my","name","is","ghost")
+          val sentense=Array("my","name","is","ghost")
            
-            // Set the log level to only print errors
-            Logger.getLogger("org").setLevel(Level.ERROR)
+          // Set the log level to only print errors
+          Logger.getLogger("org").setLevel(Level.ERROR)
+          
+          // Create a SparkContext using every core of the local machine
+          // val sc = new SparkContext("local[*]", "MinTemperatures")
+          val s=new Core("model","train","label","test")
+          val sc=s.initialize()
+          
+          
+          // Read each line of input data
+          val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
+          // Read the questions
+          val questions = sc.textFile("/home/mhd/Desktop/Data Set/Negative_Questions.txt")
+          //Give each question an Id or an order
+          val orderedQuestions=questions.zipWithIndex().map{case(line,i) => i.toString+" "+line}
+          val parsedLines = lines.map(parseLine)
+          //Convert each question to array of words
+          val parsedQuestions= orderedQuestions.map(parseQuestion)
+          
+          
             
-            // Create a SparkContext using every core of the local machine
-           // val sc = new SparkContext("local[*]", "MinTemperatures")
-            val s=new Core("model","train","label","test")
-            val sc=s.initialize()
-            
-            
-            // Read each line of input data
-            val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
-            
-            val parsedLines = lines.map(parseLine)
             
             //val representation = parsedLines.filter( (x) => (x._1 == "the") )
             //WARNING check if those vectors are in the same order of the words in the sentence
