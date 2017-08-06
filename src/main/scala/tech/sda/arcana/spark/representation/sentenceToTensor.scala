@@ -1,4 +1,5 @@
 package tech.sda.arcana.spark.representation
+import org.apache.spark.rdd.RDD
 import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.log4j._
@@ -14,7 +15,7 @@ object sentenceToTensor {
   
   
       //return each line of the glov representation as follows:
-      // { String(word),Array[string](the vector representation) }
+      // { String(word),Array[string](the vector representatiparsedQuestionson) }
           def parseLine(line:String)={
           //if(!line.isEmpty()){
                 val fields = line.split(" ")
@@ -33,7 +34,11 @@ object sentenceToTensor {
           val words=line.split(" ")
           (words)
         }
-
+        
+      //takes two RDDs and return new RDD with different representation
+        def changeRepresentation(parsedLines:RDD[(String,Array[String])],parsedQuestions:RDD[Array[String]])={
+          //val representation=
+        }
   
     def main(args:Array[String]){
       
@@ -59,7 +64,13 @@ object sentenceToTensor {
           //Convert each question to array of words
           val parsedQuestions= orderedQuestions.map(parseQuestion)
           
+          //https://bigdl-project.github.io/master/#UserGuide/examples/
+          //example about RDD then converting to tensor
           
+          //use join or union to build one mutual RDD between he prvious two
+          //in addition to build flatmap to represent the questions with two 
+          //numbers the first represent the order of the sentence the second 
+          //the order of the world
             
             
             //val representation = parsedLines.filter( (x) => (x._1 == "the") )
