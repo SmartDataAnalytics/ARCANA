@@ -32,7 +32,8 @@ object sentenceToTensor {
       //beginning to identify the order of this question
         def parseQuestion(line:String)={
           val words=line.split(" ")
-          (words)
+          val test=words.zipWithIndex.map{case(line,i) => (line,(words(0),i))}
+          (test)
         }
         
       //takes two RDDs and return new RDD with different representation
@@ -61,9 +62,41 @@ object sentenceToTensor {
           //Give each question an Id or an order
           val orderedQuestions=questions.zipWithIndex().map{case(line,i) => i.toString+" "+line}
           val parsedLines = lines.map(parseLine)
-          //Convert each question to array of words
-          val parsedQuestions= orderedQuestions.map(parseQuestion)
+          //Convert each question to array of words (the output Array[(String, (String, Int))])
+          //val parsedQuestions= orderedQuestions.map(parseQuestion)
+          //for the joining sake I used flat map to discard the array (the output (String, (String, Int)))
+          val parsedQuestions=orderedQuestions.flatMap(parseQuestion)
           
+          //test phase//////////////////////////////// 
+          val result= parsedQuestions.join(parsedLines)
+          
+          
+          //val result=parsedQuestions.collect()
+          
+          
+          
+          for(i <- result)
+          {
+            //the second loop for watching the results without using flatmap
+            //for(j<- i){
+              print("The world: ")
+              println(i._1)
+              print("likafo2")
+              print("Sentence order: ")
+              println(i._2._1._1)
+              print("Word order: ")
+              println(i._2._1._2)
+              print("vector representation: ")
+              for(j<- i._2._2)
+              print(j+",")
+           // }
+          }
+          ////////////////////////////////////////////
+          
+          
+          
+          
+   /*       
           //https://bigdl-project.github.io/master/#UserGuide/examples/
           //example about RDD then converting to tensor
           
@@ -106,6 +139,6 @@ object sentenceToTensor {
             }
             
             print(tensor)
-
+*/
     }
 }
