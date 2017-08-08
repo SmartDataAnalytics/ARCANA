@@ -6,6 +6,7 @@ import org.apache.log4j._
 import scala.collection.mutable.ListBuffer
 import tech.sda.arcana.spark.classification.cnn.Core
 import com.intel.analytics.bigdl.tensor.Tensor
+import shapeless._0
 
 object sentenceToTensor {
   //Transfer one question one sentence to multi-represential tensor
@@ -32,19 +33,15 @@ object sentenceToTensor {
       //beginning to identify the order of this question
         def parseQuestion(line:String)={
           val words=line.split(" ")
-          val test=words.zipWithIndex.map{case(line,i) => (line,(words(0),i))}
-          (test)
+          //build the return element which looks as follows:
+          //RDD[word it self inside the sentence,(number of the sentence,number of the element)]
+          val orderedWords=words.drop(1).zipWithIndex.map{case(line,i) => (line,(words(0),i))}
+          (orderedWords)
         }
         
-      //takes two RDDs and return new RDD with different representation
-        def changeRepresentation(parsedLines:RDD[(String,Array[String])],parsedQuestions:RDD[Array[String]])={
-          //val representation=
-        }
   
     def main(args:Array[String]){
       
-            
-          val sentense=Array("my","name","is","ghost")
            
           // Set the log level to only print errors
           Logger.getLogger("org").setLevel(Level.ERROR)
@@ -67,21 +64,29 @@ object sentenceToTensor {
           //for the joining sake I used flat map to discard the array (the output (String, (String, Int)))
           val parsedQuestions=orderedQuestions.flatMap(parseQuestion)
           
-          //test phase//////////////////////////////// 
+          //the result looks as follows:
+          // RDD[(String, ((String        , Int)     ,       Array[String]))]
+          // RDD[(word,   ((sentence order,word order,vector representation))]
+          //for(i<-result)
+          //      i._1,   ((i._2._1._1    ,i._2._1._2, i._2._2             ))
           val result= parsedQuestions.join(parsedLines)
           
+          val groupedResult=result.groupBy(x=>x._2._1._1)
           
-          //val result=parsedQuestions.collect()
+         // val finalResult=groupedResult.sortBy(x=>x._2._1._2, false)
+          //val result1=result.collect()
+          val result1=groupedResult.collect()
+          result1.foreach(println)
+          //https://stackoverflow.com/questions/42883751/how-to-manipulate-this-iterable-in-spark
+          //https://stackoverflow.com/questions/27825324/sorting-iterable-values-in-spark
           
-          
-          
-          for(i <- result)
+          /*
+          for(i <- result1)
           {
             //the second loop for watching the results without using flatmap
             //for(j<- i){
               print("The world: ")
               println(i._1)
-              print("likafo2")
               print("Sentence order: ")
               println(i._2._1._1)
               print("Word order: ")
@@ -89,36 +94,21 @@ object sentenceToTensor {
               print("vector representation: ")
               for(j<- i._2._2)
               print(j+",")
+              println()
            // }
           }
           ////////////////////////////////////////////
-          
+           val tensor=Tensor[Float](sentenceWordCount,vectorLength)
+           val tensorStorage= tensor.storage
+           */
           
           
           
    /*       
           //https://bigdl-project.github.io/master/#UserGuide/examples/
           //example about RDD then converting to tensor
-          
-          //use join or union to build one mutual RDD between he prvious two
-          //in addition to build flatmap to represent the questions with two 
-          //numbers the first represent the order of the sentence the second 
-          //the order of the world
-            
-            
-            //val representation = parsedLines.filter( (x) => (x._1 == "the") )
-            //WARNING check if those vectors are in the same order of the words in the sentence
-            val representation = parsedLines.filter( (x) => (sentense.contains(x._1)) )
-            //gather the answers and continue arranging without Spark   
-            val result = representation.collect()
-            
-            //this section has been done locally because the data is rather small
-            val senRep:ListBuffer[Array[String]]=ListBuffer()
-            for(i <- 0 to sentenceWordCount-1)
-              for(j<-result)
-                if(j._1 == sentense(i))
-                  senRep += j._2
-            
+         
+                      
             //Build the tensor which represent the question
             //Achtung when changing this code to take any quetion length you
             //should intialize the tensor with zeros in the begining
