@@ -77,8 +77,7 @@ object sentenceToTensor {
           //val result1=result.collect()
           val result1=groupedResult.collect()
           result1.foreach(println)
-          //https://stackoverflow.com/questions/42883751/how-to-manipulate-this-iterable-in-spark
-          //https://stackoverflow.com/questions/27825324/sorting-iterable-values-in-spark
+          //http://docs.scala-lang.org/overviews/collections/iterators.html
           
           /*
           for(i <- result1)
