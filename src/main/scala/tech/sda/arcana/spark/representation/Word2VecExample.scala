@@ -21,10 +21,10 @@ object Word2VecExample {
  // val conf = new SparkConf().setAppName("Word2VecExample")
     val sc = sparkSession.sparkContext
     // $example on$
-    val input = sc.textFile("/home/elievex/Resources/vectors.txt").map(line => line.split(" ").toSeq)
+    val input = sc.textFile("src/main/resources/text8_10000").map(line => line.split(" ").toSeq)
     //val input = sc.textFile("/home/elievex/Resources/vectors_C.txt").map(line => line.split(" ").toSeq)
 
-   input.foreach { println }
+  // input.foreach { println }
     
     val word2vec = new Word2Vec()
 
@@ -37,12 +37,12 @@ object Word2VecExample {
     }
 
     // Save and load model
-   // model.save(sc, "myModelPath")
+      model.save(sc, "src/main/resources/Model_2")
    // val sameModel = Word2VecModel.load(sc, "myModelPath")
     // $example off$
 
     sc.stop()
-
+    println("FINISH PROCESSING")
 }
 
 }

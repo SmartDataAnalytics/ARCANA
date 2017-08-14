@@ -28,11 +28,12 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scala.version>2.11.8</scala.version>
+		<scala.tools.version>2.11</scala.tools.version>
 		<scala.binary.version>2.11</scala.binary.version>
 		<spark.version>2.0.0</spark.version>
 		<sansa.version>0.1.0</sansa.version>
 		<jena.version>3.1.0</jena.version>
-	    <BIGDL_VERSION>0.1.0</BIGDL_VERSION> 
+	    <BIGDL_VERSION>0.1.0</BIGDL_VERSION>
 	</properties>
 
 	<dependencies>
@@ -63,7 +64,7 @@
 			<type>pom</type>
 			<version>${jena.version}</version>
 		</dependency>
-		
+
 		<!-- SANSA RDF -->
 		<dependency>
 			<groupId>net.sansa-stack</groupId>
@@ -76,7 +77,11 @@
 			<version>${sansa.version}</version>
 		</dependency>
 
-
+		<dependency>
+		    <groupId>org.scala-lang</groupId>
+		    <artifactId>scala-reflect</artifactId>
+		    <version>${scala.version}</version>
+		  </dependency>
 		<!-- SANSA ML -->
 		<!--<dependency> -->
 		<!--	<groupId>net.sansa-stack</groupId> -->
@@ -97,7 +102,7 @@
 			<version>2.2.6</version>
 			<scope>test</scope>
 		</dependency>
-        
+
 		<!-- Logging -->
         <!-- dublicated with SANSA logger -->
 
@@ -116,35 +121,35 @@
 				<version>2.4.0</version>
 				<scope>system</scope>
 				<systemPath>${pom.basedir}/src/main/resources/libs/jwi/jwi-sdk/2.4.0/edu.mit.jwi-2.4.0.jar</systemPath>
-		</dependency>	
+		</dependency>
 		<!-- SANSA RDF -->
 		<dependency>
 		  <groupId>net.sansa-stack</groupId>
 		  <artifactId>sansa-rdf-spark-bundle_2.11</artifactId>
 		  <version>0.2.0</version>
 		</dependency>
-		 
+
 		<!-- SANSA OWL -->
 		<dependency>
 		  <groupId>net.sansa-stack</groupId>
 		  <artifactId>sansa-owl-spark_2.11</artifactId>
 		  <version>0.2.0</version>
 		</dependency>
-		 
+
 		<!-- SANSA Inference -->
 		<dependency>
 		  <groupId>net.sansa-stack</groupId>
 		  <artifactId>sansa-inference-spark_2.11</artifactId>
 		  <version>0.2.0</version>
 		</dependency>
-		 
+
 		<!-- SANSA Querying -->
 		<dependency>
 		  <groupId>net.sansa-stack</groupId>
 		  <artifactId>sansa-query-spark-bundle_2.11</artifactId>
 		  <version>0.2.0</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/org.mongodb.spark/mongo-spark-connector_2.11 -->
 		<dependency>
 			<groupId>org.mongodb.spark</groupId>
@@ -165,7 +170,7 @@
 			<artifactId>stanford-corenlp</artifactId>
 			<version>3.8.0</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/io.circe/circe-generic_2.11 -->
 		<dependency>
 			<groupId>io.circe</groupId>
@@ -199,20 +204,20 @@
 			<version>3.1.0</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-mllib_2.10 -->
+		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-mllib_2.11 -->
 		<dependency>
-			<groupId>org.apache.spark</groupId>
-			<artifactId>spark-mllib_2.10</artifactId>
-			<version>2.1.1</version>
-			<scope>provided</scope>
+		    <groupId>org.apache.spark</groupId>
+		    <artifactId>spark-mllib_2.11</artifactId>
+		    <version>2.2.0</version>
+		    <scope>provided</scope>
 		</dependency>
 
 
 		<!-- https://mvnrepository.com/artifact/io.circe/circe-core_2.12 -->
 		<!--<dependency>												 -->
-		<!--	<groupId>io.circe</groupId>								 -->	
+		<!--	<groupId>io.circe</groupId>								 -->
 		<!--	<artifactId>circe-core_2.12</artifactId>				 -->
-		<!--	<version>0.8.0</version>								 -->		
+		<!--	<version>0.8.0</version>								 -->
 		<!--</dependency>                                                -->
 
 		<!-- https://mvnrepository.com/artifact/com.typesafe.play/play-ws_2.11 -->
@@ -224,10 +229,10 @@
 
 		<!-- https://mvnrepository.com/artifact/com.typesafe.play/play-ahc-ws-standalone_2.11 -->
 		<!--	<dependency>										                  		  -->
-		<!--		<groupId>com.typesafe.play</groupId>									  -->	
+		<!--		<groupId>com.typesafe.play</groupId>									  -->
 		<!--		<artifactId>play-ahc-ws-standalone_2.11</artifactId> 					  -->
 		<!--		<version>1.0.0-RC4</version>											  -->
-		<!--	</dependency>																  -->		
+		<!--	</dependency>																  -->
 
 		<!-- net.sansa-stack : sansa-query-parent_2.11 : 0.2.0 -->
 		<!-- 	<dependency>										-->
