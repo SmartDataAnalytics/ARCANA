@@ -21,26 +21,27 @@ object Word2VecExample {
  // val conf = new SparkConf().setAppName("Word2VecExample")
     val sc = sparkSession.sparkContext
     // $example on$
-    val input = sc.textFile("/home/elievex/Resources/vectors.txt").map(line => line.split(" ").toSeq)
+    val input = sc.textFile("src/main/resources/TL.txt").map(line => line.split(" ").toSeq)
     //val input = sc.textFile("/home/elievex/Resources/vectors_C.txt").map(line => line.split(" ").toSeq)
 
-   input.foreach { println }
+   //input.foreach { println }
+   
     
     val word2vec = new Word2Vec()
-
     val model = word2vec.fit(input)
 
-    val synonyms = model.findSynonyms("a", 5)
+    val synonyms = model.findSynonyms("Ali", 5)
 
     for((synonym, cosineSimilarity) <- synonyms) {
       println(s"$synonym $cosineSimilarity")
     }
 
     // Save and load model
-   // model.save(sc, "myModelPath")
+    model.save(sc, "file:///C:/Users/ali-d/Dropbox/Universities/University of Bonn/Master thesis/Arcana/ARCANA/src/main/resources/myModel")
    // val sameModel = Word2VecModel.load(sc, "myModelPath")
     // $example off$
 
+        println("DONE")
     sc.stop()
 
 }
