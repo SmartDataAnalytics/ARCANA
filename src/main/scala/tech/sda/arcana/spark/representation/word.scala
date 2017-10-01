@@ -77,7 +77,21 @@ object word {
             //for 2d conversion
             //matrix.grouped(3).toArra
             
-            
+                  for(x<- 0 to sentenceWordCount-1){
+              for(j<-senRep(x)){
+                print(j)
+                print(" ")
+              }
+              println("------------------")
+            }
+                  
+                        for(x<- 0 to sentenceWordCount-1){
+              for(j<-senRep(x)){
+                print(j)
+                print(" ")
+              }
+              println("------------------")
+            }
             
             
             //val vectors=representation.map(x => x._2)
