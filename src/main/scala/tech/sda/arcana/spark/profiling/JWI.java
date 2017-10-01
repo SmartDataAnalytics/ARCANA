@@ -3,22 +3,20 @@ import edu.mit.jwi.Dictionary;
 import edu.mit.jwi.IDictionary; 
 import edu.mit.jwi.item.IIndexWord; 
 import edu.mit.jwi.item.ISynset; 
-import edu.mit.jwi.item.ISynsetID; 
+
 import edu.mit.jwi.item.IWord; 
 import edu.mit.jwi.item.IWordID; 
 import edu.mit.jwi.item.POS; 
 import java.io.IOException;
 import java.net.URL;
 
-import java.io.File; 
 import java.net.MalformedURLException; 
 
 import java.util.ArrayList; 
-import java.util.Collection; 
-import java.util.Collections; 
+
 import java.util.Iterator; 
 import java.util.List; 
-import java.util.Map; 
+ 
 /*
  * A class that implements an API for the Wordnet files
  */
@@ -88,6 +86,8 @@ public class JWI {
 		 System .out . println ("Gloss = " + word . getSynset (). getGloss ());
 		 */
 	}
+	
+	/*
 	private static void generateNgrams(int N, String sent, List ngramList) {
 		  String[] tokens = sent.split("\\s+"); //split sentence into tokens
 		 
@@ -103,7 +103,7 @@ public class JWI {
 		    ngramList.add(s);
 		  }
 		}//End of method
-
+	 */
 	 private List<String>  getSynomyns(String noun){ 
 		   
 		  List<String> list = new ArrayList<String>(); 

@@ -72,12 +72,43 @@ object sentenceToTensor {
           val result= parsedQuestions.join(parsedLines)
           
           val groupedResult=result.groupBy(x=>x._2._1._1)
+          //sentenceVectorRepresentation ordered
+          val sentenceVecRep=groupedResult.map{ case(a,b)=>(b.toSeq).sortBy(_._2._1._2)  }
+          
+          val tt=Tensor[Float](1,4,5)
+          
+          val sentenceVecRepT=sentenceVecRep.map{ case(a)=> a.foreach(_._2._2)}
+          
+          val ss=Seq(1,2,3,4,5,6,7,9)
+          ss(8)
+          
+          
+          val tensor=Tensor[Float](10,10)
+         
+          /*
+          val sampleRDD = sentenceVecRep.map {case (input: Array[Array[Float]], label: Float) =>
+            Sample(
+              featureTensor = Tensor(input.flatten, Array(sequenceLen, embeddingDim))
+                .transpose(1, 2).contiguous(),
+              labelTensor = Tensor(Array(label), Array(1)))
+          }
+          */
           
          // val finalResult=groupedResult.sortBy(x=>x._2._1._2, false)
           //val result1=result.collect()
           val result1=groupedResult.collect()
           result1.foreach(println)
           //http://docs.scala-lang.org/overviews/collections/iterators.html
+          //Iterable[   (   String, ((String, Int), Array[String])  )    ]
+          val it = Iterator(("Mohamad",(("m",1),(1,2,3))))
+          
+          
+          val test=it.toArray
+          
+          
+          val test1=(it.toSeq).sortBy(_._2._1._1)
+          
+          //val vectorizedRdd = result1.map {case (string, varr) => varr. }
           
           /*
           for(i <- result1)

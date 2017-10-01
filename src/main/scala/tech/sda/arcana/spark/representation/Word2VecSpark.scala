@@ -1,28 +1,11 @@
 package tech.sda.arcana.spark.representation
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-// scalastyle:off println
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-// $example on$
+import org.apache.spark.sql.SparkSession
+
 import org.apache.spark.mllib.feature.{Word2Vec, Word2VecModel}
-// $example off$
 object Word2VecSpark {
+<<<<<<< HEAD
    def main(args: Array[String]): Unit = {
      println("HI")
     val conf = new SparkConf().setAppName("Word2VecExample").setMaster("spark")
@@ -31,22 +14,38 @@ object Word2VecSpark {
     // $example on$
     val input = sc.textFile("src/main/resources/text8_10000").map(line => line.split(" ").toSeq)
 
+=======
+	
+  def main(args: Array[String]): Unit = {
+
+    val sparkSession = SparkSession.builder
+      .master("local[*]")
+      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .appName("Word2VecExample")
+      .getOrCreate()
+        
+    val sc = sparkSession.sparkContext    
+    val input = sc.textFile("src/main/resources/text8_10000").map(line => line.split(" ").toSeq)
+>>>>>>> bc60348317283b963b37a6882fd11dc12cf184a7
     val word2vec = new Word2Vec()
 
     val model = word2vec.fit(input)
 
-    val synonyms = model.findSynonyms("1", 5)
+    val synonyms = model.findSynonyms("a", 5)
 
     for((synonym, cosineSimilarity) <- synonyms) {
       println(s"$synonym $cosineSimilarity")
     }
 
-    // Save and load model
-    model.save(sc, "myModelPath")
-    val sameModel = Word2VecModel.load(sc, "myModelPath")
-    // $example off$
-
-sc.stop()
-   }
+    //| Save and load model
+      model.save(sc, "src/main/resources/Model_2")
+    //> val sameModel = Word2VecModel.load(sc, "myModelPath")
+ 
+    //| Read parquet file into DataFrame
+    //> val df = sparkSession.read.parquet("src/main/resources/Model_2/data/part-r-00000-27a4dab4-4fe8-4e14-b44d-95866939ddf4.snappy.parquet")
+    //> df.show()
+    
+    sparkSession.stop()
+    println("FINISH PROCESSING")
+  }
 }
-// scalastyle:on println
