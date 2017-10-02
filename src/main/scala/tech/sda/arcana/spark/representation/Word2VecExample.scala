@@ -9,15 +9,12 @@ object Word2VecExample {
     
   def main(args: Array[String]): Unit = {
 
-        val sparkSession = SparkSession.builder
+      val sparkSession = SparkSession.builder
       .master("local[*]")
       .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .appName("Word2VecExample")
       .getOrCreate()
-    
-    
-    
-    
+
  // val conf = new SparkConf().setAppName("Word2VecExample")
     val sc = sparkSession.sparkContext
     // $example on$
