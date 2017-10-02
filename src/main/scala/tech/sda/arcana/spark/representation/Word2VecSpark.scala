@@ -5,7 +5,7 @@ import org.apache.spark.sql.SparkSession
 
 import org.apache.spark.mllib.feature.{Word2Vec, Word2VecModel}
 object Word2VecSpark {
-<<<<<<< HEAD
+/*
    def main(args: Array[String]): Unit = {
      println("HI")
     val conf = new SparkConf().setAppName("Word2VecExample").setMaster("spark")
@@ -13,10 +13,11 @@ object Word2VecSpark {
 
     // $example on$
     val input = sc.textFile("src/main/resources/text8_10000").map(line => line.split(" ").toSeq)
+   }
+    */
+  
 
-=======
-	
-  def main(args: Array[String]): Unit = {
+def main(args: Array[String]): Unit = {
 
     val sparkSession = SparkSession.builder
       .master("local[*]")
@@ -26,7 +27,7 @@ object Word2VecSpark {
         
     val sc = sparkSession.sparkContext    
     val input = sc.textFile("src/main/resources/text8_10000").map(line => line.split(" ").toSeq)
->>>>>>> bc60348317283b963b37a6882fd11dc12cf184a7
+
     val word2vec = new Word2Vec()
 
     val model = word2vec.fit(input)

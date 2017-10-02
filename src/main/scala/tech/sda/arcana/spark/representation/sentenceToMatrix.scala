@@ -75,3 +75,12 @@ object sentenceToMatrix {
             //val vectors=representation.map(x => x._2)
     }
 }
+/*
+   //achtung this is done locally 
+            for(i<-senRep){
+              for(j<-i){
+                print(j)
+                print(" ")
+              }
+              println()
+            }*/
