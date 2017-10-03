@@ -4,9 +4,10 @@ import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.log4j._
 import scala.collection.mutable.ListBuffer
-import tech.sda.arcana.spark.classification.cnn.Core
 import com.intel.analytics.bigdl.tensor.Tensor
 import shapeless._0
+import tech.sda.arcana.spark.classification.cnn.Core
+
 
 object sentenceToTensor {
   //Transfer one question one sentence to multi-represential tensor
@@ -35,9 +36,36 @@ object sentenceToTensor {
           val words=line.split(" ")
           //build the return element which looks as follows:
           //RDD[word it self inside the sentence,(number of the sentence,number of the element)]
-          val orderedWords=words.drop(1).zipWithIndex.map{case(line,i) => (line,(words(0),i))}
+          val orderedWords=words.drop(1).zipWithIndex.map{case(line,i) => (line,(words(0).toLong,i))}
           (orderedWords)
         }
+        
+        
+        
+        //////////////////////////////************************************************
+          def test(sentence:(Long, Iterable[((Long, Int), Array[String])]))={
+            val tensor=Tensor[Float](sentenceWordCount,vectorLength)
+            val tensorStorage= tensor.storage.fill(0, 1, sentenceWordCount*vectorLength)
+            var vec=sentence._2.toSeq.sortBy(x=>x._1._2)
+           
+            var storageCounter:Int=0
+            vec.last._2.foreach{x=>
+                                tensorStorage(storageCounter)=x.toFloat
+                                storageCounter=storageCounter+1
+                                }
+            vec=vec.init
+            
+            for(i <-0 to sentenceWordCount-1){
+              for(j <-0 to vectorLength-1){
+                
+              }
+            }
+            
+            (tensor)
+        }
+        
+        
+        //////////////////////////////************************************************
         
   
     def main(args:Array[String]){
@@ -70,6 +98,23 @@ object sentenceToTensor {
           //for(i<-result)
           //      i._1,   ((i._2._1._1    ,i._2._1._2, i._2._2             ))
           val result= parsedQuestions.join(parsedLines)
+          
+          //////////////////////////////************************************************
+          
+          // try to simplify the structure 
+          val resultTest= result.map{case(a,b)=>b}
+          
+          
+          val groupedResultTest=resultTest.groupBy(x=>x._1._1)
+          
+          
+          val sss=Tensor[Float](sentenceWordCount,vectorLength)
+          val xxx:Array[Int]=new Array[Int](vectorLength)
+          val xx=sss.apply(xxx)
+          
+          
+          
+          //////////////////////////////************************************************
           
           val groupedResult=result.groupBy(x=>x._2._1._1)
           //sentenceVectorRepresentation ordered
@@ -107,6 +152,22 @@ object sentenceToTensor {
           
           
           val test1=(it.toSeq).sortBy(_._2._1._1)
+          
+          
+          val x=Tensor[Float](4,5,6)
+          x.apply1(i => i+1)
+          
+         // val x=Table[Float]()          
+          /*
+          val oo:Int=0
+          x.apply(oo => oo+1)
+          */
+          /*
+          x:apply(function()
+            i = i + 1
+            return i
+          end)
+          */
           
           //val vectorizedRdd = result1.map {case (string, varr) => varr. }
           
