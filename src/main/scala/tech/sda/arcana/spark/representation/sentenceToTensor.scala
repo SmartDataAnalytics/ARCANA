@@ -5,6 +5,8 @@ import org.apache.spark.SparkContext._
 import org.apache.log4j._
 import scala.collection.mutable.ListBuffer
 import com.intel.analytics.bigdl.tensor.Tensor
+import com.intel.analytics.bigdl.dataset.Sample
+import com.intel.analytics.bigdl.utils.T
 import shapeless._0
 import tech.sda.arcana.spark.classification.cnn.Core
 
@@ -43,27 +45,44 @@ object sentenceToTensor {
         
         
         //////////////////////////////************************************************
-          def test(sentence:(Long, Iterable[((Long, Int), Array[String])]))={
+        
+          def testte(sentence:(Long, Iterable[((Long, Int), Array[String])]))={
             val tensor=Tensor[Float](sentenceWordCount,vectorLength)
             val tensorStorage= tensor.storage.fill(0, 1, sentenceWordCount*vectorLength)
             var vec=sentence._2.toSeq.sortBy(x=>x._1._2)
-           
             var storageCounter:Int=0
+            while(vec != null){
+            storageCounter=0
             vec.last._2.foreach{x=>
                                 tensorStorage(storageCounter)=x.toFloat
                                 storageCounter=storageCounter+1
                                 }
             vec=vec.init
-            
-            for(i <-0 to sentenceWordCount-1){
-              for(j <-0 to vectorLength-1){
-                
-              }
             }
-            
             (tensor)
         }
         
+        
+            def sasa(tenso:Tensor[Float])={
+            val label=Tensor[Float](T(1))
+            val sample=Sample(tenso,label)
+            
+            
+            /*
+             *  val sampleRDD = vectorizedRdd.map
+             *   {
+             *   case (input: Array[Array[Float]], label: Float) =>
+                Sample(
+                  featureTensor = Tensor(input.flatten, Array(sequenceLen, embeddingDim))
+                    .transpose(1, 2).contiguous(),
+                  labelTensor = Tensor(Array(label), Array(1)))
+              }
+             */
+            
+            
+            
+            (sample)
+        }
         
         //////////////////////////////************************************************
         
@@ -71,7 +90,7 @@ object sentenceToTensor {
     def main(args:Array[String]){
       
            
-          // Set the log level to only print errors
+          // Set the log level to only print errorsval great=groupedResultTest.map(test)
           Logger.getLogger("org").setLevel(Level.ERROR)
           
           // Create a SparkContext using every core of the local machine
@@ -104,13 +123,11 @@ object sentenceToTensor {
           // try to simplify the structure 
           val resultTest= result.map{case(a,b)=>b}
           
-          
+          //(Long, Iterable[((Long, Int), Array[String])])
           val groupedResultTest=resultTest.groupBy(x=>x._1._1)
           
+          val great=groupedResultTest.map(testte)
           
-          val sss=Tensor[Float](sentenceWordCount,vectorLength)
-          val xxx:Array[Int]=new Array[Int](vectorLength)
-          val xx=sss.apply(xxx)
           
           
           
