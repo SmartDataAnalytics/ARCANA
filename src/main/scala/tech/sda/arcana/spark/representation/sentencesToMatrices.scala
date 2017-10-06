@@ -12,7 +12,16 @@ object sentencesToMatrices {
   //an input for the networks
   def main(args:Array[String]){
    
+    
+  val arr:Array[String] = Array("one","two","three","four","five")
   
+  for(x<-arr){
+    println(x)
+  }
+  println("--------------------------------------")
+  arr.foreach(println)
+  /*
+   * 
   val sss=Tensor[Float](4,4)
   val tensorStorage= sss.storage
   
@@ -29,7 +38,7 @@ object sentencesToMatrices {
     tensorStorage(TI)=xxx(i)
     TI=TI+1
   }
-  
+  */
   /*
     var tI=0
     var temp=0
