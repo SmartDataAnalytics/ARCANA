@@ -6,6 +6,7 @@ import org.apache.log4j._
 import scala.collection.mutable.ListBuffer
 import com.intel.analytics.bigdl.tensor.Tensor
 import com.intel.analytics.bigdl.dataset.Sample
+import com.intel.analytics.bigdl.dataset.MiniBatch
 import com.intel.analytics.bigdl.utils.T
 import shapeless._0
 import tech.sda.arcana.spark.classification.cnn.Core
@@ -47,38 +48,39 @@ object sentenceToTensor {
         //////////////////////////////************************************************
         
           def testte(sentence:(Long, Iterable[((Long, Int), Array[String])]))={
+            if(sentence!=null){
             val tensor=Tensor[Float](sentenceWordCount,vectorLength)
             val tensorStorage= tensor.storage.fill(0, 1, sentenceWordCount*vectorLength)
             var vec=sentence._2.toSeq.sortBy(x=>x._1._2)
             var storageCounter:Int=0
-            while(vec != null){
+            while(vec.lastOption.exists(p=>true) == true){
             storageCounter=0
             vec.last._2.foreach{x=>
                                 tensorStorage(storageCounter)=x.toFloat
                                 storageCounter=storageCounter+1
                                 }
             vec=vec.init
+            //vec.lastOption.exists
+            /*
+            val test=vec.last._2
+            println(test)
+              for(x<-vec.last._2){
+                tensorStorage(storageCounter)=x.toFloat
+                storageCounter=storageCounter+1
+              }
+            vec=vec.init*/
             }
             (tensor)
+            }
         }
-        
+        //((Long, Int), Array[String])
         
             def sasa(tenso:Tensor[Float])={
+              
             val label=Tensor[Float](T(1))
             val sample=Sample(tenso,label)
             
-            
-            /*
-             *  val sampleRDD = vectorizedRdd.map
-             *   {
-             *   case (input: Array[Array[Float]], label: Float) =>
-                Sample(
-                  featureTensor = Tensor(input.flatten, Array(sequenceLen, embeddingDim))
-                    .transpose(1, 2).contiguous(),
-                  labelTensor = Tensor(Array(label), Array(1)))
-              }
-             */
-            
+            //val minibatch=MiniBatch()
             
             
             (sample)
@@ -119,6 +121,7 @@ object sentenceToTensor {
           val result= parsedQuestions.join(parsedLines)
           
           //////////////////////////////************************************************
+          //New Scenario ...
           
           // try to simplify the structure 
           val resultTest= result.map{case(a,b)=>b}
@@ -128,11 +131,15 @@ object sentenceToTensor {
           
           val great=groupedResultTest.map(testte)
           
-          
+          val answer=great.collect()
+          answer.foreach(println)
           
           
           //////////////////////////////************************************************
           
+          
+          
+          /*
           val groupedResult=result.groupBy(x=>x._2._1._1)
           //sentenceVectorRepresentation ordered
           val sentenceVecRep=groupedResult.map{ case(a,b)=>(b.toSeq).sortBy(_._2._1._2)  }
@@ -146,7 +153,7 @@ object sentenceToTensor {
           
           
           val tensor=Tensor[Float](10,10)
-         
+         */
           /*
           val sampleRDD = sentenceVecRep.map {case (input: Array[Array[Float]], label: Float) =>
             Sample(
@@ -158,10 +165,11 @@ object sentenceToTensor {
           
          // val finalResult=groupedResult.sortBy(x=>x._2._1._2, false)
           //val result1=result.collect()
-          val result1=groupedResult.collect()
-          result1.foreach(println)
+          //val result1=groupedResult.collect()
+          //result1.foreach(println)
           //http://docs.scala-lang.org/overviews/collections/iterators.html
           //Iterable[   (   String, ((String, Int), Array[String])  )    ]
+          /*
           val it = Iterator(("Mohamad",(("m",1),(1,2,3))))
           
           
@@ -173,7 +181,7 @@ object sentenceToTensor {
           
           val x=Tensor[Float](4,5,6)
           x.apply1(i => i+1)
-          
+          */
          // val x=Table[Float]()          
           /*
           val oo:Int=0
