@@ -138,8 +138,11 @@ object LearningScala {
                                                 
 	 println({val x = 10; x + 20})            //> 30
 	 
-	  // Functions
-  
+	 
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	 ////                                          Functions                                        ////
+ //////////////////////////////////////////////////////////////////////////////////////////////////////
+
   // Format is def <function name>(parameter name: type...) : return type = { expression }
   // Don't forget the = before the expression!
   def squareIt(x: Int) : Int = {
@@ -153,7 +156,7 @@ object LearningScala {
   println(cubeIt(2))                              //> 8
   
   // Functions can take other functions as parameters
-  
+  // here f: Int => Int means, take an integer and return one 
   def transformInt(x: Int, f: Int => Int) : Int = {
   	f(x)
   }                                               //> transformInt: (x: Int, f: Int => Int)Int
@@ -172,8 +175,11 @@ object LearningScala {
   
   // This is really important!
   
-  // Data structures
-    
+  // 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
+   ////                                          Data structures                                   ////
+ //////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // Tuples (Also really common with Spark!!)
     // Immutable lists
     // Often thought of as database fields, or columns.
@@ -256,6 +262,11 @@ object LearningScala {
   val maxValue = numberList.max                     //> maxValue  : Int = 5
   val total = numberList.sum                        //> total  : Int = 15
   val hasThree = iHateThrees.contains(3)            //> hasThree  : Boolean = false
+  
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
+   ////                                          Maps                                              ////
+ //////////////////////////////////////////////////////////////////////////////////////////////////////
   
   // Maps
   // Useful for key/value lookups on distinct keys
