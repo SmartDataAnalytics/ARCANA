@@ -52,6 +52,8 @@ object sentenceToTensor {
             val tensor=Tensor[Float](sentenceWordCount,vectorLength)
             val tensorStorage= tensor.storage.fill(0, 1, sentenceWordCount*vectorLength)
             var vec=sentence._2.toSeq.sortBy(x=>x._1._2)
+            vec.foreach{x=>println(x._1)
+                        println(x._2)}
             var storageCounter:Int=0
             while(vec.lastOption.exists(p=>true) == true){
             storageCounter=0
@@ -60,15 +62,6 @@ object sentenceToTensor {
                                 storageCounter=storageCounter+1
                                 }
             vec=vec.init
-            //vec.lastOption.exists
-            /*
-            val test=vec.last._2
-            println(test)
-              for(x<-vec.last._2){
-                tensorStorage(storageCounter)=x.toFloat
-                storageCounter=storageCounter+1
-              }
-            vec=vec.init*/
             }
             (tensor)
             }
@@ -119,7 +112,8 @@ object sentenceToTensor {
           //for(i<-result)
           //      i._1,   ((i._2._1._1    ,i._2._1._2, i._2._2             ))
           val result= parsedQuestions.join(parsedLines)
-          
+          result.foreach{x=>println(x._2._1._1)
+            println(x._2._1._2)}
           //////////////////////////////************************************************
           //New Scenario ...
           
