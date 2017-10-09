@@ -25,7 +25,7 @@ object App {
     val triplesRDD = NTripleReader.load(sparkSession, new File(input))
 
     triplesRDD.take(5).foreach(println(_))
-
+    
     sparkSession.stop
 
   }

@@ -83,8 +83,9 @@ object RDFApp {
       .getOrCreate()
     
    import spark.implicits._ 
-    val lines = spark.sparkContext.textFile(input)
-    
+   
+   
+    val lines = spark.sparkContext.textFile(input) 
     val triples = lines.map(basicMapperRDF).toDS().cache()
     //triples.select("Object").foreach(println(_))
     //triples.select("Object").show()
@@ -93,13 +94,18 @@ object RDFApp {
     //println(triples.count())
     
     
+    // Reading a directory and combining its content and then processing the data 
     val rawDF = spark.sparkContext.textFile("src/main/resources/ntTest/*")
     val newRDD = rawDF.filter(x => (x != null) && (x.length > 0))
-    newRDD.foreach(println(_))
+    //newRDD.foreach(println(_))
     val triples2 = newRDD.map(basicMapperRDF).toDS().cache()
     triples2.show(false)
     
-    //triples2.show(false)
+    triples2.createOrReplaceTempView("triples2")
+    //RLIKE for regular expressions
+    val teenagersDF = spark.sql("SELECT * from triples2 where Subject like '%Hunebed%'")
+    teenagersDF.show(false)
+ 
 
     //val triples2=rawDF.map(basicMapperRDF).toDS().cache()
     //triples2.show(false)

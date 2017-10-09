@@ -7,17 +7,27 @@ import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 
 object Dataset2Vec {
+  
+  def getUriRelatedToWord(x: String): String = {
+    "Uri"
+  }
+  
+  def getInfoOfUri(x: String): String = {
+    "Info"
+  }
+  
   def main(args: Array[String]) {
+    
     val spark = SparkSession.builder
       .master("local[*]")
       .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .appName("Dataset2Vec")
       .getOrCreate()
-  
       
       println("Dataset2Vec")
       
       
     spark.stop()
-    }
+    
+  }
 }
