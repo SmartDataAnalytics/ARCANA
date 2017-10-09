@@ -43,11 +43,24 @@ object sentenceToTensor {
           (orderedWords)
         }
         //////////////////////////////************************************************
+        def clean(sentence:String)={
+          val cleanedSen=sentence.replaceAll("\\p{Punct}", " $0 ")
+          (cleanedSen)
+        }
+        
+         def calculateLongestWordsSeq(questions:RDD[String])={
+          println(questions.map(line => line.split(" ").size).reduce((a, b) => if (a > b) a else b))
+        }
+         
+          def calculateQuestionsNumber(questions:RDD[String])={
+          println(questions.count())
+        }
         
           def testte(sentence:(Long, Iterable[((Long, Int), Array[String])]))={
             if(sentence!=null){
             val tensor=Tensor[Float](sentenceWordCount,vectorLength)
             val tensorStorage= tensor.storage.fill(0, 1, sentenceWordCount*vectorLength-1)
+            //the reverse here to make the word order upside down
             var vec=sentence._2.toSeq.sortBy(x=>x._1._2).reverse
             /*vec.foreach{x=>println(x._1)
                         println(x._2)}*/
@@ -95,8 +108,11 @@ object sentenceToTensor {
           
           // Read each line of input data
           val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
+          
           // Read the questions
           val questions = sc.textFile("/home/mhd/Desktop/Data Set/TestNow.txt")
+          
+          
           //Give each question an Id or an order
           val orderedQuestions=questions.zipWithIndex().map{case(line,i) => i.toString+" "+line}
           val parsedLines = lines.map(parseLine)
