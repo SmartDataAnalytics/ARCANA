@@ -16,7 +16,7 @@ object sentenceToTensor {
   //Transfer one question one sentence to multi-represential tensor
   
    val vectorLength:Int=50
-  val sentenceWordCount:Int=4
+  val sentenceWordCount:Int=22
   
   
       //return each line of the glov representation as follows:
@@ -42,26 +42,25 @@ object sentenceToTensor {
           val orderedWords=words.drop(1).zipWithIndex.map{case(line,i) => (line,(words(0).toLong,i))}
           (orderedWords)
         }
-        
-        
-        
         //////////////////////////////************************************************
         
           def testte(sentence:(Long, Iterable[((Long, Int), Array[String])]))={
             if(sentence!=null){
             val tensor=Tensor[Float](sentenceWordCount,vectorLength)
-            val tensorStorage= tensor.storage.fill(0, 1, sentenceWordCount*vectorLength)
-            var vec=sentence._2.toSeq.sortBy(x=>x._1._2)
+            val tensorStorage= tensor.storage.fill(0, 1, sentenceWordCount*vectorLength-1)
+            var vec=sentence._2.toSeq.sortBy(x=>x._1._2).reverse
             /*vec.foreach{x=>println(x._1)
                         println(x._2)}*/
             var storageCounter:Int=0
             while(vec.lastOption.exists(p=>true) == true){
-            storageCounter=0
+            //while(storageCounter<sentenceWordCount*vectorLength-1){
             vec.last._2.foreach{x=>
+                                //printf("\n Counter= %d",storageCounter)
                                 tensorStorage(storageCounter)=x.toFloat
                                 storageCounter=storageCounter+1
                                 }
             vec=vec.init
+            
             }
             (tensor)
             }
@@ -97,7 +96,7 @@ object sentenceToTensor {
           // Read each line of input data
           val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
           // Read the questions
-          val questions = sc.textFile("/home/mhd/Desktop/Data Set/Negative_Questions.txt")
+          val questions = sc.textFile("/home/mhd/Desktop/Data Set/TestNow.txt")
           //Give each question an Id or an order
           val orderedQuestions=questions.zipWithIndex().map{case(line,i) => i.toString+" "+line}
           val parsedLines = lines.map(parseLine)
@@ -113,7 +112,7 @@ object sentenceToTensor {
           //      i._1,   ((i._2._1._1    ,i._2._1._2, i._2._2             ))
           val result= parsedQuestions.join(parsedLines)
           
-          result.foreach{x=>printf("\nString= %s Line= %s Word= %s",x._1,x._2._1._1,x._2._1._2) }
+          //result.foreach{x=>printf("\nString= %s Line= %s Word= %s",x._1,x._2._1._1,x._2._1._2) }
           //////////////////////////////************************************************
           //New Scenario ...
           
@@ -126,7 +125,10 @@ object sentenceToTensor {
           val great=groupedResultTest.map(testte)
           
           val answer=great.collect()
-          answer.foreach(println)
+
+          answer.foreach{println("---------------StART---------------------")
+                        x=>println(x)
+                         println("----------------END----------------------")}
           
           
           //////////////////////////////************************************************
