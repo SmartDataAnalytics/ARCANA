@@ -42,6 +42,7 @@ object RDFApp {
     }
     
   }
+  
   def mapperRDF(line:String): Triple = {
     
     //splitting a comma-separated string but ignoring commas in quotes
@@ -56,6 +57,14 @@ object RDFApp {
     return triple
   }
 
+  def basicMapperRDF(line:String): Triple = {
+    
+    //splitting a comma-separated string but ignoring commas in quotes
+    val fields = line.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
+
+    val triple:Triple = Triple(fields(0), fields(1), fields(2))
+    return triple
+  }
   
   def main(args: Array[String]) = {
   
@@ -72,11 +81,11 @@ object RDFApp {
     
    import spark.implicits._ 
     val lines = spark.sparkContext.textFile(input)
-    val triples = lines.map(mapperRDF).toDS().cache()
-    triples.select("Object").foreach(println(_))
+    val triples = lines.map(basicMapperRDF).toDS().cache()
+    //triples.select("Object").foreach(println(_))
     //triples.select("Object").show()
-    //triples.select("Object").show()
-    
+    triples.show(false)
+    println(triples.count())
    spark.stop()
   }
 
