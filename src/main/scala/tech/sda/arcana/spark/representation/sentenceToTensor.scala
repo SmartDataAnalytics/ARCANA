@@ -7,9 +7,13 @@ import scala.collection.mutable.ListBuffer
 import com.intel.analytics.bigdl.tensor.Tensor
 import com.intel.analytics.bigdl.dataset.Sample
 import com.intel.analytics.bigdl.dataset.MiniBatch
+import com.intel.analytics.bigdl.optim._
+import com.intel.analytics.bigdl.nn.ClassNLLCriterion
+import com.intel.analytics.bigdl.nn.MSECriterion
 import com.intel.analytics.bigdl.utils.T
 import shapeless._0
 import tech.sda.arcana.spark.classification.cnn.Core
+import tech.sda.arcana.spark.classification.cnn.LeNet5Model
 
 
 object sentenceToTensor {
@@ -57,7 +61,7 @@ object sentenceToTensor {
         }
         
           def testte(sentence:(Long, Iterable[((Long, Int), Array[String])]))={
-            if(sentence!=null){
+            //if(sentence!=null){
             val tensor=Tensor[Float](sentenceWordCount,vectorLength)
             val tensorStorage= tensor.storage.fill(0, 1, sentenceWordCount*vectorLength-1)
             //the reverse here to make the word order upside down
@@ -76,13 +80,13 @@ object sentenceToTensor {
             
             }
             (tensor)
-            }
+            //}
         }
         //((Long, Int), Array[String])
         
             def sasa(tenso:Tensor[Float])={
               
-            val label=Tensor[Float](T(1))
+            val label=Tensor[Float](T(1f))
             val sample=Sample(tenso,label)
             
             //val minibatch=MiniBatch()
@@ -148,8 +152,18 @@ object sentenceToTensor {
           
           
           //////////////////////////////************************************************
-          
-          
+          // optimizer
+          LeNet5Model.build()
+          val ss=great.map(sasa)
+
+                       
+              val optimizer = Optimizer(
+              model = LeNet5Model.build(),
+              sampleRDD = ss,
+              criterion = ClassNLLCriterion[Float](),
+              batchSize = 4
+            )
+          //////////////////////////////************************************************
           
           /*
           val groupedResult=result.groupBy(x=>x._2._1._1)
