@@ -21,12 +21,14 @@ object RDFApp {
   //rdf subject predicate object
   case class Triple(Subject:String, Predicate:String, Object:String)
     
+  //Cleaning the subject (applies to predicate as well)
   def SP_Transform(entity:String): String={
     val newEntity=entity.stripPrefix("<").stripSuffix(">").trim  
     val path = (new URI(newEntity)).getPath();
     return path.substring(path.lastIndexOf('/') + 1);
   }
   
+  //CLeaning the object 
   def O_Transform(entity:String): String={
     if(entity.take(1)=="<"){
       val newEntity=entity.stripPrefix("<").stripSuffix(">").trim  
@@ -43,12 +45,12 @@ object RDFApp {
     
   }
   
+  // A mapper that cleans the data 
   def mapperRDF(line:String): Triple = {
     
     //splitting a comma-separated string but ignoring commas in quotes
     val fields = line.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
   
-    // Clean the Subject
     fields(0)=SP_Transform(fields(0))
     fields(1)=SP_Transform(fields(1))
     fields(2)=O_Transform(fields(2))
@@ -57,6 +59,7 @@ object RDFApp {
     return triple
   }
 
+  // A mapper that provides no data cleaning 
   def basicMapperRDF(line:String): Triple = {
     
     //splitting a comma-separated string but ignoring commas in quotes
@@ -80,13 +83,34 @@ object RDFApp {
       .getOrCreate()
     
    import spark.implicits._ 
-    val lines = spark.sparkContext.textFile(input)
+   
+   
+    val lines = spark.sparkContext.textFile(input) 
     val triples = lines.map(basicMapperRDF).toDS().cache()
     //triples.select("Object").foreach(println(_))
     //triples.select("Object").show()
-    triples.show(false)
-    println(triples.count())
-   spark.stop()
+    
+    //triples.show(false)
+    //println(triples.count())
+    
+    
+    // Reading a directory and combining its content and then processing the data 
+    val rawDF = spark.sparkContext.textFile("src/main/resources/ntTest/*")
+    val newRDD = rawDF.filter(x => (x != null) && (x.length > 0))
+    //newRDD.foreach(println(_))
+    val triples2 = newRDD.map(basicMapperRDF).toDS().cache()
+    triples2.show(false)
+    
+    triples2.createOrReplaceTempView("triples2")
+    //RLIKE for regular expressions
+    val teenagersDF = spark.sql("SELECT * from triples2 where Subject like '%Hunebed%'")
+    teenagersDF.show(false)
+ 
+
+    //val triples2=rawDF.map(basicMapperRDF).toDS().cache()
+    //triples2.show(false)
+    
+    spark.stop()
   }
 
 }
