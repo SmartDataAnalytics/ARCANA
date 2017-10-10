@@ -8,9 +8,10 @@ import net.sansa_stack.rdf.spark.io.NTripleReader
 import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.log4j._
-import org.apache.spark.sql.SparkSession;
-
+import org.apache.spark.sql
 import scala.util.matching
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.Dataset
 
 /*
  * An Object that Deals with the RDF Data and parse it 
@@ -21,6 +22,15 @@ object RDFApp {
   //rdf subject predicate object
   case class Triple(Subject:String, Predicate:String, Object:String)
     
+  val spark = SparkSession.builder()
+      .master("local")
+      .appName("RDFApp")
+      .master("local[*]")
+      .getOrCreate()
+    
+   import spark.implicits._ 
+  
+  
   //Cleaning the subject (applies to predicate as well)
   def SP_Transform(entity:String): String={
     val newEntity=entity.stripPrefix("<").stripSuffix(">").trim  
@@ -42,7 +52,6 @@ object RDFApp {
       // non
       return entity
     }
-    
   }
   
   // A mapper that cleans the data 
@@ -69,65 +78,34 @@ object RDFApp {
     return triple
   }
   
+  // Read a file or files and convert them to a dataset after cleaning the content
+  def dataToDataset(input: String) = {
+    val rawDF = spark.sparkContext.textFile(input) 
+    // Remove empty rows 
+    val newRDD = rawDF.filter(x => (x != null) && (x.length > 0))
+    newRDD.map(basicMapperRDF).toDS().cache()  
+  }
+    //triples.select("Object").foreach(println(_))
+    //triples.select("Object").show()
+    //println(triples.count())
+  
   def main(args: Array[String]) = {
   
     println("============================")
     println("|        RDF Gateway       |")
     println("============================")
-    val input = "src/main/resources/rdf.nt"
-    
-    val spark = SparkSession.builder()
-      .master("local")
-      .appName("RDFApp")
-      .master("local[*]")
-      .getOrCreate()
-    
-   import spark.implicits._ 
+    val input1 = "src/main/resources/rdf.nt" //Single File
+    val input2 = "src/main/resources/ntTest/*" //Set of Files
    
-   
-    val lines = spark.sparkContext.textFile(input) 
-    val triples = lines.map(basicMapperRDF).toDS().cache()
-    //triples.select("Object").foreach(println(_))
-    //triples.select("Object").show()
-    
-    //triples.show(false)
-    //println(triples.count())
-    
-    
-    // Reading a directory and combining its content and then processing the data 
-    val rawDF = spark.sparkContext.textFile("src/main/resources/ntTest/*")
-    val newRDD = rawDF.filter(x => (x != null) && (x.length > 0))
-    //newRDD.foreach(println(_))
-    val triples2 = newRDD.map(basicMapperRDF).toDS().cache()
-    triples2.show(false)
-    
-    triples2.createOrReplaceTempView("triples2")
-    //RLIKE for regular expressions
+    val triples = dataToDataset(input2)
+    //> triples.show(false)
+
+    triples.createOrReplaceTempView("triples2")
+    //> RLIKE for regular expressions
     val teenagersDF = spark.sql("SELECT * from triples2 where Subject like '%Hunebed%'")
     teenagersDF.show(false)
- 
 
-    //val triples2=rawDF.map(basicMapperRDF).toDS().cache()
-    //triples2.show(false)
-    
+    println("~Ending Session~")
     spark.stop()
   }
-
 }
-/*
- *
-    the subject, which is an RDF URI reference or a blank node
-    the predicate, which is an RDF URI reference
-    the object, which is an RDF URI reference, a literal or a blank node
- */
-
-
-
-/*
-
-     val uri = new URI("http://commons.dbpedia.org/resource/File:Hunebed_003.jpg");
-     val path = uri.getPath();
-     val idStr = path.substring(path.lastIndexOf('/') + 1);
-     println(idStr)
-
-*/

@@ -76,5 +76,19 @@ object RDFGatewayApp {
     println("Stopping the session")
     sparkSession.stop
   }
-
 }
+/*
+    the subject, which is an RDF URI reference or a blank node
+    the predicate, which is an RDF URI reference
+    the object, which is an RDF URI reference, a literal or a blank node
+ */
+
+
+
+/*
+     val uri = new URI("http://commons.dbpedia.org/resource/File:Hunebed_003.jpg");
+     val path = uri.getPath();
+     val idStr = path.substring(path.lastIndexOf('/') + 1);
+     println(idStr)
+
+*/
