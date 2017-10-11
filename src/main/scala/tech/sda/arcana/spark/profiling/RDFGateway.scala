@@ -13,6 +13,8 @@ import scala.util.matching
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Dataset
 
+import scala.io.Source
+
 /*
  * An Object that Deals with the RDF Data and parse it 
  * Still need to think of a way to a better representation that include a word and its URI 
@@ -92,6 +94,20 @@ object RDFApp {
     //triples.select("Object").show()
     //println(triples.count())
   ////////////////////////////////////////////////////////////////////////////////
+  def readFile(filename: String) = {
+    val line = Source.fromFile(filename).getLines
+    //val fields = line.split("""[ ]+(?=([^"]*"[^"]*")*[^"]*$)""")
+    
+    for (x <- line) {
+      println(x)
+      val fields = x.split("""[ ]+(?=([^"]*"[^"]*")*[^"]*$)""")
+      println(fields(0), fields(1), fields(2))
+      
+    }
+
+  }
+  
+  
   
   def main(args: Array[String]) = {
   
@@ -99,15 +115,19 @@ object RDFApp {
     println("|        RDF Gateway       |")
     println("============================")
     val input1 = "src/main/resources/rdf.nt" //Single File
-    val input2 = "src/main/resources/ntTest/*" //Set of Files
-    val input3 = "src/main/resources/ntTest2/*"
-    
+    val input2 = "src/main/resources/ntTest/*" //Set of safe Files
+    val input3 = "src/main/resources/ntTest2/*" //Set of problamatic Files
+    val input4 = "src/main/resources/problemData.nt" //Single File
+    /*
     val triples = dataToDataset(input3)
     println("1")
      triples.show()
     //println(triples.count())
     println("1")
     triples.createOrReplaceTempView("triples2")
+    */
+    
+    readFile(input4)
     
     //val teenagersDF = spark.sql("SELECT * from triples2 where Subject like '%Hunebed%'") //> RLIKE for regular expressions
     //teenagersDF.show(false)
