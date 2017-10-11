@@ -75,39 +75,49 @@ object RDFApp {
   def basicMapperRDF(line:String): Triple = {
     
     //splitting a comma-separated string but ignoring commas in quotes
-    // val fields = line.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
-    val fields = line.split("""[ ]+(?=([^"]*"[^"]*")*[^"]*$)""")
+    val fields = line.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
+    //val fields = line.split("""[ ]+(?=([^"]*"[^"]*")*[^"]*$)""")
 
     val triple:Triple = Triple(fields(0), fields(1), fields(2))
     //println(fields(0), fields(1), fields(2))
     return triple
   }
+  
   ////////////////////////////////////////////////////////////////////////////////
   // Read a file or files and convert them to a dataset after cleaning the content
   def dataToDataset(input: String) = {
     val rawDF = spark.sparkContext.textFile(input) 
+    // CLEAN DATA
     // Remove empty rows 
-    val newRDD = rawDF.filter(x => (x != null) && (x.length > 0))
-    newRDD.map(basicMapperRDF).toDS().cache()  
+    val noEmptyRDD = rawDF.filter(x => (x != null) && (x.length > 0))
+    // Remove the existence of \"
+    val noExtraQoutRDD = rawDF.map(x => x.replaceAll("\"", ""))
+    
+    noExtraQoutRDD.map(basicMapperRDF).toDS().cache()  
   }
     //triples.select("Object").foreach(println(_))
     //triples.select("Object").show()
     //println(triples.count())
   ////////////////////////////////////////////////////////////////////////////////
+  
+  // This method is basically for debugging, it reads a file and print its lines in a centralized fashion
   def readFile(filename: String) = {
     val line = Source.fromFile(filename).getLines
     //val fields = line.split("""[ ]+(?=([^"]*"[^"]*")*[^"]*$)""")
     
     for (x <- line) {
+      print("0 -> ")
       println(x)
-      val fields = x.split("""[ ]+(?=([^"]*"[^"]*")*[^"]*$)""")
-      println(fields(0), fields(1), fields(2))
-      
+      val fields = x.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
+      print("1 -> ")
+      if (fields(0) != null) println(fields(0)) else println("_")
+      print("2 -> ")
+      if (fields(1) != null) println(fields(1)) else println("_")
+      print("3 -> ")
+      if (fields(2) != null) println(fields(2)) else println("_")
+     
     }
-
   }
-  
-  
   
   def main(args: Array[String]) = {
   
@@ -117,18 +127,15 @@ object RDFApp {
     val input1 = "src/main/resources/rdf.nt" //Single File
     val input2 = "src/main/resources/ntTest/*" //Set of safe Files
     val input3 = "src/main/resources/ntTest2/*" //Set of problamatic Files
-    val input4 = "src/main/resources/problemData.nt" //Single File
-    /*
-    val triples = dataToDataset(input3)
-    println("1")
-     triples.show()
-    //println(triples.count())
-    println("1")
+    val input4 = "../ExtResources/problemData.nt" //Single File
+  
+    
+    val triples = dataToDataset(input4)
+    triples.show()
+
     triples.createOrReplaceTempView("triples2")
-    */
     
-    readFile(input4)
-    
+
     //val teenagersDF = spark.sql("SELECT * from triples2 where Subject like '%Hunebed%'") //> RLIKE for regular expressions
     //teenagersDF.show(false)
 
