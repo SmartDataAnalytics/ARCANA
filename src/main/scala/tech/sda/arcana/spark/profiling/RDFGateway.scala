@@ -128,12 +128,13 @@ object RDFApp {
     val input2 = "src/main/resources/ntTest/*" //Set of safe Files
     val input3 = "src/main/resources/ntTest2/*" //Set of problamatic Files
     val input4 = "../ExtResources/problemData.nt" //Single File
-  
+    val input5 = "../ExtResources/ntFiles/*" //dbpedia
     
-    val triples = dataToDataset(input4)
+    val triples = dataToDataset(input5)
     triples.show()
-
-    triples.createOrReplaceTempView("triples2")
+    println(triples.count())
+    
+    //triples.createOrReplaceTempView("triples2")
     
 
     //val teenagersDF = spark.sql("SELECT * from triples2 where Subject like '%Hunebed%'") //> RLIKE for regular expressions
