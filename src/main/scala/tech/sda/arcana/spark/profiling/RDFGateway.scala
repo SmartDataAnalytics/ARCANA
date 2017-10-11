@@ -65,6 +65,7 @@ object RDFApp {
     fields(2)=O_Transform(fields(2))
     
     val triple:Triple = Triple(fields(0), fields(1), fields(2))
+    
     return triple
   }
 
@@ -72,12 +73,14 @@ object RDFApp {
   def basicMapperRDF(line:String): Triple = {
     
     //splitting a comma-separated string but ignoring commas in quotes
-    val fields = line.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
+    // val fields = line.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
+    val fields = line.split("""[ ]+(?=([^"]*"[^"]*")*[^"]*$)""")
 
     val triple:Triple = Triple(fields(0), fields(1), fields(2))
+    //println(fields(0), fields(1), fields(2))
     return triple
   }
-  
+  ////////////////////////////////////////////////////////////////////////////////
   // Read a file or files and convert them to a dataset after cleaning the content
   def dataToDataset(input: String) = {
     val rawDF = spark.sparkContext.textFile(input) 
@@ -88,6 +91,7 @@ object RDFApp {
     //triples.select("Object").foreach(println(_))
     //triples.select("Object").show()
     //println(triples.count())
+  ////////////////////////////////////////////////////////////////////////////////
   
   def main(args: Array[String]) = {
   
@@ -96,14 +100,17 @@ object RDFApp {
     println("============================")
     val input1 = "src/main/resources/rdf.nt" //Single File
     val input2 = "src/main/resources/ntTest/*" //Set of Files
-   
-    val triples = dataToDataset(input2)
-    //> triples.show(false)
-
+    val input3 = "src/main/resources/ntTest2/*"
+    
+    val triples = dataToDataset(input3)
+    println("1")
+     triples.show()
+    //println(triples.count())
+    println("1")
     triples.createOrReplaceTempView("triples2")
-    //> RLIKE for regular expressions
-    val teenagersDF = spark.sql("SELECT * from triples2 where Subject like '%Hunebed%'")
-    teenagersDF.show(false)
+    
+    //val teenagersDF = spark.sql("SELECT * from triples2 where Subject like '%Hunebed%'") //> RLIKE for regular expressions
+    //teenagersDF.show(false)
 
     println("~Ending Session~")
     spark.stop()
