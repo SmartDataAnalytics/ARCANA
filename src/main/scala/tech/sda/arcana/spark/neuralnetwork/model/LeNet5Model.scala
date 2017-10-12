@@ -1,12 +1,11 @@
-package tech.sda.arcana.spark.classification.cnn
+package tech.sda.arcana.spark.neuralnetwork.model
 import com.intel.analytics.bigdl.numeric.NumericFloat
 import com.intel.analytics.bigdl.nn._
 
-
-
-
+/** Object represents LeNetModel */
 object LeNet5Model {
   
+  /** creates an instance of LeNetModel model */
   def build()={
   val LeNet5Model= new Sequential()
   // 1 input channel, 6 output channels, 5x5 convolution kernel
