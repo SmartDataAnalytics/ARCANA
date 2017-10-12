@@ -83,6 +83,16 @@ object RDFApp {
     return triple
   }
   
+  def filterRddData(line: String): String=
+    {
+      val filter1=line.replaceAll("""\\""""", """\"""")
+      val filter2=filter1.replaceAll("""\\\\"""", "\"")
+      val filter3=filter2.replaceAll("""\"\\"""", "\"")
+      val filter4=filter3.replaceAll("""\\"""", "")
+      filter4
+    }
+  
+  
   ////////////////////////////////////////////////////////////////////////////////
   // Read a file or files and convert them to a dataset after cleaning the content
   def dataToDataset(input: String) = {
@@ -91,7 +101,8 @@ object RDFApp {
     // Remove empty rows 
     val noEmptyRDD = rawDF.filter(x => (x != null) && (x.length > 0))
     // Remove the existence of \"
-    val noExtraQoutRDD = rawDF.map(x => x.replaceAll("\"", ""))
+    //val noExtraQoutRDD = noEmptyRDD.map(x => x.replaceAll("""\\"""", ""))
+    val noExtraQoutRDD = noEmptyRDD.map(filterRddData)
     
     noExtraQoutRDD.map(basicMapperRDF).toDS().cache()  
   }
@@ -105,10 +116,16 @@ object RDFApp {
     val line = Source.fromFile(filename).getLines
     //val fields = line.split("""[ ]+(?=([^"]*"[^"]*")*[^"]*$)""")
     
-    for (x <- line) {
+   for (x <- line) {
       print("0 -> ")
       println(x)
-      val fields = x.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
+      val y=x.replaceAll("""\\""""", """\"""")
+      val y1=y.replaceAll("""\\\\"""", "\"")
+      val y2=y1.replaceAll("""\"\\"""", "\"")
+      val y3=y2.replaceAll("""\\"""", "")
+      print("0.b -> ")
+      println(y3)
+      val fields = y3.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
       print("1 -> ")
       if (fields(0) != null) println(fields(0)) else println("_")
       print("2 -> ")
@@ -130,20 +147,27 @@ object RDFApp {
     println("============================")
     val input1 = "src/main/resources/rdf.nt" //Single File
     val input2 = "src/main/resources/ntTest/*" //Set of safe Files
-    val input3 = "src/main/resources/ntTest2/*" //Set of problamatic Files
+    val input3 = "../ExtResources/ntTest2/*" //Set of problamatic Files
     val input4 = "../ExtResources/problemData.nt" //Single File
     val input5 = "../ExtResources/ntFiles/*" //dbpedia
     
     
-    //val input = if (args.length > 0) args(0) else input1;
+    val input = if (args.length > 0) args(0) else input1;
     
-    //val triples = dataToDataset(input)
+    //readFile(input4)
+    //val triples = dataToDataset(input3)
     //triples.show()
     //println(triples.count())
-    
+    //readFile(input)
 
-    //println("~Ending Session~")
+    println("~Ending Session~")
     //spark.stop()
     //triples
   }
 }
+
+// Problamatic cases
+//<http://simple.dbpedia.org/resource/4'33%22> <http://www.w3.org/2000/01/rdf-schema#label> "4'33\""@en .
+//<http://simple.dbpedia.org/resource/%5C> <http://www.w3.org/2000/01/rdf-schema#label> "\\"@en .
+//<http://simple.dbpedia.org/resource/%22beat-em_up%22> <http://www.w3.org/2000/01/rdf-schema#label> "\"beat-em up\""@en .
+//<http://simple.dbpedia.org/resource/%22Captain%22_Lou_Albano> <http://www.w3.org/2000/01/rdf-schema#label> "\"Captain\" Lou Albano"@en .

@@ -1,5 +1,7 @@
 <http://commons.dbpedia.org/resource/Template:Cc-by-1.0> <http://commons.dbpedia.org/property/version> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://commons.dbpedia.org/resource/Category:Events> <http://commons.dbpedia.org/property/de> "Ereignis, Veranstaltung."@en .
+<http://simple.dbpedia.org/resource/4'33%22> <http://www.w3.org/2000/01/rdf-schema#label> "4'33\""@en .
+<http://simple.dbpedia.org/resource/%5C> <http://www.w3.org/2000/01/rdf-schema#label> "\\"@en .
 <http://commons.dbpedia.org/resource/Category:Events> <http://commons.dbpedia.org/property/en> "Events"@en .
 <http://commons.dbpedia.org/resource/Category:Events> <http://commons.dbpedia.org/property/fr> "\u00C9v\u00E9nements."@en .
 <http://commons.dbpedia.org/resource/Template:Cc-by-sa-1.0> <http://commons.dbpedia.org/property/version> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .

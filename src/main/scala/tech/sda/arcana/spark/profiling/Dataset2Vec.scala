@@ -24,7 +24,7 @@ object Dataset2Vec {
 
       val input="src/main/resources/rdf.nt"
       val R=RDFApp.exportingData(input)
-      R.show()
+      R.show(false)
     //triples.createOrReplaceTempView("triples2")
     
 
