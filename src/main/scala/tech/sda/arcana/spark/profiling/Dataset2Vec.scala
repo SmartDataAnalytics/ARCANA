@@ -1,36 +1,37 @@
 package tech.sda.arcana.spark.profiling
 
 import org.apache.spark.sql.SparkSession
+import java.util.Properties
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.Dataset
 
 object Dataset2Vec {
-  
-  def getUriRelatedToWord(x: String): String = {
-    "Uri"
-  }
-  
-  def getInfoOfUri(x: String): String = {
-    "Info"
-  }
-  
-  def main(args: Array[String]) {
-    
-    val spark = SparkSession.builder
+      val spark = SparkSession.builder
       .master("local[*]")
       .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .appName("Dataset2Vec")
       .getOrCreate()
-      
-      println("Dataset2Vec")
-
+  
+  def fetchSubjectsRelatedToWord(DF: DataFrame, word: String): DataFrame={
+      DF.createOrReplaceTempView("triples")
+      val Res = spark.sql(s"SELECT Subject from triples where Object like '%$word%'") //> RLIKE for regular expressions
+      return Res
+  }
+  def fetchObjectssRelatedToWord(DF: DataFrame, word: String): DataFrame={
+      DF.createOrReplaceTempView("triples")
+      val Res = spark.sql(s"SELECT Object from triples where Subject like '%$word%'") //> RLIKE for regular expressions
+      return Res
+  }
+  def main(args: Array[String]) {
+          
       val input="src/main/resources/rdf.nt"
       val R=RDFApp.exportingData(input)
-      R.show(false)
-    //triples.createOrReplaceTempView("triples2")
-    
 
-    //val teenagersDF = spark.sql("SELECT * from triples2 where Subject like '%Hunebed%'") //> RLIKE for regular expressions
-    //teenagersDF.show(false)
-
+      val Res=fetchSubjectsRelatedToWord(R.toDF(),"Netherlands")
+      Res.show(false)
+     
+      //Breadth First Search 
+      
     println("~Stopping Session~")
     spark.stop()
   }
