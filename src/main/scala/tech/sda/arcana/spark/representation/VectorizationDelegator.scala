@@ -9,7 +9,7 @@ import org.apache.log4j._
  *  @param SparkContext object, which tells Spark how to access a cluster
  *  @param vectorLength represents the length of the delegated vector 
  */
-class VectorizationDelegator(sc:SparkContext,vectorLength:Int) {
+class VectorizationDelegator(sc:SparkContext,vectorLength:Int) extends Serializable {
   val this.sc:SparkContext=sc
   val this.vectorLength:Int=vectorLength
     

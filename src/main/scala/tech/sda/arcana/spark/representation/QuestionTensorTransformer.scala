@@ -12,7 +12,7 @@ import com.intel.analytics.bigdl.tensor.Tensor
  *  @param vectorLength the length of the vector representation
  *  @param questionsNumber the number of the questions in the text
  */ 
-class QuestionTensorTransformer(sc:SparkContext,longestWordsSeq: Int,vectorLength: Int,questionsNumber: Int= -1) {
+class QuestionTensorTransformer(sc:SparkContext,longestWordsSeq: Int,vectorLength: Int,questionsNumber: Int= -1) extends Serializable {
   val this.sc:SparkContext=sc
   val this.longestWordsSeq:Int=longestWordsSeq
   val this.vectorLength:Int=vectorLength
