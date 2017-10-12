@@ -14,7 +14,7 @@ class VectorizationDelegator(sc:SparkContext,vectorLength:Int) {
   val this.vectorLength:Int=vectorLength
     
      /** parse the vector representation regarding GloVe: Global Vectors for Word Representation
-     *   @param a line from the representation
+     *   @param line one line from the representation
      *   @return pair of words and vectors, each word with it's vector representation
      */
     def ParseVecGlov(line:String)={

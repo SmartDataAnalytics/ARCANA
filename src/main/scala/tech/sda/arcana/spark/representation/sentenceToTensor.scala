@@ -108,14 +108,14 @@ object sentenceToTensor {
           // val sc = new SparkContext("local[*]", "MinTemperatures")
           val s=new Core("model","train","label","test")
           val sc=s.initialize()
-          
+              
           
           // Read each line of input data
           val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
           
           // Read the questions
           val questions = sc.textFile("/home/mhd/Desktop/Data Set/TestNow.txt")
-          
+
           
           //Give each question an Id or an order
           val orderedQuestions=questions.zipWithIndex().map{case(line,i) => i.toString+" "+line}

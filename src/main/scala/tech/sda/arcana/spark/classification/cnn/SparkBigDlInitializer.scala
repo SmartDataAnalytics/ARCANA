@@ -16,7 +16,6 @@ class SparkBigDlInitializer(maxFailures: String = "1", master: String = "local")
   
   
    /** Initialize SparkContext depending on BigDl predefined configurations
-    *
     *  @param model the neural network application name (purpose)
     *  @return SparkContext object, which tells Spark how to access
     *  a cluster 

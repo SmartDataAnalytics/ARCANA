@@ -17,17 +17,28 @@ import com.intel.analytics.bigdl.dataset.Sample
 object BigDlReference {
   def main(args:Array[String]){
 
- /*  
-    val conf = Engine.createSparkConf()
-     .setAppName("Train Lenet on MNIST")
-     .set("spark.task.maxFailures", "1")
-     .setMaster("local")
-   val sc = new SparkContext(conf)
-   Engine.init
-
-   println(s" the Engine status is ${Engine.init}")
-   println("Hello")
-*/  
+    
+    
+    /*
+    -Dspark.master=local[1] 
+    -Dspark.executor.cores=1 
+    -Dspark.total.executor.cores=1 
+    -Dspark.executor.memory=1g 
+    -Dspark.driver.memory=1g 
+    -Xmx1024m -Xms1024m
+    */
+    
+     /*  
+        val conf = Engine.createSparkConf()
+         .setAppName("Train Lenet on MNIST")
+         .set("spark.task.maxFailures", "1")
+         .setMaster("local")
+       val sc = new SparkContext(conf)
+       Engine.init
+    
+       println(s" the Engine status is ${Engine.init}")
+       println("Hello")
+    */  
     println("-----------------Begin-----------------------")
     val image=Tensor[Float](3,5,5).rand
     val label=Tensor(T(1f))    

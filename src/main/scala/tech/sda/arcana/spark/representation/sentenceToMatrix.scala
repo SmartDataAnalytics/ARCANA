@@ -71,16 +71,37 @@ object sentenceToMatrix {
               }
               println()
             }
-            
+            /*
+             *   val t=Seq(("Mohamad",(1,57)),("Mohama",(2,58)),("Moham",(3,59)),("Moham",(4,60)))
+								  t.foreach(println(_))
+             */
             //val vectors=representation.map(x => x._2)
     }
 }
-/*
-   //achtung this is done locally 
-            for(i<-senRep){
-              for(j<-i){
+        /*
+       //achtung this is done locally 
+                for(i<-senRep){
+                  for(j<-i){
+                    print(j)
+                    print(" ")
+                  }
+                  println()
+                }*/
+
+            /*
+            //sentence representation
+            //val senRep:Array[Array[String]]=Array.ofDim[String](sentenceWordCount,vectorLength)
+              
+            for(x <- 0 to sentenceWordCount-1)
+              senRep(x)=result(x)
+              
+           
+            //for the sake of testing
+            for(x<- 0 to sentenceWordCount-1){
+              for(j<-senRep(x)){
                 print(j)
                 print(" ")
               }
-              println()
-            }*/
+              println("------------------")
+            }
+          */

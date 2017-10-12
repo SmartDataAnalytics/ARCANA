@@ -3,17 +3,9 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.log4j._
-import scala.collection.mutable.ListBuffer
 import com.intel.analytics.bigdl.tensor.Tensor
 import com.intel.analytics.bigdl.dataset.Sample
-import com.intel.analytics.bigdl.dataset.MiniBatch
-import com.intel.analytics.bigdl.optim._
-import com.intel.analytics.bigdl.nn.ClassNLLCriterion
-import com.intel.analytics.bigdl.nn.MSECriterion
 import com.intel.analytics.bigdl.utils.T
-import shapeless._0
-import tech.sda.arcana.spark.classification.cnn.Core
-import tech.sda.arcana.spark.classification.cnn.LeNet5Model
 
 /** A class with many transformation functionalities between tensors and samples
  *  @constructor create a new transformer with a spark context
