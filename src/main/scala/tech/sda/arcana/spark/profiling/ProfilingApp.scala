@@ -39,7 +39,10 @@ object App {
     //val x = new WSAPI();
     
 		//Junit.printz();
-
+    
+    
+    //val x = new RDFApp()
+   //RDFApp.main(args)
+  
   }
-
 }

@@ -1,10 +1,6 @@
-package tech.sda.arcana.spark.representation
-import org.apache.spark.ml.feature.Word2Vec
-import org.apache.spark.ml.linalg.Vector
-import org.apache.spark.sql.Row
+package tech.sda.arcana.spark.profiling
+
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.SparkConf
-import org.apache.spark.SparkContext
 
 object Dataset2Vec {
   
@@ -25,9 +21,17 @@ object Dataset2Vec {
       .getOrCreate()
       
       println("Dataset2Vec")
-      
-      
-    spark.stop()
+
+      val input="src/main/resources/rdf.nt"
+      val R=RDFApp.exportingData(input)
+      R.show()
+    //triples.createOrReplaceTempView("triples2")
     
+
+    //val teenagersDF = spark.sql("SELECT * from triples2 where Subject like '%Hunebed%'") //> RLIKE for regular expressions
+    //teenagersDF.show(false)
+
+    println("~Stopping Session~")
+    spark.stop()
   }
 }

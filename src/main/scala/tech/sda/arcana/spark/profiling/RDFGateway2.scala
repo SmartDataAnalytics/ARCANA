@@ -28,7 +28,9 @@ object RDFGatewayApp {
     val triple:Triple = Triple(fields(0), fields(1), fields(2))
     return triple
   }
-  
+  def readFile(filename: String) = {
+      println("HI FROM RDFGatewayApp")
+  }
   
   def main(args: Array[String]) = {
   

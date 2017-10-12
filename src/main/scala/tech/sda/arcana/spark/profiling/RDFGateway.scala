@@ -119,6 +119,10 @@ object RDFApp {
     }
   }
   
+  def exportingData(filename: String) = {
+    dataToDataset(filename)
+  }
+  
   def main(args: Array[String]) = {
   
     println("============================")
@@ -130,17 +134,16 @@ object RDFApp {
     val input4 = "../ExtResources/problemData.nt" //Single File
     val input5 = "../ExtResources/ntFiles/*" //dbpedia
     
-    val triples = dataToDataset(input5)
-    triples.show()
-    println(triples.count())
     
-    //triples.createOrReplaceTempView("triples2")
+    //val input = if (args.length > 0) args(0) else input1;
+    
+    //val triples = dataToDataset(input)
+    //triples.show()
+    //println(triples.count())
     
 
-    //val teenagersDF = spark.sql("SELECT * from triples2 where Subject like '%Hunebed%'") //> RLIKE for regular expressions
-    //teenagersDF.show(false)
-
-    println("~Ending Session~")
-    spark.stop()
+    //println("~Ending Session~")
+    //spark.stop()
+    //triples
   }
 }
