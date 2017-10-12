@@ -9,7 +9,7 @@ import shapeless._0
  *  @constructor create a new questions initializer with a spark context
  *  @param SparkContext object, which tells Spark how to access a cluster 
  */
-class QuestionsInitializer(sc:SparkContext) {
+class QuestionsInitializer(sc:SparkContext) extends Serializable {
   var longestWordsSeq:Int=0
   var questionsNumber:Long=0
   val this.sc:SparkContext=sc
