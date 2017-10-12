@@ -1,10 +1,11 @@
-package tech.sda.arcana.spark.classification.cnn
+package tech.sda.arcana.spark.neuralnetwork.model
 import com.intel.analytics.bigdl.numeric.NumericFloat
 import com.intel.analytics.bigdl.nn._
 
+/** Object represents AlexNetModel */
 object AlexNetModel {
   
-   
+  /** creates an instance of AlexNetModel model */
   def build()={
   val firstbranch=Sequential()
   //Achtung 3->1 from me
