@@ -6,8 +6,6 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Dataset
 import java.io._
 
-
-
 object Dataset2Vec {
       val spark = SparkSession.builder
       .master("local[*]")
@@ -36,6 +34,11 @@ object Dataset2Vec {
       val Res = spark.sql(s"SELECT Object from triples where Object like '%$word%'") 
       return Res
   }
+  def fetchAllOfWord(DF: DataFrame, word: String): DataFrame={
+      DF.createOrReplaceTempView("triples")
+      val Res = spark.sql(s"SELECT * from triples where Object like '%$word%'") 
+      return Res
+  }
  def appendToRDD(data: String) {
      val sc = spark.sparkContext
      val rdd = sc.textFile("Word2VecData")  
@@ -47,36 +50,40 @@ object Dataset2Vec {
  }
  
   def main(args: Array[String]) {
-             
-
+      val sc = spark.sparkContext
       val input="src/main/resources/rdf.nt"
       val R=RDFApp.exportingData(input)
 
-      val Res=fetchSubjectsRelatedToObjectWord(R.toDF(),"Netherlands")
-      //Res.show(false)
-     
-      val sc = spark.sparkContext
+      val Res=fetchAllOfWord(R.toDF(),"Netherlands")
+      Res.show(false)
       
+      val list = Res.select("Object").rdd.map(r => r(0)).collect()
+      val stringlist = list.mkString(" ")
+      list.foreach(line => println(line))
+      //println(stringlist)
+      
+      val Org= sc.parallelize(Seq(stringlist))
       val headerRDD= sc.parallelize(Seq("<http://commons.dbpedia.org/resource/File:Hunebed_015.jpg> <http://commons.dbpedia.org/resource/File:Hunebed_013.jpg>"))
-      
-      //Replace BODY part with your DF
       val bodyRDD= sc.parallelize(Seq("BODY2"))
-      
       val footerRDD = sc.parallelize(Seq("FOOTER"))
       val extraRDD=sc.parallelize(Seq("FOOTER"))
-      //combine all rdds to final    
-      val finalRDD = headerRDD ++ bodyRDD ++ footerRDD ++ extraRDD
-      
+      val finalRDD = Org++ headerRDD ++ bodyRDD ++ footerRDD ++ extraRDD
+			
+      finalRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
+     //> appendToRDD("""<http://commons.dbpedia.org/resource/File:Paddestoel_002.jpg>""")
+
+    println("~Stopping Session~")
+    spark.stop()
+  }
+}
+//Breadth First Search
       //finalRDD.foreach(line => println(line))
       
       //output to one file
       //finalRDD.coalesce(1, true).saveAsTextFile("testMie")
       //finalRDD.saveAsTextFile("out\\int\\tezt")
-      
-      finalRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
-      appendToRDD("""<http://commons.dbpedia.org/resource/File:Paddestoel_002.jpg>""")
 
-      
+
       /*
      val rdd = sc.textFile("Word2VecData")
      rdd.map(_.toString).toDF.show()
@@ -92,11 +99,3 @@ object Dataset2Vec {
      
      //bodyRDxD.map(_.toString).toDF.coalesce(1).write.format("text").mode("append").save("Word2VecData") // 'overwrite', 'append', 'ignore', 'error'.
       //finalRDD.map(_.toString).toDF.write.mode("append").text("testMie")
-
-      
-      //Breadth First Search 
-      
-    println("~Stopping Session~")
-    spark.stop()
-  }
-}
