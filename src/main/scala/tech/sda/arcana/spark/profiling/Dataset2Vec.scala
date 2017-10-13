@@ -12,14 +12,24 @@ object Dataset2Vec {
       .appName("Dataset2Vec")
       .getOrCreate()
   
-  def fetchSubjectsRelatedToWord(DF: DataFrame, word: String): DataFrame={
+  def fetchSubjectsRelatedToObjectWord(DF: DataFrame, word: String): DataFrame={
       DF.createOrReplaceTempView("triples")
       val Res = spark.sql(s"SELECT Subject from triples where Object like '%$word%'") //> RLIKE for regular expressions
       return Res
   }
-  def fetchObjectssRelatedToWord(DF: DataFrame, word: String): DataFrame={
+  def fetchObjectsRelatedToSubjectWord(DF: DataFrame, word: String): DataFrame={
       DF.createOrReplaceTempView("triples")
       val Res = spark.sql(s"SELECT Object from triples where Subject like '%$word%'") //> RLIKE for regular expressions
+      return Res
+  }
+  def fetchSubjectsRelatedToWord(DF: DataFrame, word: String): DataFrame={
+      DF.createOrReplaceTempView("triples")
+      val Res = spark.sql(s"SELECT Subject from triples where Subject like '%$word%'") //> RLIKE for regular expressions
+      return Res
+  }
+  def fetchObjectsRelatedToWord(DF: DataFrame, word: String): DataFrame={
+      DF.createOrReplaceTempView("triples")
+      val Res = spark.sql(s"SELECT Object from triples where Object like '%$word%'") //> RLIKE for regular expressions
       return Res
   }
   def main(args: Array[String]) {
@@ -27,7 +37,7 @@ object Dataset2Vec {
       val input="src/main/resources/rdf.nt"
       val R=RDFApp.exportingData(input)
 
-      val Res=fetchSubjectsRelatedToWord(R.toDF(),"Netherlands")
+      val Res=fetchSubjectsRelatedToObjectWord(R.toDF(),"Netherlands")
       Res.show(false)
      
       //Breadth First Search 
