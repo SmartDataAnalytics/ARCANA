@@ -22,12 +22,13 @@ object flow {
   def main(args: Array[String]) = {
       val sparkBigDlInitializer=new SparkBigDlInitializer()
       val sc=sparkBigDlInitializer.initialize("Test")
+      val questionInitializer=new QuestionsInitializer(sc) 
       val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
-      val questions = sc.textFile("/home/mhd/Desktop/Data Set/TestNow.txt")
+      val questionsWithoutCleaning=sc.textFile("/home/mhd/Desktop/Data Set/TestNow.txt")
+      val questions = questionsWithoutCleaning.map(questionInitializer.clean)
       val orderedQuestions=questions.zipWithIndex().map{case(line,i) => i.toString+" "+line}
       val vectorizationDelegator=new VectorizationDelegator(sc,50)
       val parsedLines = lines.map(vectorizationDelegator.ParseVecGlov)
-      val questionInitializer=new QuestionsInitializer(sc) 
       val parsedQuestions=orderedQuestions.flatMap(questionInitializer.parseQuestion)
       val result= parsedQuestions.join(parsedLines)
       val resultTest= result.map{case(a,b)=>b}

@@ -163,6 +163,8 @@ object sentenceToTensor {
               criterion = ClassNLLCriterion[Float](),
               batchSize = 4
             )
+            optimizer
+              .setValidation(trigger, dataset, vMethods)
           //////////////////////////////************************************************
           
           /*
