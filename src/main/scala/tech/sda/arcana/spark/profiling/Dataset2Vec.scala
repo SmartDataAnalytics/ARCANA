@@ -14,6 +14,12 @@ object Dataset2Vec {
       .getOrCreate()
       val sqlContext= new org.apache.spark.sql.SQLContext(spark.sparkContext)
       import sqlContext.implicits._
+  def printList(args: TraversableOnce[_]): Unit = {
+      args.foreach(println)
+  }
+  def showCategories(){
+      Categories.categories.foreach(line => println(line))//println(categories(1))
+  }
   def fetchSubjectsRelatedToObjectWord(DF: DataFrame, word: String): DataFrame={
       DF.createOrReplaceTempView("triples")
       val Res = spark.sql(s"SELECT Subject from triples where Object like '%$word%'") //> RLIKE for regular expressions
@@ -34,17 +40,25 @@ object Dataset2Vec {
       val Res = spark.sql(s"SELECT Object from triples where Object like '%$word%'") 
       return Res
   }
-  def fetchAllOfWordAsObject(DF: DataFrame, word: String): DataFrame={
+  def fetchAllOfWordAsObject(DF: DataFrame, word: String):List[URI]={
       DF.createOrReplaceTempView("triples")
       val Res = spark.sql(s"SELECT * from triples where Object like '%$word%'") 
-      return Res
+      val UriList=Res.select("Object").rdd.map(r => r(0)).collect()
+      UriList.toList.distinct.map(x => new URI(x.asInstanceOf[String]))
   }
-  def fetchAllOfWordAsSubject(DF: DataFrame, word: String): DataFrame={
+  
+  def fetchAllOfWordAsSubject(DF: DataFrame, word: String):List[URI]={
       DF.createOrReplaceTempView("triples")
       val Res = spark.sql(s"SELECT * from triples where Subject like '%$word%'") 
-      //Res.select("Subject").rdd.map(r => r(0)).collect()
-      Res
+      val UriList=Res.select("Subject").rdd.map(r => r(0)).collect()
+      //printList(UriList)
+      UriList.toList.distinct.map(x => new URI(x.asInstanceOf[String]))
   }
+  
+  def firstTraverse(x:Category,DF: DataFrame){
+    x.uri.map(x=>(x.URIslist=fetchAllOfWordAsObject(DF,x.Uri)))
+  }
+  
   def appendToRDD(data: String) {
      val sc = spark.sparkContext
      val rdd = sc.textFile("Word2VecData")  
@@ -53,30 +67,29 @@ object Dataset2Vec {
      //newRdd.map(_.toString).toDF.show()
      newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("append").save("Word2VecData")
      //newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
- }
+  }
  
   def main(args: Array[String]) {
       val sc = spark.sparkContext
-      
-      // Fetch categories
-      //val categories = (new Category).categories
-      
-      //val categories = new Category("War")
-      //println(categories.Category)
-      //categories.foreach(line => println(line)) //println(categories(1))
-      Categories.categories.foreach(line => println(line))
-      
-      var myCategories = Categories.categories
-      //var newCategories=myCategories.map(x => new Category(x,fetchAllOfWordAsSubject(x)))
-      
-      //println(newCategories(0).Category)
-      
-      // Fetch Data
+      //| Fetch Data
       val R=RDFApp.exportingData("src/main/resources/rdf.nt")
       
+      //| Fetch Categories
+      //> var myCategories = Categories.categories
+      var fakeCategories = List("Hunebed", "Paddestoel", "Buswachten")
+
+      var newCategories=fakeCategories.map(x => new Category(x,fetchAllOfWordAsSubject(R.toDF(),x)))
+      /*
+      for (name <- newCategories){
+        println(name.Category)
+        name.uri.foreach(line => println(line.Uri))
+      }*/
+      var newnewCategories=newCategories.map(x => firstTraverse(x,R.toDF()))
+
+
       // Stage one
-      val Res=fetchAllOfWordAsSubject(R.toDF(),"Netherlands")
-      Res.show(false)
+      //val Res=fetchAllOfWordAsSubject(R.toDF(),"Hunebed")
+      //Res.show(false)
                            
       /*
       val list = Res.select("Object").rdd.map(r => r(0)).collect()
