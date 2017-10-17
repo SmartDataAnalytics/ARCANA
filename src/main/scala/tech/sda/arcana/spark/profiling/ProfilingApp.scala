@@ -26,12 +26,12 @@ object App {
     println("==========================")
     println("|        Profiling       |")
     println("==========================")
-
+/*
     val category = new Category()    
     for ( x <- category.categories ) {
          println( x )
       }
-    
+  */  
   //  val pt =WSAPI(ws: WSClient);
   // val inst: WSAPI = new WSAPI()
   // inst.Operate()

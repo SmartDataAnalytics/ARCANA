@@ -34,12 +34,18 @@ object Dataset2Vec {
       val Res = spark.sql(s"SELECT Object from triples where Object like '%$word%'") 
       return Res
   }
-  def fetchAllOfWord(DF: DataFrame, word: String): DataFrame={
+  def fetchAllOfWordAsObject(DF: DataFrame, word: String): DataFrame={
       DF.createOrReplaceTempView("triples")
       val Res = spark.sql(s"SELECT * from triples where Object like '%$word%'") 
       return Res
   }
- def appendToRDD(data: String) {
+  def fetchAllOfWordAsSubject(DF: DataFrame, word: String): DataFrame={
+      DF.createOrReplaceTempView("triples")
+      val Res = spark.sql(s"SELECT * from triples where Subject like '%$word%'") 
+      //Res.select("Subject").rdd.map(r => r(0)).collect()
+      Res
+  }
+  def appendToRDD(data: String) {
      val sc = spark.sparkContext
      val rdd = sc.textFile("Word2VecData")  
      val extraRDD=sc.parallelize(Seq(data))
@@ -51,17 +57,34 @@ object Dataset2Vec {
  
   def main(args: Array[String]) {
       val sc = spark.sparkContext
-      val input="src/main/resources/rdf.nt"
-      val R=RDFApp.exportingData(input)
-
-      val Res=fetchAllOfWord(R.toDF(),"Netherlands")
-      Res.show(false)
       
+      // Fetch categories
+      //val categories = (new Category).categories
+      
+      //val categories = new Category("War")
+      //println(categories.Category)
+      //categories.foreach(line => println(line)) //println(categories(1))
+      Categories.categories.foreach(line => println(line))
+      
+      var myCategories = Categories.categories
+      //var newCategories=myCategories.map(x => new Category(x,fetchAllOfWordAsSubject(x)))
+      
+      //println(newCategories(0).Category)
+      
+      // Fetch Data
+      val R=RDFApp.exportingData("src/main/resources/rdf.nt")
+      
+      // Stage one
+      val Res=fetchAllOfWordAsSubject(R.toDF(),"Netherlands")
+      Res.show(false)
+                           
+      /*
       val list = Res.select("Object").rdd.map(r => r(0)).collect()
       val stringlist = list.mkString(" ")
       list.foreach(line => println(line))
-      //println(stringlist)
-      
+      println(stringlist)
+      */
+      /*
       val Org= sc.parallelize(Seq(stringlist))
       val headerRDD= sc.parallelize(Seq("<http://commons.dbpedia.org/resource/File:Hunebed_015.jpg> <http://commons.dbpedia.org/resource/File:Hunebed_013.jpg>"))
       val bodyRDD= sc.parallelize(Seq("BODY2"))
@@ -71,11 +94,12 @@ object Dataset2Vec {
 			
       finalRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
      //> appendToRDD("""<http://commons.dbpedia.org/resource/File:Paddestoel_002.jpg>""")
-
+			*/
     println("~Stopping Session~")
     spark.stop()
   }
 }
+
 //Breadth First Search
       //finalRDD.foreach(line => println(line))
       
