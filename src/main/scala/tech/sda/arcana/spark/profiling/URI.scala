@@ -1,7 +1,7 @@
 package tech.sda.arcana.spark.profiling
 import scala.collection.mutable.ListBuffer
-class URI(var Uri: String) {
-   var uris = new ListBuffer[URI]()
+class RDFURI(var Uri: String) {
+   var uris = new ListBuffer[RDFURI]()
    //var URIslist = List.newBuilder[URI]
-   var URIslist  = List[URI]()
+   var URIslist  = List[RDFURI]()
 }

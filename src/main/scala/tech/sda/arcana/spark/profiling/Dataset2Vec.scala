@@ -43,19 +43,19 @@ object Dataset2Vec {
       return Res
   }
   
-  def fetchObjectsOfSubject(DF: DataFrame, word: String):List[URI]={
+  def fetchObjectsOfSubject(DF: DataFrame, word: String):List[RDFURI]={
       DF.createOrReplaceTempView("triples")
       val Res = spark.sql(s"SELECT Object from triples where Subject = '$word'") 
       val UriList=Res.select("Object").rdd.map(r => r(0)).collect()
-      UriList.toList.distinct.map(x => new URI(x.asInstanceOf[String]))
+      UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
   }
   
-  def fetchAllOfWordAsSubject(DF: DataFrame, word: String):List[URI]={
+  def fetchAllOfWordAsSubject(DF: DataFrame, word: String):List[RDFURI]={
       DF.createOrReplaceTempView("triples")
       val Res = spark.sql(s"SELECT * from triples where Subject like '%$word%'") 
       val UriList=Res.select("Subject").rdd.map(r => r(0)).collect()
       //printList(UriList)
-      UriList.toList.distinct.map(x => new URI(x.asInstanceOf[String]))
+      UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
   }
   
   def firstTraverse(x:Category,DF: DataFrame):Category={
