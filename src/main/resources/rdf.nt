@@ -100,4 +100,4 @@
 <http://commons.dbpedia.org/resource/File:Hunebed_013.jpg> <http://commons.dbpedia.org/property/source> "Own picture from Andre Engels."@en .
 <http://commons.dbpedia.org/resource/File:Hunebed_013.jpg> <http://commons.dbpedia.org/property/author> <http://commons.dbpedia.org/resource/User:Andre_Engels> .
 <http://commons.dbpedia.org/resource/File:Hunebed_015.jpg> <http://commons.dbpedia.org/property/description> "Hunebeds  near Drouwen, the Netherlands."@en .
-<http://commons.dbpedia.org/resource/User:Andre_Engels> <http://commons.dbpedia.org/property/description> "It seems to Work."@en .
+<http://commons.dbpedia.org/resource/User:Andre_Engels> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:2dTraverse> .

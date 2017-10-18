@@ -14,11 +14,42 @@ object Dataset2Vec {
       .getOrCreate()
       val sqlContext= new org.apache.spark.sql.SQLContext(spark.sparkContext)
       import sqlContext.implicits._
-
+  /////////////////////////////////// PRINTING ///////////////////////////////////
   def showCategories(){
       Categories.categories.foreach(line => println(line))//println(categories(1))
   }
-  
+  def showCategoryObjects(Categories: List[Category]){
+    for (categoryN <- Categories){
+        println(categoryN.Category)
+        categoryN.uri.foreach(line => println(line.Uri))
+      }
+  } 
+  def showFirstTraverse(Categories: List[Category]){
+    for (instance <- Categories){
+      println("--"+instance.Category)//instance.uri.foreach(line => println(line.Uri))
+       for (line <- instance.uri){
+         println("--------"+line.Uri)
+         for (x <- line.URIslist){
+           println("----------------"+x.Uri)
+         }
+       }
+    }
+  } 
+  def showSecondTraverse(Categories: List[Category]){
+    for (instance <- Categories){
+      println("--"+instance.Category)
+       for (line <- instance.uri){
+         println("--------"+line.Uri)
+         for (x <- line.URIslist){
+           println("----------------"+x.Uri)
+           for (y <- x.URIslist){
+             println("----------------------"+y.Uri)
+           }
+         }
+       }
+    }
+  } 
+  ////////////////////////////////////////////////////////////////////////////////
   def fetchSubjectsRelatedToObjectWord(DF: DataFrame, word: String): DataFrame={
       DF.createOrReplaceTempView("triples")
       val Res = spark.sql(s"SELECT Subject from triples where Object like '%$word%'") //> RLIKE for regular expressions
@@ -63,15 +94,22 @@ object Dataset2Vec {
     x
   }
   def secondTraverse(xl: Category,DF: DataFrame):Category={
-    
       for (fTR <- xl.uri){
-        for (sTR <- fTR.URIslist){
-          sTR.URIslist.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri)))
-        }
+        fTR.URIslist.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri)))
       }
-    
     xl
   }
+          /*for (sTR <- fTR.URIslist){
+          //println(sTR.Uri)
+          sTR.URIslist=fetchObjectsOfSubject(DF,sTR.Uri)
+          //sTR.URIslist.foreach(x => println(x.Uri))
+          /*for (tTR <- sTR.URIslist){
+            println(sTR.Uri)
+            tTR.URIslist=fetchObjectsOfSubject(DF,sTR.Uri)
+            println(tTR.Uri)
+          }*/
+          //sTR.URIslist.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri)))
+        }*/
   def appendToRDD(data: String) {
      val sc = spark.sparkContext
      val rdd = sc.textFile("Word2VecData")  
@@ -86,35 +124,23 @@ object Dataset2Vec {
       val sc = spark.sparkContext
       //| Fetch Data
       val R=RDFApp.exportingData("src/main/resources/rdf.nt")
-
+      
       //| Fetch Categories
       //> var myCategories = Categories.categories
       var fakeCategories = List("Hunebed", "Paddestoel", "Buswachten")
+      
+      //| Converting each category to a Category Object with the list of URIs belonging to it
+      var categoryOBJs=fakeCategories.map(x => new Category(x,fetchAllOfWordAsSubject(R.toDF(),x)))
+      // showCategoryObjects(categoryOBJs)
 
-      var wordURIs=fakeCategories.map(x => new Category(x,fetchAllOfWordAsSubject(R.toDF(),x)))
-      /*
-      for (name <- newCategories){
-        println(name.Category)
-        name.uri.foreach(line => println(line.Uri))
-      }*/
-      var firstTR=wordURIs.map(x => firstTraverse(x,R.toDF()))
+      //| Fetch the objects related to the URIs of each category
+      var firstTR=categoryOBJs.map(x => firstTraverse(x,R.toDF()))
+      // showFirstTraverse(firstTR)
+      
       var secondTR=firstTR.map(x => secondTraverse(x,R.toDF()))
+      showSecondTraverse(secondTR)
       
-       for (fTR <- secondTR){
-    
-        }
-      
-      /*
-      for (instance <- firstTR){
-        println("--"+instance.Category)
-       //instance.uri.foreach(line => println(line.Uri))
-         for (line <- instance.uri){
-           println("--------"+line.Uri)
-           for (x <- line.URIslist){
-             println("----------------"+x.Uri)
-           }
-         }
-      }*/
+
 
       // Stage one
       //val Res=fetchAllOfWordAsSubject(R.toDF(),"Hunebed")
