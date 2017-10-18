@@ -101,3 +101,4 @@
 <http://commons.dbpedia.org/resource/File:Hunebed_013.jpg> <http://commons.dbpedia.org/property/author> <http://commons.dbpedia.org/resource/User:Andre_Engels> .
 <http://commons.dbpedia.org/resource/File:Hunebed_015.jpg> <http://commons.dbpedia.org/property/description> "Hunebeds  near Drouwen, the Netherlands."@en .
 <http://commons.dbpedia.org/resource/User:Andre_Engels> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:2dTraverse> .
+<http://commons.dbpedia.org/resource/User:2dTraverse> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:3dTraverse> .

@@ -49,6 +49,23 @@ object Dataset2Vec {
        }
     }
   } 
+  def showThirdTraverse(Categories: List[Category]){
+    for (instance <- Categories){
+      println("--"+instance.Category)
+       for (line <- instance.uri){
+         println("--------"+line.Uri)
+         for (x <- line.URIslist){
+           println("----------------"+x.Uri)
+           for (y <- x.URIslist){
+             println("----------------------"+y.Uri)
+             for (z <- y.URIslist){
+             println("--------------------------------"+z.Uri)
+           }
+           }
+         }
+       }
+    }
+  } 
   ////////////////////////////////////////////////////////////////////////////////
   def fetchSubjectsRelatedToObjectWord(DF: DataFrame, word: String): DataFrame={
       DF.createOrReplaceTempView("triples")
@@ -99,6 +116,14 @@ object Dataset2Vec {
       }
     xl
   }
+  def thirdTraverse(xl: Category,DF: DataFrame):Category={
+      for (fTR <- xl.uri){
+        for (sTR <- fTR.URIslist){
+           sTR.URIslist.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri))) 
+        }
+      }
+    xl
+  }
           /*for (sTR <- fTR.URIslist){
           //println(sTR.Uri)
           sTR.URIslist=fetchObjectsOfSubject(DF,sTR.Uri)
@@ -124,7 +149,8 @@ object Dataset2Vec {
       val sc = spark.sparkContext
       //| Fetch Data
       val R=RDFApp.exportingData("src/main/resources/rdf.nt")
-      
+      val Res=fetchObjectsOfSubject(R.toDF(),"<http://commons.dbpedia.org/resource/User:2dTraverse>")
+
       //| Fetch Categories
       //> var myCategories = Categories.categories
       var fakeCategories = List("Hunebed", "Paddestoel", "Buswachten")
@@ -138,9 +164,10 @@ object Dataset2Vec {
       // showFirstTraverse(firstTR)
       
       var secondTR=firstTR.map(x => secondTraverse(x,R.toDF()))
-      showSecondTraverse(secondTR)
+      //showSecondTraverse(secondTR)
       
-
+      var thirdTR=secondTR.map(x => thirdTraverse(x,R.toDF()))
+      showThirdTraverse(thirdTR)
 
       // Stage one
       //val Res=fetchAllOfWordAsSubject(R.toDF(),"Hunebed")
