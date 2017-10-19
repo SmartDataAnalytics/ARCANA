@@ -6,7 +6,6 @@ import org.apache.log4j._
 import scala.collection.mutable.ListBuffer
 import com.intel.analytics.bigdl.tensor.Tensor
 import com.intel.analytics.bigdl.dataset.Sample
-import com.intel.analytics.bigdl.dataset.MiniBatch
 import com.intel.analytics.bigdl.optim._
 import com.intel.analytics.bigdl.nn.ClassNLLCriterion
 import com.intel.analytics.bigdl.nn.MSECriterion
@@ -19,7 +18,11 @@ import tech.sda.arcana.spark.representation._
 
 object flow {
   
+  
+  
+  
   def main(args: Array[String]) = {
+
       val sparkBigDlInitializer=new SparkBigDlInitializer()
       val sc=sparkBigDlInitializer.initialize("Test")
       val questionInitializer=new QuestionsInitializer(sc) 
@@ -35,9 +38,11 @@ object flow {
       val groupedResultTest=resultTest.groupBy(x=>x._1._1)
       val questionTensorTransformer=new QuestionTensorTransformer(sc,questionInitializer.calculateLongestWordsSeq(questions),50)
       val great=groupedResultTest.map(questionTensorTransformer.transform)
-      val answer=great.collect()
-      answer.foreach{println("---------------StART---------------------")
-                     x=>println(x)
-                     println("----------------END----------------------")}
+      val sampler=new TensorSampleTransformer(sc)
+      val samples=great.map(sampler.initializePositiveSample)
+      val trainer=new Trainer(2,3).build(samples, 4)
+      
+
+
   }
 }

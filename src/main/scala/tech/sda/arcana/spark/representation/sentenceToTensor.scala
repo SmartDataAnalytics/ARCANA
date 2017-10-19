@@ -144,11 +144,11 @@ object sentenceToTensor {
           
           val great=groupedResultTest.map(testte)
           
-          val answer=great.collect()
+          /*val answer=great.collect()
 
           answer.foreach{println("---------------StART---------------------")
                         x=>println(x)
-                         println("----------------END----------------------")}
+                         println("----------------END----------------------")}*/
           
           
           //////////////////////////////************************************************
@@ -161,8 +161,12 @@ object sentenceToTensor {
               model = LeNet5Model.build(),
               sampleRDD = ss,
               criterion = ClassNLLCriterion[Float](),
-              batchSize = 4
+              batchSize = 3
             )
+            val trigger = Trigger.everyEpoch
+            
+            optimizer.setCheckpoint("/home/mhd/Desktop/Data Set/TTT", trigger)
+            println("gell")
             /*
             optimizer
                 .setOptimMethod(new Adagrad(learningRate=0.01, learningRateDecay=0.0002))
@@ -210,7 +214,9 @@ object sentenceToTensor {
           
           val test1=(it.toSeq).sortBy(_._2._1._1)
           
-          
+                    val label=Tensor[Float](T(1f))
+          val sample=Sample(tensor,label)
+          (sample)
           val x=Tensor[Float](4,5,6)
           x.apply1(i => i+1)
           */

@@ -7,11 +7,11 @@ import com.intel.analytics.bigdl.tensor.Tensor
 import com.intel.analytics.bigdl.dataset.Sample
 import com.intel.analytics.bigdl.utils.T
 
-/** A class with many transformation functionalities between tensors and samples
- *  @constructor create a new transformer with a spark context
- *  @param SparkContext object, which tells Spark how to access a cluster 
+/**A class with many transformation functionalities between tensors and samples
+ * @constructor create a new transformer with a spark context
+ * @param SparkContext object, which tells Spark how to access a cluster 
  */
-class TensorSampleTransformer(sc: SparkContext) {
+class TensorSampleTransformer(sc: SparkContext) extends Serializable {
     
     /** Initialize the samples by labeling the input tensor with positive label
      *  @param tensor which represent the question
