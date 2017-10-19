@@ -39,10 +39,12 @@ object flow {
       val groupedResultTest=resultTest.groupBy(x=>x._1._1)
       val questionTensorTransformer=new QuestionTensorTransformer(sc,questionInitializer.calculateLongestWordsSeq(questions),50)
       val great=groupedResultTest.map(questionTensorTransformer.transform)
+      val sampler=new TensorSampleTransformer(sc)
+      val samples=great.map(sampler.initializePositiveSample)
+      val trainer=new Trainer(2,3)
+      
       val answer=great.collect()
-      answer.foreach{println("---------------StART---------------------")
-                     x=>println(x)
-                     println("----------------END----------------------")}
+
 
   }
 }
