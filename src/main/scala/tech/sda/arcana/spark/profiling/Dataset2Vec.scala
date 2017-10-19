@@ -60,7 +60,7 @@ object Dataset2Vec {
              println("----------------------"+y.Uri)
              for (z <- y.URIslist){
              println("--------------------------------"+z.Uri)
-           }
+             }
            }
          }
        }
@@ -102,7 +102,6 @@ object Dataset2Vec {
       DF.createOrReplaceTempView("triples")
       val Res = spark.sql(s"SELECT * from triples where Subject like '%$word%'") 
       val UriList=Res.select("Subject").rdd.map(r => r(0)).collect()
-      //printList(UriList)
       UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
   }
   
@@ -124,17 +123,40 @@ object Dataset2Vec {
       }
     xl
   }
-          /*for (sTR <- fTR.URIslist){
-          //println(sTR.Uri)
-          sTR.URIslist=fetchObjectsOfSubject(DF,sTR.Uri)
-          //sTR.URIslist.foreach(x => println(x.Uri))
-          /*for (tTR <- sTR.URIslist){
-            println(sTR.Uri)
-            tTR.URIslist=fetchObjectsOfSubject(DF,sTR.Uri)
-            println(tTR.Uri)
-          }*/
-          //sTR.URIslist.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri)))
-        }*/
+
+
+  def prepareData(data:List[Category]){
+   //val string = args.mkString(" ")
+    for (instance <- data){
+      //println(instance.Category)
+       for (line <- instance.uri){
+         //println("--------"+line.Uri)
+         //for(s<-line.URIslist){
+        //   println(s.Uri)}
+        // println(" = ")
+         line.FormedURI=line.Uri+" "+line.URIslist.map(_.Uri).mkString(" ")
+         //println(line.FormedURI)  
+         for (x <- line.URIslist){
+
+           line.FormedURI +=" "+x.URIslist.map(_.Uri).mkString(" ")
+           for (y <- x.URIslist){
+             //println("----------*------------"+y.Uri)
+             line.FormedURI +=" "+y.URIslist.map(_.Uri).mkString(" ")
+           }
+
+         }
+                    for(r<-line.URIslist){
+            for (z <- r.URIslist){
+             //println("--------------------------------"+line.FormedURI)
+             //println("--------------------------------"+z.Uri)
+             line.FormedURI +=" "+z.URIslist.map(_.Uri).mkString(" ")
+             }
+           }
+         
+         
+       }
+    }
+  }
   def appendToRDD(data: String) {
      val sc = spark.sparkContext
      val rdd = sc.textFile("Word2VecData")  
@@ -148,12 +170,11 @@ object Dataset2Vec {
   def main(args: Array[String]) {
       val sc = spark.sparkContext
       //| Fetch Data
-      val R=RDFApp.exportingData("src/main/resources/rdf.nt")
-      val Res=fetchObjectsOfSubject(R.toDF(),"<http://commons.dbpedia.org/resource/User:2dTraverse>")
+      val R=RDFApp.exportingData("src/main/resources/rdf2.nt")
 
       //| Fetch Categories
       //> var myCategories = Categories.categories
-      var fakeCategories = List("Hunebed", "Paddestoel", "Buswachten")
+      var fakeCategories = List("war","Hunebed", "Paddestoel", "Buswachten")
       
       //| Converting each category to a Category Object with the list of URIs belonging to it
       var categoryOBJs=fakeCategories.map(x => new Category(x,fetchAllOfWordAsSubject(R.toDF(),x)))
@@ -164,11 +185,20 @@ object Dataset2Vec {
       // showFirstTraverse(firstTR)
       
       var secondTR=firstTR.map(x => secondTraverse(x,R.toDF()))
-      //showSecondTraverse(secondTR)
+      // showSecondTraverse(secondTR)
       
       var thirdTR=secondTR.map(x => thirdTraverse(x,R.toDF()))
-      showThirdTraverse(thirdTR)
+      // showThirdTraverse(thirdTR)
 
+      prepareData(thirdTR)
+     
+      for(x<-thirdTR){
+        for(y<-x.uri){
+          println(y.FormedURI)
+        }
+        
+      }
+      
       // Stage one
       //val Res=fetchAllOfWordAsSubject(R.toDF(),"Hunebed")
       //Res.show(false)
@@ -194,6 +224,21 @@ object Dataset2Vec {
     spark.stop()
   }
 }
+
+
+
+          /*for (sTR <- fTR.URIslist){
+          //println(sTR.Uri)
+          sTR.URIslist=fetchObjectsOfSubject(DF,sTR.Uri)
+          //sTR.URIslist.foreach(x => println(x.Uri))
+          /*for (tTR <- sTR.URIslist){
+            println(sTR.Uri)
+            tTR.URIslist=fetchObjectsOfSubject(DF,sTR.Uri)
+            println(tTR.Uri)
+          }*/
+          //sTR.URIslist.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri)))
+        }*/
+
 
 //Breadth First Search
       //finalRDD.foreach(line => println(line))

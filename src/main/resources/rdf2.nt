@@ -1,0 +1,25 @@
+<http://commons.dbpedia.org/resource/User:warTR1A> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR2A> .
+<http://commons.dbpedia.org/resource/User:warTR1A> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR2B> .
+<http://commons.dbpedia.org/resource/User:warTR1B> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR2C> .
+<http://commons.dbpedia.org/resource/User:warTR1B> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR2D> .
+<http://commons.dbpedia.org/resource/User:warTR1C> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR2E> .
+<http://commons.dbpedia.org/resource/User:warTR1C> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR2F> .
+
+<http://commons.dbpedia.org/resource/User:TR2E> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR3G> .
+<http://commons.dbpedia.org/resource/User:TR2F> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR3H> .
+
+<http://commons.dbpedia.org/resource/User:TR3G> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR4C> .
+
+<http://commons.dbpedia.org/resource/User:TR2A> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR3B> .
+<http://commons.dbpedia.org/resource/User:TR2A> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR3A> .
+<http://commons.dbpedia.org/resource/User:TR2A> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR3C> .
+
+<http://commons.dbpedia.org/resource/User:TR3A> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR4A> .
+<http://commons.dbpedia.org/resource/User:TR3A> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR4B> .
+
+<http://commons.dbpedia.org/resource/User:TR2B> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR3D> .
+<http://commons.dbpedia.org/resource/User:TR2B> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR3E> .
+<http://commons.dbpedia.org/resource/User:TR2B> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR3F> .
+
+<http://commons.dbpedia.org/resource/User:TR4A> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR5A> .
+
