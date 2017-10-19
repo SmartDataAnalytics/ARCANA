@@ -6,7 +6,6 @@ import org.apache.log4j._
 import scala.collection.mutable.ListBuffer
 import com.intel.analytics.bigdl.tensor.Tensor
 import com.intel.analytics.bigdl.dataset.Sample
-import com.intel.analytics.bigdl.dataset.MiniBatch
 import com.intel.analytics.bigdl.optim._
 import com.intel.analytics.bigdl.nn.ClassNLLCriterion
 import com.intel.analytics.bigdl.nn.MSECriterion
@@ -41,9 +40,8 @@ object flow {
       val great=groupedResultTest.map(questionTensorTransformer.transform)
       val sampler=new TensorSampleTransformer(sc)
       val samples=great.map(sampler.initializePositiveSample)
-      val trainer=new Trainer(2,3)
+      val trainer=new Trainer(2,3).build(samples, 4)
       
-      val answer=great.collect()
 
 
   }
