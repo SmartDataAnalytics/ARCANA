@@ -19,7 +19,11 @@ import tech.sda.arcana.spark.representation._
 
 object flow {
   
+  
+  
+  
   def main(args: Array[String]) = {
+
       val sparkBigDlInitializer=new SparkBigDlInitializer()
       val sc=sparkBigDlInitializer.initialize("Test")
       val questionInitializer=new QuestionsInitializer(sc) 
@@ -39,5 +43,6 @@ object flow {
       answer.foreach{println("---------------StART---------------------")
                      x=>println(x)
                      println("----------------END----------------------")}
+
   }
 }

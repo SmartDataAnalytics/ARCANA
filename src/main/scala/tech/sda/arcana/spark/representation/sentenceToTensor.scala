@@ -210,7 +210,9 @@ object sentenceToTensor {
           
           val test1=(it.toSeq).sortBy(_._2._1._1)
           
-          
+                    val label=Tensor[Float](T(1f))
+          val sample=Sample(tensor,label)
+          (sample)
           val x=Tensor[Float](4,5,6)
           x.apply1(i => i+1)
           */
