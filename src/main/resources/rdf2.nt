@@ -18,8 +18,9 @@
 <http://commons.dbpedia.org/resource/User:TR3A> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR4B> .
 
 <http://commons.dbpedia.org/resource/User:TR2B> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR3D> .
+<http://commons.dbpedia.org/resource/User:TR3D> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR4C> .
 <http://commons.dbpedia.org/resource/User:TR2B> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR3E> .
 <http://commons.dbpedia.org/resource/User:TR2B> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR3F> .
-
+<http://commons.dbpedia.org/resource/User:TR3F> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR4C> .
 <http://commons.dbpedia.org/resource/User:TR4A> <http://commons.dbpedia.org/property/description> <http://commons.dbpedia.org/resource/User:TR5A> .
 

@@ -126,34 +126,21 @@ object Dataset2Vec {
 
 
   def prepareData(data:List[Category]){
-   //val string = args.mkString(" ")
+    //| Loop Categories
     for (instance <- data){
-      //println(instance.Category)
+      //| Loop URIS of each category <Traverse 1>
        for (line <- instance.uri){
-         //println("--------"+line.Uri)
-         //for(s<-line.URIslist){
-        //   println(s.Uri)}
-        // println(" = ")
          line.FormedURI=line.Uri+" "+line.URIslist.map(_.Uri).mkString(" ")
-         //println(line.FormedURI)  
+         //| Loop URIS of each URI of category <Traverse 2>
          for (x <- line.URIslist){
-
            line.FormedURI +=" "+x.URIslist.map(_.Uri).mkString(" ")
-           for (y <- x.URIslist){
-             //println("----------*------------"+y.Uri)
-             line.FormedURI +=" "+y.URIslist.map(_.Uri).mkString(" ")
-           }
-
          }
-                    for(r<-line.URIslist){
+         //| Loop URIS of each URI of URI of category <Traverse 3>
+         for(r<-line.URIslist){
             for (z <- r.URIslist){
-             //println("--------------------------------"+line.FormedURI)
-             //println("--------------------------------"+z.Uri)
              line.FormedURI +=" "+z.URIslist.map(_.Uri).mkString(" ")
              }
-           }
-         
-         
+         }
        }
     }
   }
@@ -196,7 +183,6 @@ object Dataset2Vec {
         for(y<-x.uri){
           println(y.FormedURI)
         }
-        
       }
       
       // Stage one
