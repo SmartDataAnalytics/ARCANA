@@ -156,7 +156,24 @@ object sentenceToTensor {
           LeNet5Model.build()
           val ss=great.map(sasa)
 
-                       
+          println("------------output-----------------")  
+          println(LeNet5Model.build().output)
+          println("------------evaluate-----------------")
+          println(LeNet5Model.build().evaluate())
+          println("------------checkEngineType-----------------")
+          println(LeNet5Model.build().checkEngineType())
+          println("------------isTraining-----------------")
+          println(LeNet5Model.build().isTraining())
+          println("-------------predict----------------")
+          println(LeNet5Model.build().predict(ss))
+          println("-------------training----------------")
+          println(LeNet5Model.build().training())
+          println("-----------getTimes------------------")
+          println(LeNet5Model.build().getTimes())
+          println("-----------------------------")
+          //println(LeNet5Model.build().forward( )
+          
+          /*
               val optimizer = Optimizer(
               model = LeNet5Model.build(),
               sampleRDD = ss,
@@ -167,6 +184,10 @@ object sentenceToTensor {
             
             optimizer.setCheckpoint("/home/mhd/Desktop/Data Set/TTT", trigger)
             println("gell")
+            
+            
+            */
+            
             /*
             optimizer
                 .setOptimMethod(new Adagrad(learningRate=0.01, learningRateDecay=0.0002))
