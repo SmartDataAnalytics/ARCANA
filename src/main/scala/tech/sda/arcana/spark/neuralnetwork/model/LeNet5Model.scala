@@ -9,7 +9,7 @@ object LeNet5Model {
   def build()={
   val LeNet5Model= new Sequential()
   // 1 input channel, 6 output channels, 5x5 convolution kernel
-  LeNet5Model.add(SpatialConvolution(1, 6, 5, 5))
+  LeNet5Model.add(SpatialConvolution(1, 6, 2, 2))
   //non-linearity (+Z)
   LeNet5Model.add(ReLU())
   //A max-pooling operation that looks at 2x2 windows and finds the max.

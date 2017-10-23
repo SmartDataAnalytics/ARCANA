@@ -1,5 +1,7 @@
 package tech.sda.arcana.spark.representation
 import org.apache.spark.rdd.RDD
+import com.intel.analytics.bigdl.tensor.TensorNumericMath.TensorNumeric.NumericFloat
+import com.intel.analytics.bigdl.nn.View
 import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.log4j._
@@ -14,13 +16,13 @@ import com.intel.analytics.bigdl.utils.T
 import shapeless._0
 import tech.sda.arcana.spark.classification.cnn.Core
 import tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model
-
+import com.intel.analytics.bigdl.nn.Reshape
 
 object sentenceToTensor {
   //Transfer one question one sentence to multi-represential tensor
   
    val vectorLength:Int=50
-  val sentenceWordCount:Int=22
+  val sentenceWordCount:Int=15
   
   
       //return each line of the glov representation as follows:
@@ -62,7 +64,7 @@ object sentenceToTensor {
         
           def testte(sentence:(Long, Iterable[((Long, Int), Array[String])]))={
             //if(sentence!=null){
-            val tensor=Tensor[Float](sentenceWordCount,vectorLength)
+            val tensor=Tensor[Float](1,sentenceWordCount,vectorLength)
             val tensorStorage= tensor.storage.fill(0, 1, sentenceWordCount*vectorLength-1)
             //the reverse here to make the word order upside down
             var vec=sentence._2.toSeq.sortBy(x=>x._1._2).reverse
@@ -143,19 +145,57 @@ object sentenceToTensor {
           val groupedResultTest=resultTest.groupBy(x=>x._1._1)
           
           val great=groupedResultTest.map(testte)
-          
-          /*val answer=great.collect()
+          /*
+          val answer=great.collect()
 
           answer.foreach{println("---------------StART---------------------")
                         x=>println(x)
-                         println("----------------END----------------------")}*/
+                         println("----------------END----------------------")}
           
-          
+          */
           //////////////////////////////************************************************
+         /*
+          var tensorF=Tensor[Float](2,2)
+          println("--------------2,2--------------------------")
+          println(tensorF)
+          println("--------------3,3--------------------------")
+          tensorF=Tensor[Float](3,3)
+          println(tensorF)
+          println("--------------3,3,3--------------------------")
+          tensorF=Tensor[Float](3,3,3)
+          println(tensorF)
+          println("--------------2,2,2--------------------------")
+          tensorF=Tensor[Float](2,2,2)
+          println(tensorF)
+          println("--------------4,2,3--------------------------")
+          tensorF=Tensor[Float](4,2,3)
+          println(tensorF)
+          println("--------------4,2,3,5--------------------------")
+          tensorF=Tensor[Float](4,2,3,5)
+          println(tensorF)
+          println("--------------4,2,3,9--------------------------")
+          tensorF=Tensor[Float](4,2,3,9)
+          println(tensorF)
+          println("--------------4,4,3,9,4--------------------------")
+          tensorF=Tensor[Float](4,4,3,9,4)
+          println(tensorF)
+          */
+          /*
+          val reshape = Reshape(Array(1))
+          //val wow=great.collect()
+          println(reshape.forward(Tensor[Float](4,4,3,9,4)))
+          */
+          
+          
           // optimizer
-          LeNet5Model.build()
-          val ss=great.map(sasa)
-
+          println(LeNet5Model.build())
+          
+          /*
+          val wow=great.collect()
+          println( LeNet5Model.build().forward( wow(1) ) )
+					*/
+          
+          /*
           println("------------output-----------------")  
           println(LeNet5Model.build().output)
           println("------------evaluate-----------------")
@@ -172,6 +212,7 @@ object sentenceToTensor {
           println(LeNet5Model.build().getTimes())
           println("-----------------------------")
           //println(LeNet5Model.build().forward( )
+          */
           
           /*
               val optimizer = Optimizer(
