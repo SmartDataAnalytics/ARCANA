@@ -143,7 +143,11 @@ object Dataset2Vec {
              line.FormedURI +=" "+z.URIslist.map(_.Uri).mkString(" ")
              }
          }
-         line.FormedURI=line.FormedURI.replaceAll("  "," ")
+         // replace double spaces with single spaces
+         line.FormedURI=line.FormedURI.replaceAll(" +"," ")
+         // remove trailing spaces
+         line.FormedURI=line.FormedURI.replaceAll("""(?m)\s+$""", "")
+
        }
     }
   }
