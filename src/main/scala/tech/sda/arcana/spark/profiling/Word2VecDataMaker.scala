@@ -67,9 +67,7 @@ object Dataset2Vec {
           println(y.FormedURI)
         }
       }
-  } 
-
-        
+  }     
   ////////////////////////////////////////////////////////////////////////////////
   def fetchSubjectsRelatedToObjectWord(DF: DataFrame, word: String): DataFrame={
       DF.createOrReplaceTempView("triples")
@@ -149,6 +147,16 @@ object Dataset2Vec {
        }
     }
   }
+  def preparedDataToRDD(thirdTR: List[Category]):RDD[String]={
+      val sc = spark.sparkContext
+      var myRDD=sc.emptyRDD[String]
+      for(x<-thirdTR){
+        for(y<-x.uri){
+          myRDD++=sc.parallelize(Seq(y.FormedURI))
+        }
+      }
+      myRDD
+  }    
   def appendToRDD(data: String) {
      val sc = spark.sparkContext
      val rdd = sc.textFile("Word2VecData")  
@@ -181,39 +189,17 @@ object Dataset2Vec {
       // showThirdTraverse(thirdTR)
 
       prepareData(thirdTR)
-      // showPreparedData(thirdTR)
-      var myRDD=sc.emptyRDD[String]
-      for(x<-thirdTR){
-        for(y<-x.uri){
-          myRDD++=sc.parallelize(Seq(y.FormedURI))
-          //println(y.FormedURI)
-        }
-      }
-     myRDD.map(_.toString).toDF.show(false)     
-      /*
-      val list = Res.select("Object").rdd.map(r => r(0)).collect()
-      val stringlist = list.mkString(" ")
-      list.foreach(line => println(line))
-      println(stringlist)
-      */
-      /*
-      val Org= sc.parallelize(Seq(stringlist))
-      val headerRDD= sc.parallelize(Seq("<http://commons.dbpedia.org/resource/File:Hunebed_015.jpg> <http://commons.dbpedia.org/resource/File:Hunebed_013.jpg>"))
-      val bodyRDD= sc.parallelize(Seq("BODY2"))
-      val footerRDD = sc.parallelize(Seq("FOOTER"))
-      val extraRDD=sc.parallelize(Seq("FOOTER"))
-      val finalRDD = Org++ headerRDD ++ bodyRDD ++ footerRDD ++ extraRDD
-			
-      finalRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
+
+      var myRDD=preparedDataToRDD(thirdTR)
+      //myRDD.map(_.toString).toDF.show(false)     
+ 		
+      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
      //> appendToRDD("""<http://commons.dbpedia.org/resource/File:Paddestoel_002.jpg>""")
-			*/
+ 
     println("~Stopping Session~")
     spark.stop()
   }
 }
-
-
-
           /*for (sTR <- fTR.URIslist){
           //println(sTR.Uri)
           sTR.URIslist=fetchObjectsOfSubject(DF,sTR.Uri)
@@ -225,28 +211,14 @@ object Dataset2Vec {
           }*/
           //sTR.URIslist.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri)))
         }*/
-
-
-//Breadth First Search
-      //finalRDD.foreach(line => println(line))
+ 
       
       //output to one file
       //finalRDD.coalesce(1, true).saveAsTextFile("testMie")
       //finalRDD.saveAsTextFile("out\\int\\tezt")
-
-
-      /*
-     val rdd = sc.textFile("Word2VecData")
-     rdd.map(_.toString).toDF.show()
-     val rddnew = rdd ++ headerRDD
-     rddnew.map(_.toString).toDF.show()
-   
-     rddnew.map(_.toString).toDF.coalesce(1).write.format("text").mode("append").save("Word2VecData")
-     */
-     
-     //val finalRDDD=rddnew.map(_.toString).toDF
-     
-    // val bodyRDxD= sc.parallelize(Seq("BODYx"))
-     
+ 
      //bodyRDxD.map(_.toString).toDF.coalesce(1).write.format("text").mode("append").save("Word2VecData") // 'overwrite', 'append', 'ignore', 'error'.
       //finalRDD.map(_.toString).toDF.write.mode("append").text("testMie")
+
+
+
