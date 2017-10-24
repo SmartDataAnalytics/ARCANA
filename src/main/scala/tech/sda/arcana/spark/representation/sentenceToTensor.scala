@@ -147,14 +147,14 @@ object sentenceToTensor {
           val great=groupedResultTest.map(testte)
           /*
           val answer=great.collect()
-
+SpatialConvolution
           answer.foreach{println("---------------StART---------------------")
                         x=>println(x)
                          println("----------------END----------------------")}
           
           */
           //////////////////////////////************************************************
-         /*
+        /*
           var tensorF=Tensor[Float](2,2)
           println("--------------2,2--------------------------")
           println(tensorF)
@@ -180,6 +180,7 @@ object sentenceToTensor {
           tensorF=Tensor[Float](4,4,3,9,4)
           println(tensorF)
           */
+
           /*
           val reshape = Reshape(Array(1))
           //val wow=great.collect()
@@ -188,12 +189,12 @@ object sentenceToTensor {
           
           
           // optimizer
-          println(LeNet5Model.build())
+          //println(LeNet5Model.build())
           
-          /*
+          
           val wow=great.collect()
-          println( LeNet5Model.build().forward( wow(1) ) )
-					*/
+          println( LeNet5Model.build().forward( Tensor[Float](1,50,50) ) )
+					
           
           /*
           println("------------output-----------------")  
