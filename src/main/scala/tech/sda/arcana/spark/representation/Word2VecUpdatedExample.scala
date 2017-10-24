@@ -18,6 +18,7 @@ object Word2VecUpdatedExample {
       .getOrCreate()
 
     // Input data: Each row is a bag of words from a sentence or document.
+      /*
     val documentDF = spark.createDataFrame(Seq(
       "Hi I heard about Spark".split(" "),
       "B Bridget remembered the nightmthat her parents died in the fire her younger sister Brandy and her was at a sleepover at a church youth camp. She remembered that their youth pastor took her aside while one of the women sat with Brandy and was informed of their deaths. It was her call to tell Brandy about their parents. One of their Sunday school teachers took them to their home. It was burned down to the ground with only the fireplace till standing but in bad shape.".split(" "),
@@ -32,9 +33,41 @@ object Word2VecUpdatedExample {
       "Matrix is sun".split(" "),
       "Logistic regression models are neat".split(" ")
     ).map(Tuple1.apply)).toDF("text")
-  
+  		*/
+      val documentDF = spark.createDataFrame(Seq(
+          "Hi I heard about Spark".split(" "),
+          "I wish Java could use case classes".split(" "),
+          "Logistic regression models are neat".split(" ")
+        ).map(Tuple1.apply)).toDF("text")
+        
+      val sc = spark.sparkContext
+      import spark.implicits._
+      val input = sc.textFile("src/main/resources/textTest2.txt").map(line => line.split(" ").toSeq).map(Tuple1.apply).toDF("text")
+     
+        documentDF.show(false)
+        input.show(false)
+        // Learn a mapping from words to Vectors.
+      val word2Vec = new Word2Vec()
+        .setInputCol("text")
+        .setOutputCol("result")
+        .setVectorSize(3)
+        .setMinCount(0)
+        
+      val model = word2Vec.fit(documentDF)
+      val synonyms = model.findSynonyms("Java",1000)
+      synonyms.show(false)
+      //val result = model.transform(documentDF)
+      //result.collect().foreach(println)
+      /*
+      result.collect().foreach { case Row(text: Seq[_], features: Vector) =>
+        println(s"Text: [${text.mkString(", ")}] => \nVector: $features\n") }
+        */
+        
+        
+        
+        
     //documentDF.show(false)
-      
+      /*
     val sqlContext= new org.apache.spark.sql.SQLContext(spark.sparkContext)
     import sqlContext.implicits._
     val sc = spark.sparkContext
@@ -76,10 +109,10 @@ object Word2VecUpdatedExample {
     // $example off$
     println("End") 
     
-    val synonyms = model.findSynonyms("school",1000)
+    val synonyms = model.findSynonyms("Java",1000)
     synonyms.show(false)
     //println(synonyms.word)
-
+*/
 		println("STOPPING")
     spark.stop()
   }
