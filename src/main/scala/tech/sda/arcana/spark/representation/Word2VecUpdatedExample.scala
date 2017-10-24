@@ -8,6 +8,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 
+
 object Word2VecUpdatedExample {
     def main(args: Array[String]) {
     val spark = SparkSession.builder
@@ -32,28 +33,54 @@ object Word2VecUpdatedExample {
       "Logistic regression models are neat".split(" ")
     ).map(Tuple1.apply)).toDF("text")
   
+    //documentDF.show(false)
+      
     val sqlContext= new org.apache.spark.sql.SQLContext(spark.sparkContext)
     import sqlContext.implicits._
+    val sc = spark.sparkContext
+    val input = sc.textFile("src/main/resources/textTest.txt").map(line => line.split(" ")).toDF("text")
+    //val input = sc.textFile("src/main/resources/textTest.txt").map(line => line.split(" "))
+    //val input2= Seq(input).map(Tuple1.apply)
+    
+    
+    
+    val bufferedSource = scala.io.Source.fromFile("src/main/resources/textTest.txt")
+    val lines = (for (line <- bufferedSource.getLines()) yield line.split(" ")).toSeq
+    val test = lines.map(Tuple1.apply).toDF("text")
+      //lines.foreach { println }
+    bufferedSource.close
+    
+    
+ 
+    //test.show()
+   
+    /*
+    input.collect.foreach(x=>println(x))
+    println("------------------------")
+    documentDF.collect.foreach(x=>println(x))
+    
+    */
+    
     // Learn a mapping from words to Vectors.
     val word2Vec = new Word2Vec()
       .setInputCol("text")
       .setOutputCol("result")
       .setVectorSize(3)
       .setMinCount(0)
-    val model = word2Vec.fit(documentDF)
+    val model = word2Vec.fit(test)
      
-    val result = model.transform(documentDF)
-     println("Vectors!") 
+    val result = model.transform(test)
+ 
     //result.collect().foreach { case Row(text: Seq[_], features: Vector) =>
     //  println(s"Text: [${text.mkString(", ")}] => \nVector: $features\n") }
     // $example off$
     println("End") 
     
     val synonyms = model.findSynonyms("school",1000)
-    synonyms.show()
+    synonyms.show(false)
     //println(synonyms.word)
- 
 
+		println("STOPPING")
     spark.stop()
   }
 }
