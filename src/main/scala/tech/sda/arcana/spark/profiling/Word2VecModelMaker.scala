@@ -67,6 +67,10 @@ object Word2VecModelMaker {
   def saveWord2VecModel(model:Word2VecModel){
       model.write.overwrite().save("Word2VecModel")
   }
+  // Load model
+  def loadWord2VecModel():Word2VecModel={
+    Word2VecModel.load("Word2VecModel")
+  }
   def main(args: Array[String]) {
    
     val sqlContext= new org.apache.spark.sql.SQLContext(spark.sparkContext)
