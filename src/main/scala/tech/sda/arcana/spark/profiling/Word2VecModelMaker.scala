@@ -40,7 +40,7 @@ object Word2VecModelMaker {
     val input = sc.textFile(fileName).map(line => line.split(" ").toSeq).map(Tuple1.apply).toDF("text")
     input
   }
-  // Reading data form File using Scala
+  // Reading data form File using Scala (non-glitchy)
   def fetchFileDataDFSc(fileName:String): DataFrame={
     val sqlContext= new org.apache.spark.sql.SQLContext(spark.sparkContext)
     import sqlContext.implicits._
@@ -55,7 +55,7 @@ object Word2VecModelMaker {
     val sqlContext= new org.apache.spark.sql.SQLContext(spark.sparkContext)
     import sqlContext.implicits._
 
-    
+    //| Pick one of these
     //val word2VecInput=fetchCodedDataDF()
     //val word2VecInput=fetchFileDataDF("src/main/resources/textTest.txt")
     val word2VecInput=fetchFileDataDFSc("src/main/resources/textTest.txt")

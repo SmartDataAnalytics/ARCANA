@@ -196,7 +196,7 @@ object AppDBM {
   def main(args: Array[String]) = {
     
     //| Check your session Configurations 
-    //> showConfigMap()
+     showConfigMap()
     
     //| Write to the DB 
     //> writeToMongoDB("ALIroops","3",List[String]("http://dbpedia.org/resource/Territorial_Troops1", "http://dbpedia.org/resource/Territorial_Troops2", "http://dbpedia.org/resource/Territorial_Troops3","http://dbpedia.org/resource/Territorial_Troops4","http://dbpedia.org/resource/Territorial_Troops5","http://dbpedia.org/resource/Territorial_Troops6","http://dbpedia.org/resource/Territorial_Troops7"))
@@ -210,7 +210,7 @@ object AppDBM {
     //> writeChunkToMongoDB("ChunkCase")
     
     
-
+    /*
     val buf = new ArrayBuffer[String]()
  
     buf += formRecord(100,"A1",10,List("A1Rsc1","A1Rsc2", "A1Rsc3"))
@@ -226,6 +226,8 @@ object AppDBM {
     //writeChunkToMongoDB("TEST")
     
     readCollection("neuclear")
+    
+    */
     println("===================CLOSING===================") 
     spark.stop()
   }

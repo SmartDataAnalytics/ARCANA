@@ -106,17 +106,19 @@ object Dataset2Vec {
       val UriList=Res.select("Subject").rdd.map(r => r(0)).collect()
       UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
   }
-   
+  // First Traverse of the RDF Graph
   def firstTraverse(x:Category,DF: DataFrame):Category={
     x.uri.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri)))
     x
   }
+  // Second Traverse of the RDF Graph
   def secondTraverse(xl: Category,DF: DataFrame):Category={
       for (fTR <- xl.uri){
         fTR.URIslist.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri)))
       }
     xl
   }
+  // Third Traverse of the RDF Graph
   def thirdTraverse(xl: Category,DF: DataFrame):Category={
       for (fTR <- xl.uri){
         for (sTR <- fTR.URIslist){
@@ -151,6 +153,7 @@ object Dataset2Vec {
        }
     }
   }
+  // Fill the data into an RDD that is ready to be written 
   def preparedDataToRDD(thirdTR: List[Category]):RDD[String]={
       val sc = spark.sparkContext
       var myRDD=sc.emptyRDD[String]
@@ -161,6 +164,7 @@ object Dataset2Vec {
       }
       myRDD
   }    
+  // Append data to the RDD when desired 
   def appendToRDD(data: String) {
      val sc = spark.sparkContext
      val rdd = sc.textFile("Word2VecData")  
