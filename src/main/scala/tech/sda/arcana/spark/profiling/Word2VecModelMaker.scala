@@ -1,6 +1,8 @@
 package tech.sda.arcana.spark.profiling
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.ml.feature.Word2Vec
+import org.apache.spark.ml.feature.Word2VecModel
+//import org.apache.spark.mllib.feature.{Word2Vec, Word2VecModel}
 import org.apache.spark.ml.linalg.Vector
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.DataFrame
@@ -50,6 +52,21 @@ object Word2VecModelMaker {
     bufferedSource.close
     myDF
   }
+
+  // Fit the data
+  def fitWord2VecModel(fileName:DataFrame):Word2VecModel={
+    val word2Vec = new Word2Vec()
+      .setInputCol("text")
+      .setOutputCol("result")
+      .setVectorSize(3)
+      .setMinCount(0)
+    word2Vec.fit(fileName)
+  }
+
+  // Save the model
+  def saveWord2VecModel(model:Word2VecModel){
+      model.write.overwrite().save("Word2VecModel")
+  }
   def main(args: Array[String]) {
    
     val sqlContext= new org.apache.spark.sql.SQLContext(spark.sparkContext)
@@ -59,18 +76,19 @@ object Word2VecModelMaker {
     //val word2VecInput=fetchCodedDataDF()
     //val word2VecInput=fetchFileDataDF("src/main/resources/textTest.txt")
     val word2VecInput=fetchFileDataDFSc("src/main/resources/textTest.txt")
+ 
+    //| Make model and save it
+    val model = fitWord2VecModel(word2VecInput)
+    //> saveWord2VecModel(model)
     
-    val word2Vec = new Word2Vec()
-      .setInputCol("text")
-      .setOutputCol("result")
-      .setVectorSize(3)
-      .setMinCount(0)
-    val model = word2Vec.fit(word2VecInput)
-    //val result = model.transform(input)
+    //| Or load model
+    //> val model = Word2VecModel.load("Word2VecModel")
     
     val synonyms = model.findSynonyms("school",1000)
     synonyms.show(false)
-        
+    val result = model.transform(word2VecInput)
+    result.select("result").take(3).foreach(println)
+
     println("Stopping Session")
     spark.stop()
   }
