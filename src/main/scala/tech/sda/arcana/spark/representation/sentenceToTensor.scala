@@ -16,6 +16,7 @@ import com.intel.analytics.bigdl.utils.T
 import shapeless._0
 import tech.sda.arcana.spark.classification.cnn.Core
 import tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model
+import tech.sda.arcana.spark.neuralnetwork.model.DyLeNet5Model
 import com.intel.analytics.bigdl.nn.Reshape
 
 object sentenceToTensor {
@@ -191,9 +192,9 @@ SpatialConvolution
           // optimizer
           //println(LeNet5Model.build())
           
-          
+      
           val wow=great.collect()
-          println( LeNet5Model.build().forward( Tensor[Float](1,50,50) ) )
+          println( DyLeNet5Model.build(20,50).forward( Tensor[Float](1,20,50) ) )
 					
           
           /*

@@ -5,6 +5,7 @@ import com.intel.analytics.bigdl.nn._
 object DyLeNet5Model {
   
   def build(x:Int,y:Int)={
+    val view=16*(((x-4)/2)/4)*(((y-4)/2)/4)
     val LeNet5Model= new Sequential()
     // 1 input channel, 6 output channels, 5x5 convolution kernel
     LeNet5Model.add(SpatialConvolution(1, 6, 5, 5))
@@ -25,12 +26,12 @@ object DyLeNet5Model {
     println("2")
     
     //reshapes from a 3D tensor of 16x5x5 into 1D tensor of 16*5*5
-    LeNet5Model.add(View(16*(((x-4)/2)/4)*(((y-4)/2)/4)))
+    LeNet5Model.add(View(view))
     
     println("3")
     
     //fully connected layer (matrix multiplication between input and weights)
-    LeNet5Model.add(Linear(16*5*5,120))
+    LeNet5Model.add(Linear(view,120))
     LeNet5Model.add(ReLU())
     LeNet5Model.add(Linear(120,84))
     LeNet5Model.add(ReLU())
