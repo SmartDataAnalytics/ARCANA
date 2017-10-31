@@ -23,13 +23,12 @@ object AppDBM {
     
   val inputUri = "spark.mongodb.input.uri"  
   val outputUri = "spark.mongodb.output.uri"
-  val conn = new DBConf()  
   
   val spark = SparkSession.builder()
     .master("local")
     .appName("MongoSparkConnector")
-    .config(inputUri, conn.host + conn.dbName + "." + conn.defaultCollection)
-    .config(outputUri, conn.host + conn.dbName + "." + conn.defaultCollection)
+    .config(inputUri, DBConf.host + DBConf.dbName + "." + DBConf.defaultCollection)
+    .config(outputUri, DBConf.host + DBConf.dbName + "." + DBConf.defaultCollection)
     //.config("spark.sql.warehouse.dir", "file:///c:/tmp/spark-warehouse") >> Windows
     .getOrCreate()
   
@@ -155,7 +154,7 @@ object AppDBM {
   
   def FetchMaxId(collection: String) : Int = {
 
-    val rdd2 = sc.loadFromMongoDB(ReadConfig(Map("spark.mongodb.input.uri" -> s"mongodb://127.0.0.1/myDBN.$collection" )))
+    val rdd2 = sc.loadFromMongoDB(ReadConfig(Map("spark.mongodb.input.uri" -> s"mongodb://127.0.0.1/ArcanaDB.$collection" )))
     rdd2.toDF().createOrReplaceTempView("DB")
     val maxID = spark.sql("SELECT max(cast(_id as int)) FROM DB")
 
@@ -194,11 +193,35 @@ object AppDBM {
     //military.show()
     MongoSpark.save(df.write.option("collection", "testcase").mode("append"))
   }
-  
+  // Clean the subject and get back what it talks about 
   def getExpFromSubject(Subject:String):String={
     var temp = (Subject.substring(Subject.lastIndexOf('/')  + 1)).replaceAll(">","")      
     temp = if (temp contains ':') temp.substring(temp.lastIndexOf(':')  + 1) else temp
     temp
+  }
+  
+  // Add the URIS that has the category in the URI to the database 
+  def addUrisBelongingToCategoryToDB(FileName:String){
+    val sqlContext= new org.apache.spark.sql.SQLContext(sc)
+    import sqlContext.implicits._
+
+    val DF=RDFApp.exportingData(FileName)
+    
+    val category="war"
+    val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(DF.toDF(),category)
+    var  _idCounter: Int=0
+    var DBRows = ArrayBuffer[Row]()
+    for(x<-myUriList){
+      DBRows+=Row(_idCounter , x.Uri, getExpFromSubject(x.Uri), category, 0.0 , 0.0)
+      _idCounter+=1
+    }
+    
+    val dbRdd = sc.makeRDD(DBRows)
+
+    val df=dbRdd.map{
+        case Row(s0,s1,s2,s3,s4,s5)=>DBRecord(s0.asInstanceOf[Int],s1.asInstanceOf[String],s2.asInstanceOf[String],s3.asInstanceOf[String],s4.asInstanceOf[Double],s5.asInstanceOf[Double])
+        }.toDF()
+    MongoSpark.save(df.write.option("collection", DBConf.defaultCollection).mode("append"))    
   }
   //Schema 
   case class X(_id: Int,_expression: String,indices: List[Integer], weights: Array[Double] )  
@@ -210,40 +233,12 @@ object AppDBM {
     
     //> writeToMongoDB("ALIroops","3",List[String]("http://dbpedia.org/resource/Territorial_Troops1", "http://dbpedia.org/resource/Territorial_Troops2", "http://dbpedia.org/resource/Territorial_Troops3","http://dbpedia.org/resource/Territorial_Troops4","http://dbpedia.org/resource/Territorial_Troops5","http://dbpedia.org/resource/Territorial_Troops6","http://dbpedia.org/resource/Territorial_Troops7"))
     
-    val sqlContext= new org.apache.spark.sql.SQLContext(sc)
-    import sqlContext.implicits._
-    /*
-    var Rows = ArrayBuffer[Row]()
-    Rows += Row(33,"D1Buffered",List(9,9,9), Array[Double](1.3,1.3,1.3))
-    Rows += Row(31,"D2Buffered",List(9,9,9), Array[Double](1.3,1.3,1.3))
-    val theRdd = sc.makeRDD(Rows)
-    val df=theRdd.map{
-        case Row(s0,s1,s2,s3)=>X(s0.asInstanceOf[Int],s1.asInstanceOf[String],s2.asInstanceOf[List[Integer]],s3.asInstanceOf[Array[Double]])
-        }.toDF()
-    */
-      //df.show()
-     
-    
-    //MongoSpark.save(df.write.option("collection", "ArcanaTest").mode("append"))
 
-    val DF=RDFApp.exportingData("src/main/resources/rdf2.nt")
-    val model=Word2VecModelMaker.loadWord2VecModel()
-    val synonyms = model.findSynonyms("school",1000)
-    val category="war"
-    val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(DF.toDF(),category)
-    var  _idCounter: Int=0
-    var DBRows = ArrayBuffer[Row]()
-    for(x<-myUriList){
-      DBRows+=Row(_idCounter , x.Uri, getExpFromSubject(x.Uri), category, 0.0 , 0.0)
-      _idCounter+=1
-    }
-    val dbRdd = sc.makeRDD(DBRows)
+    //"src/main/resources/rdf2.nt"
+    //val synonyms = model.findSynonyms("school",1000)
+    //    val model=Word2VecModelMaker.loadWord2VecModel()
+    println(FetchMaxId("ArcanaTest"))
     
-    val df=dbRdd.map{
-        case Row(s0,s1,s2,s3,s4,s5)=>DBRecord(s0.asInstanceOf[Int],s1.asInstanceOf[String],s2.asInstanceOf[String],s3.asInstanceOf[String],s4.asInstanceOf[Double],s5.asInstanceOf[Double])
-        }.toDF()
-    MongoSpark.save(df.write.option("collection", "ArcanaTest").mode("append"))    
-    //println(getExpFromSubject("<http://commons.dbpedia.org/resource/User:TR4A>"))
     //> writeChunkToMongoDB()
     
     //> EnterSchemaData()
