@@ -5,7 +5,7 @@ package tech.sda.arcana.spark.profiling
 
 class Category (var Category: String,var uri:  List[RDFURI] ) {
    
-  
+  var FormedURI = ""
   //var categories = Array("military", "nuclear", "terrorism", "weapon", "technology", "security", "harm", "suicide")
 }
 

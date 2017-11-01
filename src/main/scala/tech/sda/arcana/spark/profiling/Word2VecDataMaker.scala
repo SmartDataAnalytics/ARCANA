@@ -6,6 +6,7 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Dataset
 import java.io._
 import org.apache.spark.rdd.RDD
+
 object Dataset2Vec {
       val spark = SparkSession.builder
       .master("local[*]")
@@ -18,7 +19,11 @@ object Dataset2Vec {
   def showCategories(){
       Categories.categories.foreach(line => println(line))//println(categories(1))
   }
-
+  def showCategoryObjects(Categories: List[Category]){
+    for (instance <- Categories){
+      println("--"+instance.Category)//instance.uri.foreach(line => println(line.Uri))
+    }
+  }
   def showFirstTraverse(Categories: List[Category]){
     for (instance <- Categories){
       println("--"+instance.Category)//instance.uri.foreach(line => println(line.Uri))
@@ -61,14 +66,27 @@ object Dataset2Vec {
        }
     }
   } 
-  def showPreparedData(thirdTR: List[Category]){
+  def showPreparedCategoryData(thirdTR: List[Category]){
       for(x<-thirdTR){
         for(y<-x.uri){
           println(y.FormedURI)
         }
       }
-  }     
+  }   
+    def showPreparedDatasetData(thirdTR: List[Category]){
+      for(x<-thirdTR){
+        
+          println(x.FormedURI)
+       
+      }
+  }   
   ////////////////////////////////////////////////////////////////////////////////
+  def rdfSubjectsToList(file: String): List[String]={
+    val R=RDFApp.exportingData(file)
+    var subjectsList = R.select("Subject").rdd.map(r => r(0).asInstanceOf[String]).collect()
+    subjectsList.toList.distinct
+  }
+  
   def fetchSubjectsRelatedToObjectWord(DF: DataFrame, word: String): DataFrame={
       DF.createOrReplaceTempView("triples")
       val Res = spark.sql(s"SELECT Subject from triples where Object like '%$word%'") //> RLIKE for regular expressions
@@ -128,13 +146,14 @@ object Dataset2Vec {
     xl
   }
 
-  // Get the data into a form that word2vec would operate on
-  def prepareData(data:List[Category]){
+  // Get the data into a form that word2vec would operate on while obtaining it from categories
+  def prepareCategoryData(data:List[Category]){
     //| Loop Categories
     for (instance <- data){
       //| Loop URIS of each category <Traverse 1>
        for (line <- instance.uri){
          line.FormedURI=line.Uri+" "+line.URIslist.map(_.Uri).mkString(" ")
+         println(line.FormedURI)
          //| Loop URIS of each URI of category <Traverse 2>
          for (x <- line.URIslist){
            line.FormedURI +=" "+x.URIslist.map(_.Uri).mkString(" ")
@@ -145,16 +164,58 @@ object Dataset2Vec {
              line.FormedURI +=" "+z.URIslist.map(_.Uri).mkString(" ")
              }
          }
-         // replace double spaces with single spaces
-         line.FormedURI=line.FormedURI.replaceAll(" +"," ")
-         // remove trailing spaces
-         line.FormedURI=line.FormedURI.replaceAll("""(?m)\s+$""", "")
-
+         //This condition is to remove single URIs 
+         if(line.FormedURI.count(_ == '>')>1){
+           // replace double spaces with single spaces
+           line.FormedURI=line.FormedURI.replaceAll(" +"," ")
+           // remove trailing spaces
+           line.FormedURI=line.FormedURI.replaceAll("""(?m)\s+$""", "")
+         }
+         else{
+           line.FormedURI=""
+         }
        }
     }
   }
-  // Fill the data into an RDD that is ready to be written 
-  def preparedDataToRDD(thirdTR: List[Category]):RDD[String]={
+    // Get the data into a form that word2vec would operate on while obtaining it from every subject
+  def prepareDatasetData(data:List[Category]){
+    //| Loop Categories
+    for (instance <- data){
+
+      instance.FormedURI=instance.Category+" "+instance.uri.map(_.Uri).mkString(" ")
+
+       for (line <- instance.uri){
+        instance.FormedURI+=" "+line.URIslist.map(_.Uri).mkString(" ")
+       }
+
+         for(r<-instance.uri){
+            for (z <- r.URIslist){
+             instance.FormedURI +=" "+z.URIslist.map(_.Uri).mkString(" ")
+             }
+         }
+
+         for(r<-instance.uri){
+            for (z <- r.URIslist){
+             for (q <- z.URIslist){
+               instance.FormedURI +=" "+q.URIslist.map(_.Uri).mkString(" ")
+              }
+            }
+         }
+     
+         //This condition is to remove single URIs 
+         if(instance.FormedURI.count(_ == '>')>1){
+           // replace double spaces with single spaces
+           instance.FormedURI=instance.FormedURI.replaceAll(" +"," ")
+           // remove trailing spaces
+           instance.FormedURI=instance.FormedURI.replaceAll("""(?m)\s+$""", "")
+         }
+         else{
+           instance.FormedURI=""
+         }
+    }
+  }
+  // Fill the Category data into an RDD that is ready to be written 
+  def prepareCategoryDataToRDD(thirdTR: List[Category]):RDD[String]={
       val sc = spark.sparkContext
       var myRDD=sc.emptyRDD[String]
       for(x<-thirdTR){
@@ -162,8 +223,19 @@ object Dataset2Vec {
           myRDD++=sc.parallelize(Seq(y.FormedURI))
         }
       }
-      myRDD
+      myRDD.filter(_.nonEmpty)
   }    
+    // Fill the Dataset data into an RDD that is ready to be written 
+  def prepareDatasetDataToRDD(thirdTR: List[Category]):RDD[String]={
+      val sc = spark.sparkContext
+      var myRDD=sc.emptyRDD[String]
+      for(x<-thirdTR){
+ 
+          myRDD++=sc.parallelize(Seq(x.FormedURI))
+
+      }
+      myRDD.filter(_.nonEmpty)
+  }  
   // Append data to the RDD when desired 
   def appendToRDD(data: String) {
      val sc = spark.sparkContext
@@ -174,20 +246,17 @@ object Dataset2Vec {
      newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("append").save("Word2VecData")
      //newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
   }
- 
-  def main(args: Array[String]) {
-      val sc = spark.sparkContext
-      //| Fetch Data
-      val R=RDFApp.exportingData("src/main/resources/rdf2.nt")
-
+ // This function reads the data and make the word2vecready data while working on subjects related to categories only
+  def ceatingWord2VecCategoryData(file: String){
+      val R=RDFApp.exportingData(file) //"src/main/resources/rdf2.nt"
       //| Fetch Categories
       //> var myCategories = Categories.categories
-      var fakeCategories = List("war","nuclear","Hunebed", "Paddestoel", "Buswachten")
+     
+      var Categories = List("war","nuclear","Hunebed", "Paddestoel", "Buswachten")
       
       //| Converting each category to a Category Object with the list of URIs belonging to it
-      var categoryOBJs=fakeCategories.map(x => new Category(x,fetchAllOfWordAsSubject(R.toDF(),x)))
-      // showCategoryObjects(categoryOBJs)
-
+      var categoryOBJs=Categories.map(x => new Category(x,fetchAllOfWordAsSubject(R.toDF(),x)))
+      
       //| Fetch the objects related to the URIs of each category
       var firstTR=categoryOBJs.map(x => firstTraverse(x,R.toDF()))
 
@@ -196,18 +265,55 @@ object Dataset2Vec {
       var thirdTR=secondTR.map(x => thirdTraverse(x,R.toDF()))
       // showThirdTraverse(thirdTR)
 
-      prepareData(thirdTR)
-
-      var myRDD=preparedDataToRDD(thirdTR)
+      prepareCategoryData(thirdTR)
+      //showPreparedData(thirdTR)
+      // Thread.sleep(5000)
+      var myRDD=prepareCategoryDataToRDD(thirdTR)
       //myRDD.map(_.toString).toDF.show(false)     
  		
-      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
-     //> appendToRDD("""<http://commons.dbpedia.org/resource/File:Paddestoel_002.jpg>""")
+      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecCategoryData")
+  }
+  
+  // This function reads the data and make the word2vec ready data while working on each subject of the dataset
+  def ceatingWord2VecDatasetData(file: String){
+      val R=RDFApp.exportingData("src/main/resources/rdf2.nt")
+
+      var CategoriesNT=rdfSubjectsToList("src/main/resources/rdf2.nt")
+      
+      //| Converting each category to a Category Object with the list of URIs belonging to it
+      var categoryOBJs=CategoriesNT.map(x => new Category(x,fetchObjectsOfSubject(R.toDF(),x)))
+
+      //| Fetch the objects related to the URIs of each category
+      var firstTR=categoryOBJs.map(x => firstTraverse(x,R.toDF()))
+
+      var secondTR=firstTR.map(x => secondTraverse(x,R.toDF()))
+      
+      
+      var thirdTR=secondTR.map(x => thirdTraverse(x,R.toDF()))
+      //showThirdTraverse(thirdTR)
+      
+      prepareDatasetData(thirdTR)
+      // showPreparedDatasetData(thirdTR)
+
+      var myRDD=prepareDatasetDataToRDD(thirdTR)
+      // myRDD.map(_.toString).toDF.show(100,false)     
+ 		
+      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecDatasetData")
+  }
+  
+  def main(args: Array[String]) {
+      val sc = spark.sparkContext
+
+      //| Creates Word2Vec Data from Categories
+      //> ceatingWord2VecCategoryData("src/main/resources/rdf2.nt")
+      //| Creates Word2Vec Data from Dataset
+      //> ceatingWord2VecDatasetData("src/main/resources/rdf2.nt")
  
     println("~Stopping Session~")
     spark.stop()
   }
 }
+//> appendToRDD("""<http://commons.dbpedia.org/resource/File:Paddestoel_002.jpg>""")
           /*for (sTR <- fTR.URIslist){
           //println(sTR.Uri)
           sTR.URIslist=fetchObjectsOfSubject(DF,sTR.Uri)
