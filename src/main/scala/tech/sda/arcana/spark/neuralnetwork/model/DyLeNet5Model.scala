@@ -12,7 +12,7 @@ object DyLeNet5Model {
     }
     
     
-    val view:Int=16*(((Height-4)/2)-4)*(((Width-4)/2)-4)
+    val view:Int=16*((((Height-4)/2)-4)/2)*((((Width-4)/2)-4)/2)
     val LeNet5Model= new Sequential()
     // 1 input channel, 6 output channels, 5x5 convolution kernel
     LeNet5Model.add(SpatialConvolution(1, 6, 5, 5))
@@ -30,11 +30,11 @@ object DyLeNet5Model {
     LeNet5Model.add(ReLU())
     LeNet5Model.add(SpatialMaxPooling(2,2,2,2))
     
-
-        println(LeNet5Model.getParametersTable())
+    println(view)
+    println(LeNet5Model.getParametersTable())
     
-    println(((Height-4)/2)-4)
-    println(((Width-4)/2)-4)
+    //println(((Height-4)/2)-4)
+    //println(((Width-4)/2)-4)
     println(view)
     //reshapes from a 3D tensor of 16x5x5 into 1D tensor of 16*5*5
     LeNet5Model.add(View(view))

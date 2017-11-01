@@ -191,11 +191,12 @@ SpatialConvolution
           
           // optimizer
           //println(LeNet5Model.build())
-          
+
       
           val wow=great.collect()
           println( DyLeNet5Model.build(20,50).forward( Tensor[Float](1,20,50) ) )
-					
+          println("-------------------------***----------------------------------------")
+					//println( LeNet5Model.build().forward( Tensor[Float](1,32,32) ) )
           
           /*
           println("------------output-----------------")  

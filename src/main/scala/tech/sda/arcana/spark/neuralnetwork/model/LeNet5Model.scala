@@ -11,13 +11,11 @@ object LeNet5Model {
   val LeNet5Model= new Sequential()
   // 1 input channel, 6 output channels, 5x5 convolution kernel
   LeNet5Model.add(SpatialConvolution(1, 6, 5, 5))
-  println(LeNet5Model.getParametersTable())
 
   
   //non-linearity (+Z)
   LeNet5Model.add(ReLU())
   
-  println("1")
   
   //A max-pooling operation that looks at 2x2 windows and finds the max.
   LeNet5Model.add(SpatialMaxPooling(2,2,2,2))
@@ -25,12 +23,13 @@ object LeNet5Model {
   LeNet5Model.add(ReLU())
   LeNet5Model.add(SpatialMaxPooling(2,2,2,2))
   
-  println("2")
+  
+  println(16*5*5)
+  println(LeNet5Model.getParametersTable())
   
   //reshapes from a 3D tensor of 16x5x5 into 1D tensor of 16*5*5
   LeNet5Model.add(View(16*5*5))
   
-  println("3")
   
   //fully connected layer (matrix multiplication between input and weights)
   LeNet5Model.add(Linear(16*5*5,120))
