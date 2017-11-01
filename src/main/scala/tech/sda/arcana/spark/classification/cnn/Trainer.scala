@@ -1,5 +1,6 @@
 package tech.sda.arcana.spark.classification.cnn
 import com.intel.analytics.bigdl.nn.ClassNLLCriterion
+import tech.sda.arcana.spark.neuralnetwork.model.DyLeNet5Model
 import com.intel.analytics.bigdl.nn.L1Cost
 import tech.sda.arcana.spark.neuralnetwork.model.AlexNetModel
 import tech.sda.arcana.spark.neuralnetwork.model.GoogLeNetModel
@@ -11,9 +12,11 @@ import com.intel.analytics.bigdl.convCriterion
 
 /**A class that train a chosen neural network model with chosen loss function
  * @param lossfun 1 for L1Cost, 2 for ClassNLLCriterion
- * @param model 1 for AlexNetModel, 2 for GoogLeNetModel, 3 for LeNet5Model
+ * @param model 1 for AlexNetModel, 2 for GoogLeNetModel, 3 for dynamic LeNet5Model
+ * @param height the longest question word sequence essential for neurons view 
+ * @param width the vectors representation length for each word
  */
-class Trainer(lossfun:Int,model:Int) {
+class Trainer(lossfun:Int,model:Int,height:Int,width:Int) {
   val lossFunctions = Array(L1Cost[Float](),ClassNLLCriterion[Float]())
  
   /** Build a trainer which is going to train the a neural network model
@@ -48,7 +51,7 @@ class Trainer(lossfun:Int,model:Int) {
    
    if(model==3){
          val optimizer = Optimizer(
-          model = LeNet5Model.build(),
+          model = DyLeNet5Model.build(height,width),
           sampleRDD = samples,
           criterion = lossFunctions(lossfun-1),
           batchSize = batch
