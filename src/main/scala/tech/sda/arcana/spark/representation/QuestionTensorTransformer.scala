@@ -25,7 +25,7 @@ class QuestionTensorTransformer(sc:SparkContext,longestWordsSeq: Int,vectorLengt
    */
   def transform(sentence:(Long, Iterable[((Long, Int), Array[String])]))={
       //if(sentence!=null){
-      val tensor=Tensor[Float](longestWordsSeq,vectorLength)
+      val tensor=Tensor[Float](1,longestWordsSeq,vectorLength)
       val tensorStorage= tensor.storage.fill(0, 1, longestWordsSeq*vectorLength-1)
       //the reverse here to make the word order upside down
       var vec=sentence._2.toSeq.sortBy(x=>x._1._2).reverse

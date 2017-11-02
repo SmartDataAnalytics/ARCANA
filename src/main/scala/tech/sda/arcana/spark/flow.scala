@@ -41,7 +41,8 @@ object flow {
       val sampler=new TensorSampleTransformer(sc)
       val samples=great.map(sampler.initializePositiveSample)
       val trainer=new Trainer(2,3,questionInitializer.longestWordsSeq,50).build(samples, 4)
-      
+      trainer.optimize()
+      println("Done")
       
 
   }
