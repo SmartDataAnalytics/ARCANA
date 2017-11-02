@@ -30,7 +30,7 @@ object LeNet5Model {
   LeNet5Model.add(Linear(84,10))
   LeNet5Model.add(LogSoftMax())
   //Printing the model specifications
-  println(LeNet5Model.getParametersTable())
+  //println(LeNet5Model.getParametersTable())
   LeNet5Model
   }
 }
