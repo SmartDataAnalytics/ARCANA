@@ -23,7 +23,7 @@ object sentenceToTensor {
   //Transfer one question one sentence to multi-represential tensor
   
    val vectorLength:Int=50
-  val sentenceWordCount:Int=15
+  val sentenceWordCount:Int=20
   
   
       //return each line of the glov representation as follows:
@@ -146,9 +146,23 @@ object sentenceToTensor {
           val groupedResultTest=resultTest.groupBy(x=>x._1._1)
           
           val great=groupedResultTest.map(testte)
+          
+          //val answer=great.collect()
+          
+          val sddf= great.map(sasa)
+          //sddf.collect()
+          
+          val optimizer = Optimizer(
+              model = DyLeNet5Model.build(20,50),
+              sampleRDD = sddf,
+              criterion = ClassNLLCriterion[Float](),
+              batchSize = 3
+            )
+            
+            optimizer.optimize()
+            println("done")
+          
           /*
-          val answer=great.collect()
-SpatialConvolution
           answer.foreach{println("---------------StART---------------------")
                         x=>println(x)
                          println("----------------END----------------------")}
@@ -193,9 +207,9 @@ SpatialConvolution
           //println(LeNet5Model.build())
 
       
-          val wow=great.collect()
-          println( DyLeNet5Model.build(20,50).forward( Tensor[Float](1,20,50) ) )
-          println("-------------------------***----------------------------------------")
+          //val wow=great.collect()
+          //println( DyLeNet5Model.build(20,50).forward( Tensor[Float](1,20,50) ) )
+          //println("-------------------------***----------------------------------------")
 					//println( LeNet5Model.build().forward( Tensor[Float](1,32,32) ) )
           
           /*

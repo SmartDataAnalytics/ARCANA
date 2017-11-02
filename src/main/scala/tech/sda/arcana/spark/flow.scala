@@ -18,9 +18,7 @@ import tech.sda.arcana.spark.representation._
 
 object flow {
   
-  
-  
-  
+ 
   def main(args: Array[String]) = {
 
       val sparkBigDlInitializer=new SparkBigDlInitializer()
@@ -40,9 +38,11 @@ object flow {
       val great=groupedResultTest.map(questionTensorTransformer.transform)
       val sampler=new TensorSampleTransformer(sc)
       val samples=great.map(sampler.initializePositiveSample)
-      val trainer=new Trainer(2,3,questionInitializer.longestWordsSeq,50).build(samples, 4)
-      
-      
+      val trainer=new Trainer(2,3,questionInitializer.longestWordsSeq,50).build(samples, 3)
+      //trainer.optimize()
+      println("Done")
 
-  }
+     
+
+      }
 }

@@ -16,7 +16,7 @@ import com.intel.analytics.bigdl.convCriterion
  * @param height the longest question word sequence essential for neurons view 
  * @param width the vectors representation length for each word
  */
-class Trainer(lossfun:Int,model:Int,height:Int,width:Int) {
+class Trainer(lossfun:Int,model:Int,height:Int,width:Int) extends Serializable  {
   val lossFunctions = Array(L1Cost[Float](),ClassNLLCriterion[Float]())
  
   /** Build a trainer which is going to train the a neural network model
