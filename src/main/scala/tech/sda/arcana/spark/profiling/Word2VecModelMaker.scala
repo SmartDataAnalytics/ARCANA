@@ -58,7 +58,7 @@ object Word2VecModelMaker {
     val word2Vec = new Word2Vec()
       .setInputCol("text")
       .setOutputCol("result")
-      .setVectorSize(3)
+      .setVectorSize(10)
       .setMinCount(0)
     word2Vec.fit(fileName)
   }
@@ -69,7 +69,7 @@ object Word2VecModelMaker {
   }
   // Load model
   def loadWord2VecModel():Word2VecModel={
-    Word2VecModel.load("Word2VecModel")
+    Word2VecModel.load("Word2VecDatasetModel")
   }
   def main(args: Array[String]) {
    
@@ -79,16 +79,16 @@ object Word2VecModelMaker {
     //| Pick one of these
     //val word2VecInput=fetchCodedDataDF()
     //val word2VecInput=fetchFileDataDF("src/main/resources/textTest.txt")
-    val word2VecInput=fetchFileDataDFSc("src/main/resources/textTest.txt")
+    val word2VecInput=fetchFileDataDFSc("src/main/resources/Word2VecDatasetData/part-r-00000-687e6e87-c614-4865-a342-3329ab58ddf0.txt")
  
     //| Make model and save it
     val model = fitWord2VecModel(word2VecInput)
-    //> saveWord2VecModel(model)
+    saveWord2VecModel(model)
     
     //| Or load model
     //> val model = Word2VecModel.load("Word2VecModel")
     
-    val synonyms = model.findSynonyms("school",1000)
+    val synonyms = model.findSynonyms("<http://commons.dbpedia.org/resource/User:warTR1A>",1000)
     synonyms.show(false)
     val result = model.transform(word2VecInput)
     result.select("result").take(3).foreach(println)

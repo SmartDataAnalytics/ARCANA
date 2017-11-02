@@ -127,17 +127,18 @@ public class SentiWordNet {
 	}
 	
 	public static void main(String [] args) throws IOException {
-		if(args.length<1) {
-			System.err.println("Usage: java SentiWordNet <pathToSentiWordNetFile>");
-			return;
-		}
+		//if(args.length<1) {
+	//		System.err.println("Usage: java SentiWordNet <pathToSentiWordNetFile>");
+	//		return;
+	//	}
 		
-		String pathToSWN = args[0];
+		String pathToSWN ="/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet_3.0.0_20130122.txt";
 		SentiWordNet sentiwordnet = new SentiWordNet(pathToSWN);
 		
 		System.out.println("good#a "+sentiwordnet.extract("good", "a"));
 		System.out.println("bad#a "+sentiwordnet.extract("bad", "a"));
 		System.out.println("blue#a "+sentiwordnet.extract("blue", "a"));
-		System.out.println("blue#n "+sentiwordnet.extract("blue", "n"));
+		System.out.println("bomb#n "+sentiwordnet.extract("kill", "v"));
+		System.out.println("plant#v "+sentiwordnet.extract("maillol", "n"));
 	}
 }

@@ -306,6 +306,7 @@ object Dataset2Vec {
 
       //| Creates Word2Vec Data from Categories
       //> ceatingWord2VecCategoryData("src/main/resources/rdf2.nt")
+      
       //| Creates Word2Vec Data from Dataset
       //> ceatingWord2VecDatasetData("src/main/resources/rdf2.nt")
  
