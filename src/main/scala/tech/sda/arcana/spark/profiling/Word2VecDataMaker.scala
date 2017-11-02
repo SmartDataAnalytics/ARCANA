@@ -17,7 +17,7 @@ object Dataset2Vec {
       import sqlContext.implicits._
   /////////////////////////////////// PRINTING ///////////////////////////////////
   def showCategories(){
-      Categories.categories.foreach(line => println(line))//println(categories(1))
+      AppConf.categories.foreach(line => println(line))//println(categories(1))
   }
   def showCategoryObjects(Categories: List[Category]){
     for (instance <- Categories){

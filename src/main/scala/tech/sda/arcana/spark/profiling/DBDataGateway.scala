@@ -27,8 +27,8 @@ object AppDBM {
   val spark = SparkSession.builder()
     .master("local")
     .appName("MongoSparkConnector")
-    .config(inputUri, DBConf.host + DBConf.dbName + "." + DBConf.defaultCollection)
-    .config(outputUri, DBConf.host + DBConf.dbName + "." + DBConf.defaultCollection)
+    .config(inputUri, AppConf.host + AppConf.dbName + "." + AppConf.defaultCollection)
+    .config(outputUri, AppConf.host + AppConf.dbName + "." + AppConf.defaultCollection)
     //.config("spark.sql.warehouse.dir", "file:///c:/tmp/spark-warehouse") >> Windows
     .getOrCreate()
 
@@ -203,7 +203,7 @@ object AppDBM {
     var _idCounter: Int = 0
     val DF = RDFApp.exportingData(FileName)
     
-    val categories = Categories.categories
+    val categories = AppConf.categories
     val category = "war"
     
     var DBRows = ArrayBuffer[Row]()
@@ -221,7 +221,7 @@ object AppDBM {
     val df = dbRdd.map {
       case Row(s0, s1, s2, s3, s4, s5, s6) => DBRecord(s0.asInstanceOf[Int], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[String], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[String])
     }.toDF()
-    MongoSpark.save(df.write.option("collection", DBConf.defaultCollection).mode("append"))
+    MongoSpark.save(df.write.option("collection", AppConf.defaultCollection).mode("append"))
   }
   //Schema
   case class X(_id: Int, _expression: String, indices: List[Integer], weights: Array[Double])
@@ -241,7 +241,10 @@ object AppDBM {
 
     
     
-    //addUrisBelongingToCategoryToDB("src/main/resources/rdf2.nt")
+    addUrisBelongingToCategoryToDB("src/main/resources/rdf2.nt")
+    
+    /////////////// READING
+    /*
     val rdd =  MongoSpark.load(spark)
 
       println(rdd.count)
@@ -254,7 +257,7 @@ object AppDBM {
     val newT = spark.sql("update mongoDB set weight = '10' where expression = 'nuclearA1' ")
 
     newT.show()
-
+	  */
     
     //> writeChunkToMongoDB()
 
