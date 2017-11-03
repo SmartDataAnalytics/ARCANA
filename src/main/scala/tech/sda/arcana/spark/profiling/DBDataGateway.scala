@@ -15,7 +15,9 @@ import org.apache.spark.SparkContext
 import org.bson.Document
 import scala.util.parsing.json._
 import org.bson.types.ObjectId
-
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.ml.feature.Word2Vec
+import org.apache.spark.ml.feature.Word2VecModel
 /*
  * An Object that is responsible for the interaction with MongoDB to store and read data
  */
@@ -196,25 +198,33 @@ object AppDBM {
     temp
   }
 
-  // Add the URIS that has the category in the subject to the database
-  def addUrisBelongingToCategoryToDB(FileName: String) {
+  // Build the Database with resources
+  def buildDB(FileName: String, model:Word2VecModel) {
+    
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
     var _idCounter: Int = 0
     val DF = RDFApp.exportingData(FileName)
     
     val categories = AppConf.categories
-    val category = "war"
-    
+
     var DBRows = ArrayBuffer[Row]()
     for ( x <- categories ){
-          println(x)
+          //println(x)
+          // get URIS that has the category as a word
           val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(DF.toDF(), x)
               for (y <- myUriList) {
-                DBRows += Row(_idCounter, y.Uri, getExpFromSubject(y.Uri), category, 0.0, 0.0, "")
+                DBRows += Row(_idCounter, y.Uri, getExpFromSubject(y.Uri), x, 0.0, 0.0, "")
                 _idCounter += 1
+                // Find synonyms to this URI 
+                val synonyms = model.findSynonyms(y.Uri,1000)
+                val result = synonyms.filter("similarity>0.2").as[Synonym].collect
+                for( synonym <- result){
+                    DBRows += Row(_idCounter,synonym.word, getExpFromSubject(synonym.word), x, synonym.similarity, 0.0, y.Uri)
+                    _idCounter += 1
+                }
               } 
-    }
+      }
 
     val dbRdd = sc.makeRDD(DBRows)
 
@@ -227,11 +237,20 @@ object AppDBM {
   case class X(_id: Int, _expression: String, indices: List[Integer], weights: Array[Double])
   case class Record(_id: Int, expression: String, rank: Double, rsc: List[String])
 
-  case class DBRecord(_id: Int, uri: String, expression: String, category: String, score: Double, weight: Double, objectOf: String) // score = cosine similary - weight = sentiment analysis
 
   def main(args: Array[String]) = {
     //> showConfigMap()
-
+    
+    import spark.implicits._
+    val model=Word2VecModelMaker.loadWord2VecModel("Word2VecModel")
+    //buildDB("src/main/resources/rdf2.nt",model)
+ 
+    
+    
+    
+    
+    
+    
     //> writeToMongoDB("ALIroops","3",List[String]("http://dbpedia.org/resource/Territorial_Troops1", "http://dbpedia.org/resource/Territorial_Troops2", "http://dbpedia.org/resource/Territorial_Troops3","http://dbpedia.org/resource/Territorial_Troops4","http://dbpedia.org/resource/Territorial_Troops5","http://dbpedia.org/resource/Territorial_Troops6","http://dbpedia.org/resource/Territorial_Troops7"))
 
     //"src/main/resources/rdf2.nt"
@@ -239,9 +258,8 @@ object AppDBM {
     //    val model=Word2VecModelMaker.loadWord2VecModel()
     //println(FetchMaxId("ArcanaTest"))
 
-    
-    
-    addUrisBelongingToCategoryToDB("src/main/resources/rdf2.nt")
+
+
     
     /////////////// READING
     /*

@@ -68,8 +68,8 @@ object Word2VecModelMaker {
       model.write.overwrite().save("Word2VecModel")
   }
   // Load model
-  def loadWord2VecModel():Word2VecModel={
-    Word2VecModel.load("Word2VecDatasetModel")
+  def loadWord2VecModel(fileName:String):Word2VecModel={
+    Word2VecModel.load(fileName)
   }
   def main(args: Array[String]) {
    
