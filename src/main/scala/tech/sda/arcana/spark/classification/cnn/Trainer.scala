@@ -58,7 +58,9 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int) extends Serializable  
             )
      (optimizer)
    }
+  
    // The general case to know the return type
+   if(model== -1){
       val optimizer = Optimizer(
       model = LeNet5Model.build(),
       sampleRDD = samples,
@@ -66,7 +68,7 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int) extends Serializable  
       batchSize = batch
           )
      (optimizer)
-   
+   }
   }
    
 }
