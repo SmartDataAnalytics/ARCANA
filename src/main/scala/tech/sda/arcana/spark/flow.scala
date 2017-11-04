@@ -41,7 +41,7 @@ object flow {
       val samples=great.map(sampler.initializePositiveSample)
       //val trainer=new Trainer(2,3,questionInitializer.longestWordsSeq,50).build(samples, 3)
       val trainer=new Trainer(2,3,20,50).build(samples, 3)
-      //trainer.optimize()
+      trainer.optimize()
       println("Done")
 
       }
