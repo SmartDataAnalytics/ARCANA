@@ -34,15 +34,15 @@ object flow {
       val result= parsedQuestions.join(parsedLines)
       val resultTest= result.map{case(a,b)=>b}
       val groupedResultTest=resultTest.groupBy(x=>x._1._1)
-      val questionTensorTransformer=new QuestionTensorTransformer(sc,questionInitializer.calculateLongestWordsSeq(questions),50)
+      //val questionTensorTransformer=new QuestionTensorTransformer(sc,questionInitializer.calculateLongestWordsSeq(questions),50)
+      val questionTensorTransformer=new QuestionTensorTransformer(sc,20,50)
       val great=groupedResultTest.map(questionTensorTransformer.transform)
       val sampler=new TensorSampleTransformer(sc)
       val samples=great.map(sampler.initializePositiveSample)
-      val trainer=new Trainer(2,3,questionInitializer.longestWordsSeq,50).build(samples, 3)
-      //trainer.optimize()
+      //val trainer=new Trainer(2,3,questionInitializer.longestWordsSeq,50).build(samples, 3)
+      val trainer=new Trainer(2,3,20,50).build(samples, 3)
+      trainer.optimize()
       println("Done")
-
-     
 
       }
 }

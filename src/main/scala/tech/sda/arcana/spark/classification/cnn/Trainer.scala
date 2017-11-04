@@ -9,6 +9,7 @@ import com.intel.analytics.bigdl.optim._
 import org.apache.spark.rdd.RDD
 import com.intel.analytics.bigdl.dataset.Sample
 import com.intel.analytics.bigdl.convCriterion
+import com.intel.analytics.bigdl.dataset.MiniBatch
 
 /**A class that train a chosen neural network model with chosen loss function
  * @param lossfun 1 for L1Cost, 2 for ClassNLLCriterion
@@ -24,7 +25,7 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int) extends Serializable  
    *  @param samples 1 for L1Cost, 2 for ClassNLLCriterion
    *  @param batch 1 for L1Cost, 2 for ClassNLLCriterion
    */ 
-  def build(samples:RDD[Sample[Float]],batch:Int)={
+  def build(samples:RDD[Sample[Float]],batch:Int):Optimizer[Float, MiniBatch[Float]]={
    //There is being repetition in the code because of using singleton objects in Scala
    //Abstract class didn't solve the problem because the return
    //type is going to be from the parent class
@@ -36,7 +37,8 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int) extends Serializable  
           criterion = lossFunctions(lossfun-1),
           batchSize = batch
             )
-    (optimizer)
+    return optimizer
+            //(optimizer)
    }
    
    if(model==2){
@@ -46,7 +48,8 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int) extends Serializable  
           criterion = lossFunctions(lossfun-1),
           batchSize = batch
             )
-     (optimizer)
+     return optimizer
+          //(optimizer)
    }
    
    if(model==3){
@@ -56,8 +59,10 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int) extends Serializable  
           criterion = lossFunctions(lossfun-1),
           batchSize = batch
             )
-     (optimizer)
+     return optimizer
+           //(optimizer)
    }
+  
    // The general case to know the return type
       val optimizer = Optimizer(
       model = LeNet5Model.build(),
@@ -65,8 +70,9 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int) extends Serializable  
       criterion = lossFunctions(lossfun-1),
       batchSize = batch
           )
-     (optimizer)
-   
+     return optimizer
+          //(optimizer)
+
   }
    
 }

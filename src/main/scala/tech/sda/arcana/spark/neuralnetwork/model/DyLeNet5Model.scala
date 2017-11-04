@@ -7,7 +7,7 @@ object DyLeNet5Model {
   
   def build(Height:Int,Width:Int)={
     //constraint to make sure that the input is valid 
-    if((Height<=12 && Width<=12)&&(Height%2!=0 && Width%2!=0)){
+    if((Height<=12 || Width<=12)||(Height%2!=0 || Width%2!=0)){
       val message:String="error"
       println(message)
       message
@@ -35,7 +35,7 @@ object DyLeNet5Model {
     LeNet5Model.add(Linear(84,10))
     LeNet5Model.add(LogSoftMax())
     //Printing the model specifications
-    println(LeNet5Model.getParametersTable())
+    //println(LeNet5Model.getParametersTable())
     LeNet5Model
   }
   

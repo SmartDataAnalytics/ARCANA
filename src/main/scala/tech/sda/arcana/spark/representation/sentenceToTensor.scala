@@ -153,7 +153,7 @@ object sentenceToTensor {
           //sddf.collect()
           
           val optimizer = Optimizer(
-              model = DyLeNet5Model.build(20,50),
+              model = DyLeNet5Model.build(10,50),
               sampleRDD = sddf,
               criterion = ClassNLLCriterion[Float](),
               batchSize = 3
