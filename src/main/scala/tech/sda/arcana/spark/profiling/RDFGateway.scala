@@ -161,7 +161,7 @@ object RDFApp {
     //readFile(input)
 
     println("~Ending Session~")
-    //spark.stop()
+    spark.stop()
     //triples
   }
 }
