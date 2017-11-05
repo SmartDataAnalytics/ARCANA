@@ -18,6 +18,7 @@ import tech.sda.arcana.spark.classification.cnn.Core
 import tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model
 import tech.sda.arcana.spark.neuralnetwork.model.DyLeNet5Model
 import com.intel.analytics.bigdl.nn.Reshape
+import com.intel.analytics.bigdl.nn.Module
 
 object sentenceToTensor {
   //Transfer one question one sentence to multi-represential tensor
@@ -151,23 +152,35 @@ object sentenceToTensor {
           
           val sddf= great.map(sasa)
           //sddf.collect()
+
           
           val optimizer = Optimizer(
-              model = DyLeNet5Model.build(10,50),
+              model = DyLeNet5Model.build(20,50),
               sampleRDD = sddf,
               criterion = ClassNLLCriterion[Float](),
               batchSize = 3
             )
             
-            optimizer.optimize()
+            val trained_model=optimizer.optimize()
+            
+            //trained_model.forward(great.collect())           
+            /*
+            trained_model.predict(sddf).foreach(println)
+            
             println("done")
-          
+            */
+            //myModel.evaluate(sddf,Array(new Top1Accuracy))
+
+            
           /*
           answer.foreach{println("---------------StART---------------------")
                         x=>println(x)
                          println("----------------END----------------------")}
           
           */
+            
+            
+            
           //////////////////////////////************************************************
         /*
           var tensorF=Tensor[Float](2,2)
