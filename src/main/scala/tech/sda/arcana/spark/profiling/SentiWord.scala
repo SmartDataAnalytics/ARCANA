@@ -1,5 +1,5 @@
 package tech.sda.arcana.spark.profiling
-
+import org.apache.spark.sql.DataFrame
 import scala.collection.mutable.ArrayBuffer
 import org.apache.spark.sql.SparkSession
 import java.util.Properties
@@ -26,18 +26,8 @@ object SentiWord {
       .appName("SentiWord")
       .getOrCreate()
     import org.apache.spark.sql.Row
-/*
-    
-    def mapperT(line:String):SentiWord={
-       val fields= line.split("\t")
-       DBRows += Row(fields(0),fields(1),fields(2),fields(3),fields(4))
-       //println(fields(0)+"-"+fields(1)+"-"+fields(2)+"-"+fields(3)+"-"+fields(4)+"-"+fields(5))
-       SentiWord(fields(0),fields(1),fields(2),fields(3),fields(4))
-    } 
-*/
-    
-    
-    def convertSentiWordIntoDF(filename:String){
+   
+    def convertSentiWordIntoDF(filename:String):DataFrame={
       val sc = spark.sparkContext
       import spark.implicits._
       var DBRows = ArrayBuffer[Row]()
@@ -54,9 +44,7 @@ object SentiWord {
             val WordnRank=(q.split("#"))
             DBRows += Row(x.POS,x.ID,x.PosScore, x.NegScore, WordnRank(0),WordnRank(1))
           }
- 
-           //DBRows += Row(_idCounter,synonym.word, getExpFromSubject(synonym.word), x, synonym.similarity, 0.0, y.Uri)
-        }
+         }
         else{
             val WordnRank=(x.SynsetTerms.split("#"))
             DBRows += Row(x.POS,x.ID,x.PosScore, x.NegScore, WordnRank(0),WordnRank(1))
@@ -66,15 +54,23 @@ object SentiWord {
         val df = dbRdd.map {
           case Row(s0, s1, s2, s3, s4, s5) => SentiWordSpark(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[String], s4.asInstanceOf[String], s5.asInstanceOf[String])
         }.toDF()
-      df.show()
+       df 
     } 
+ 
     def main(args: Array[String]) = {
  
-      convertSentiWordIntoDF("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt")
-      
+       val DF = convertSentiWordIntoDF("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt")
+       DF.createOrReplaceTempView("senti")
+       val Res = spark.sql(s"SELECT * from senti where Term = 'kill' ") 
+       Res.show()
 
-
+       //val rawDF = spark.sparkContext.textFile("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt") 
       
+       
+       
+       //val DFN = rawDF.map(x => x.split("\t")).map( x=> SentiWordNetClass(x(0),x(1),x(2),x(3),x(4)) )
+       //val DFNT=  DFN.map(MAPT)
+       
       //val DFN = DF.as[SentiWord].map(mapperT)
       //val df2 = DF.map(x => (x.getString(1),x.getString(0).length))
       

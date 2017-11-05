@@ -91,11 +91,19 @@ public class SentiWordNet {
 					}
 				}
 			}
-
+			
+			for (String key : tempDictionary.keySet()) {
+			    // use the key here
+				 if(key=="degressive_tax#n")
+					 System.out.println("YEA");
+			}
+			
 			// Go through all the terms.
 			for (Map.Entry<String, HashMap<Integer, Double>> entry : tempDictionary
 					.entrySet()) {
+				
 				String word = entry.getKey();
+			
 				Map<Integer, Double> synSetScoreMap = entry.getValue();
 
 				// Calculate weighted average. Weigh the synsets according to
@@ -134,11 +142,13 @@ public class SentiWordNet {
 		
 		String pathToSWN ="/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet_3.0.0_20130122.txt";
 		SentiWordNet sentiwordnet = new SentiWordNet(pathToSWN);
-		
+		/*
 		System.out.println("good#a "+sentiwordnet.extract("good", "a"));
 		System.out.println("bad#a "+sentiwordnet.extract("bad", "a"));
 		System.out.println("blue#a "+sentiwordnet.extract("blue", "a"));
 		System.out.println("bomb#n "+sentiwordnet.extract("bomb", "v"));
-		System.out.println("bomb#v "+sentiwordnet.extract("bomb", "n"));
+		*/
+		System.out.println("hydrostatic#v "+sentiwordnet.extract("hydrostatic", "a"));
+		
 	}
 }
