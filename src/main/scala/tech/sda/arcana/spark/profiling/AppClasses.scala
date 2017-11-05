@@ -16,3 +16,5 @@ class Category (var Category: String,var uri:  List[RDFURI] ) {
 
   case class Synonym(word: String, similarity: Double)
   case class DBRecord(_id: Int, uri: String, expression: String, category: String, score: Double, weight: Double, objectOf: String) // score = cosine similary - weight = sentiment analysis
+  case class SentiWordNetClass(POS:String, ID:String, PosScore:String, NegScore:String, SynsetTerms:String)
+  case class SentiWordSpark(POS:String, ID:String, PosScore:String, NegScore:String, Term:String,TermRank:String)
