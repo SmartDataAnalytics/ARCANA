@@ -162,6 +162,21 @@ object sentenceToTensor {
             )
             
             val trained_model=optimizer.optimize()
+            //trained_model.evaluate()
+            
+            /*
+            //create some dummy dataset for evaluation
+            val feature = Tensor(10).rand()
+            val label = Tensor(1).randn()
+            
+            val testSample = Sample(feature, label)
+            //sc is is the SparkContxt instance
+            val testSet = sc.parallelize(Seq(testSample))
+            
+            //train a new model or load an existing model
+            val trained_model=optimizer.optimize()
+            //val evaluateResult = trained_model.evaluate(testSet, Array(new Top1Accuracy), None)
+            */
             
             //trained_model.forward(great.collect())           
             /*

@@ -35,8 +35,8 @@ object DyLeNet5Model {
     LeNet5Model.add(Linear(84,10))
     LeNet5Model.add(LogSoftMax())
     //To get one result in the end
-    LeNet5Model.add(Linear(10,1))
-    LeNet5Model.add(LogSoftMax())
+    //LeNet5Model.add(Linear(10,1))
+    //LeNet5Model.add(LogSoftMax())
     //Printing the model specifications
     //println(LeNet5Model.getParametersTable())
     LeNet5Model
