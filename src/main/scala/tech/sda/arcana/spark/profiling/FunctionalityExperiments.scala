@@ -1,15 +1,12 @@
 package tech.sda.arcana.spark.profiling
 import org.tartarus.snowball
 
-import org.apache.spark.mllib.feature.Stemmer
+import org.apache.spark.stemming.feature.Stemmer
 
 //import com.databricks.spark.corenlp.functions._
 import org.apache.spark.sql.SparkSession
 import org.apache.spark._
 import org.apache.spark.SparkContext._
-
- 
-
 
 object FunctionalityExperiments {
    val spark = SparkSession.builder
@@ -21,7 +18,7 @@ object FunctionalityExperiments {
       val sc = spark.sparkContext
      
 val data = spark
-  .createDataFrame(Seq(("testing", 1), ("plays", 2), ("runs", 3)))
+  .createDataFrame(Seq(("testing", 1), ("killing", 2), ("runs", 3)))
   .toDF("word", "id")
 
 val stemmed = new Stemmer()

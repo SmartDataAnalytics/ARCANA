@@ -1,4 +1,4 @@
-package org.apache.spark.mllib.feature
+package org.apache.spark.stemming.feature
 
 import org.tartarus.snowball.SnowballStemmer
 
