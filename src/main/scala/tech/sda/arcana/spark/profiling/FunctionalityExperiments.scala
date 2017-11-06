@@ -1,24 +1,37 @@
 package tech.sda.arcana.spark.profiling
+import org.tartarus.snowball
 
-import scala.collection.mutable
+import org.apache.spark.mllib.feature.Stemmer
+
+//import com.databricks.spark.corenlp.functions._
 import org.apache.spark.sql.SparkSession
-import net.sansa_stack.rdf.spark.io.NTripleReader
-import net.sansa_stack.rdf.spark.model.{JenaSparkRDDOps, TripleRDD}
 import org.apache.spark._
 import org.apache.spark.SparkContext._
-import org.apache.log4j._
-import org.apache.spark.sql.SparkSession;
-import java.net.{URI => JavaURI}
-import scala.collection.mutable
+
+ 
+
 
 object FunctionalityExperiments {
-   val sparkSession = SparkSession.builder
+   val spark = SparkSession.builder
       .master("local[*]")
       .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .appName("Experiments")
       .getOrCreate()
   def main(args: Array[String]) = {
-    println("HII")
-    println("<http://commons.dbpedia.org/resource/User:NA31> <http://commons.dbpedia.org/resource/User:NA311>".count(_ == '>'))
+      val sc = spark.sparkContext
+     
+val data = spark
+  .createDataFrame(Seq(("testing", 1), ("plays", 2), ("runs", 3)))
+  .toDF("word", "id")
+
+val stemmed = new Stemmer()
+  .setInputCol("word")
+  .setOutputCol("stemmed")
+  .setLanguage("English")
+  .transform(data)
+
+stemmed.show
+
+      
   }
 }
