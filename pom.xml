@@ -169,7 +169,7 @@
 		<dependency>
 			<groupId>edu.stanford.nlp</groupId>
 			<artifactId>stanford-corenlp</artifactId>
-			<version>3.8.0</version>
+			<version>3.7.0</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/io.circe/circe-generic_2.11 -->
@@ -212,6 +212,7 @@
 		    <version>2.0.0</version>
 		    <scope>provided</scope>
 		</dependency>
+
 
 
 		<!-- https://mvnrepository.com/artifact/io.circe/circe-core_2.12 -->
