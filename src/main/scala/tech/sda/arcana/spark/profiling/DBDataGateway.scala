@@ -199,32 +199,34 @@ object AppDBM {
   }
 
   // Build the Database with resources
-  def buildDB(FileName: String, model:Word2VecModel) {
-    
+  def operateOnDB(DS: Dataset[Triple], model: Word2VecModel) {
+
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
     var _idCounter: Int = 0
-    val DF = RDFApp.exportingData(FileName)
-    
+
+    // duplicated step
+    val DF = DS
+
     val categories = AppConf.categories
 
     var DBRows = ArrayBuffer[Row]()
-    for ( x <- categories ){
-          //println(x)
-          // get URIS that has the category as a word
-          val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(DF.toDF(), x)
-              for (y <- myUriList) {
-                DBRows += Row(_idCounter, y.Uri, getExpFromSubject(y.Uri), x, 0.0, 0.0, "")
-                _idCounter += 1
-                // Find synonyms to this URI 
-                val synonyms = model.findSynonyms(y.Uri,1000)
-                val result = synonyms.filter("similarity>0.2").as[Synonym].collect
-                for( synonym <- result){
-                    DBRows += Row(_idCounter,synonym.word, getExpFromSubject(synonym.word), x, synonym.similarity, 0.0, y.Uri)
-                    _idCounter += 1
-                }
-              } 
+    for (x <- categories) {
+      //println(x)
+      // get URIS that has the category as a word
+      val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(DF.toDF(), x)
+      for (y <- myUriList) {
+        DBRows += Row(_idCounter, y.Uri, getExpFromSubject(y.Uri), x, 0.0, 0.0, "")
+        _idCounter += 1
+        // Find synonyms to this URI
+        val synonyms = model.findSynonyms(y.Uri, 1000)
+        val result = synonyms.filter("similarity>0.2").as[Synonym].collect
+        for (synonym <- result) {
+          DBRows += Row(_idCounter, synonym.word, getExpFromSubject(synonym.word), x, synonym.similarity, 0.0, y.Uri)
+          _idCounter += 1
+        }
       }
+    }
 
     val dbRdd = sc.makeRDD(DBRows)
 
@@ -233,24 +235,18 @@ object AppDBM {
     }.toDF()
     MongoSpark.save(df.write.option("collection", AppConf.defaultCollection).mode("append"))
   }
-  //Schema
-  case class X(_id: Int, _expression: String, indices: List[Integer], weights: Array[Double])
-  case class Record(_id: Int, expression: String, rank: Double, rsc: List[String])
 
-
+  def buildDB(DS: Dataset[Triple]){
+    import spark.implicits._
+    val model = Word2VecModelMaker.loadWord2VecModel("Word2VecModel")
+    operateOnDB(DS,model)
+  }
+  
   def main(args: Array[String]) = {
     //> showConfigMap()
-    
-    import spark.implicits._
-    val model=Word2VecModelMaker.loadWord2VecModel("Word2VecModel")
-    //buildDB("src/main/resources/rdf2.nt",model)
- 
-    
-    
-    
-    
-    
-    
+
+
+
     //> writeToMongoDB("ALIroops","3",List[String]("http://dbpedia.org/resource/Territorial_Troops1", "http://dbpedia.org/resource/Territorial_Troops2", "http://dbpedia.org/resource/Territorial_Troops3","http://dbpedia.org/resource/Territorial_Troops4","http://dbpedia.org/resource/Territorial_Troops5","http://dbpedia.org/resource/Territorial_Troops6","http://dbpedia.org/resource/Territorial_Troops7"))
 
     //"src/main/resources/rdf2.nt"
@@ -258,25 +254,22 @@ object AppDBM {
     //    val model=Word2VecModelMaker.loadWord2VecModel()
     //println(FetchMaxId("ArcanaTest"))
 
-
-
-    
     /////////////// READING
     /*
     val rdd =  MongoSpark.load(spark)
 
       println(rdd.count)
     //  println(rdd.first.toJson)
-    
+
     rdd.createOrReplaceTempView("mongoDB")
 
     val centenarians = spark.sql("SELECT * FROM mongoDB where ")
-    
+
     val newT = spark.sql("update mongoDB set weight = '10' where expression = 'nuclearA1' ")
 
     newT.show()
 	  */
-    
+
     //> writeChunkToMongoDB()
 
     //> EnterSchemaData()

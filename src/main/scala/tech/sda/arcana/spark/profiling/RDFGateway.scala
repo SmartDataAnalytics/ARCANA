@@ -12,28 +12,45 @@ import org.apache.spark.sql
 import scala.util.matching
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Dataset
-
 import scala.io.Source
-
 /*
  * An Object that Deals with the RDF Data and parse it 
- * Still need to think of a way to a better representation that include a word and its URI 
  */
- 
 object RDFApp {
-  //rdf subject predicate object
-  case class Triple(Subject:String, Predicate:String, Object:String)
-    
+
   val spark = SparkSession.builder()
       .master("local")
       .appName("RDFApp")
       .master("local[*]")
       .getOrCreate()
     
-   import spark.implicits._ 
-  
-  
-  //Cleaning the subject (applies to predicate as well)
+   import spark.implicits._
+   
+    // This method is basically for debugging, it reads a file and print its lines in a centralized fashion
+  def readFile(filename: String) = {
+    val line = Source.fromFile(filename).getLines
+    //val fields = line.split("""[ ]+(?=([^"]*"[^"]*")*[^"]*$)""")
+    
+   for (x <- line) {
+      print("0 -> ")
+      println(x)
+      val y=x.replaceAll("""\\""""", """\"""")
+      val y1=y.replaceAll("""\\\\"""", "\"")
+      val y2=y1.replaceAll("""\"\\"""", "\"")
+      val y3=y2.replaceAll("""\\"""", "")
+      print("0.b -> ")
+      println(y3)
+      val fields = y3.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
+      print("1 -> ")
+      if (fields(0) != null) println(fields(0)) else println("_")
+      print("2 -> ")
+      if (fields(1) != null) println(fields(1)) else println("_")
+      print("3 -> ")
+      if (fields(2) != null) println(fields(2)) else println("_")
+     
+    }
+  }
+  //Cleaning the URI (Subject & Predicate)
   def SP_Transform(entity:String): String={
     val newEntity=entity.stripPrefix("<").stripSuffix(">").trim  
     val path = (new URI(newEntity)).getPath();
@@ -83,6 +100,7 @@ object RDFApp {
     return triple
   }
   
+  // To avoid the cases mentioned at the end of this object scala file
   def filterRddData(line: String): String=
     {
       val filter1=line.replaceAll("""\\""""", """\"""")
@@ -92,13 +110,11 @@ object RDFApp {
       filter4
     }
   
-  
   ////////////////////////////////////////////////////////////////////////////////
   // Read a file or files and convert them to a dataset after cleaning the content
   def dataToDataset(input: String) = {
     val rawDF = spark.sparkContext.textFile(input) 
-    // CLEAN DATA
-    // Remove empty rows 
+    // CLEAN DATA // Remove empty rows 
     val noEmptyRDD = rawDF.filter(x => (x != null) && (x.length > 0))
     // Remove the existence of \"
     //val noExtraQoutRDD = noEmptyRDD.map(x => x.replaceAll("""\\"""", ""))
@@ -110,33 +126,9 @@ object RDFApp {
     //triples.select("Object").show()
     //println(triples.count())
   ////////////////////////////////////////////////////////////////////////////////
-  
-  // This method is basically for debugging, it reads a file and print its lines in a centralized fashion
-  def readFile(filename: String) = {
-    val line = Source.fromFile(filename).getLines
-    //val fields = line.split("""[ ]+(?=([^"]*"[^"]*")*[^"]*$)""")
-    
-   for (x <- line) {
-      print("0 -> ")
-      println(x)
-      val y=x.replaceAll("""\\""""", """\"""")
-      val y1=y.replaceAll("""\\\\"""", "\"")
-      val y2=y1.replaceAll("""\"\\"""", "\"")
-      val y3=y2.replaceAll("""\\"""", "")
-      print("0.b -> ")
-      println(y3)
-      val fields = y3.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
-      print("1 -> ")
-      if (fields(0) != null) println(fields(0)) else println("_")
-      print("2 -> ")
-      if (fields(1) != null) println(fields(1)) else println("_")
-      print("3 -> ")
-      if (fields(2) != null) println(fields(2)) else println("_")
-     
-    }
-  }
-  
-  def exportingData(filename: String) = {
+
+  // Function that is meant to be invoked from outside and which perform the tasks on the data 
+  def importingData(filename: String) = {
     dataToDataset(filename)
   }
   
@@ -150,22 +142,18 @@ object RDFApp {
     val input3 = "../ExtResources/ntTest2/*" //Set of problamatic Files
     val input4 = "../ExtResources/problemData.nt" //Single File
     val input5 = "../ExtResources/ntFiles/*" //dbpedia
-    
-    
+   
     val input = if (args.length > 0) args(0) else input1;
-    
-    //readFile(input4)
-    //val triples = dataToDataset(input3)
-    //triples.show()
-    //println(triples.count())
-    //readFile(input)
 
     println("~Ending Session~")
     spark.stop()
-    //triples
   }
 }
-
+ /*
+    the subject, which is an RDF URI reference or a blank node
+    the predicate, which is an RDF URI reference
+    the object, which is an RDF URI reference, a literal or a blank node
+ */
 // Problamatic cases
 //<http://simple.dbpedia.org/resource/4'33%22> <http://www.w3.org/2000/01/rdf-schema#label> "4'33\""@en .
 //<http://simple.dbpedia.org/resource/%5C> <http://www.w3.org/2000/01/rdf-schema#label> "\\"@en .

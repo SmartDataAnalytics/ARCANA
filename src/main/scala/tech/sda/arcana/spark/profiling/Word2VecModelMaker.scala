@@ -1,4 +1,6 @@
 package tech.sda.arcana.spark.profiling
+ import java.io.File
+import org.apache.commons.io.FilenameUtils
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.ml.feature.Word2Vec
 import org.apache.spark.ml.feature.Word2VecModel
@@ -9,6 +11,9 @@ import org.apache.spark.sql.DataFrame
 
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
+/*
+ * An Object that reads the prepared data and converts it to a Word2Vec Model 
+ */
 object Word2VecModelMaker {
       val spark = SparkSession.builder
       .master("local[*]")
@@ -62,7 +67,25 @@ object Word2VecModelMaker {
       .setMinCount(0)
     word2Vec.fit(fileName)
   }
-
+  
+  // List of files in directory
+  def getListOfFiles(dir: String):List[File] = {
+    val d = new File(dir)
+    if (d.exists && d.isDirectory) {
+        d.listFiles.filter(_.isFile).toList
+    } else {
+        List[File]()
+    }
+  }
+  // Return the file with .txt extension
+  def returnTxtFile(dirFiles: List[File]): String = {
+      var myfile=""
+      for(x<-dirFiles){
+        if(FilenameUtils.getExtension(x.toString())=="txt")
+          myfile=x.toString()
+      }
+    myfile
+  }
   // Save the model
   def saveWord2VecModel(model:Word2VecModel){
       model.write.overwrite().save("Word2VecModel")
@@ -71,15 +94,18 @@ object Word2VecModelMaker {
   def loadWord2VecModel(fileName:String):Word2VecModel={
     Word2VecModel.load(fileName)
   }
-  def main(args: Array[String]) {
-   
+ 
+  def MakeWord2VecModel(){
     val sqlContext= new org.apache.spark.sql.SQLContext(spark.sparkContext)
     import sqlContext.implicits._
 
     //| Pick one of these
     //val word2VecInput=fetchCodedDataDF()
     //val word2VecInput=fetchFileDataDF("src/main/resources/textTest.txt")
-    val word2VecInput=fetchFileDataDFSc("src/main/resources/Word2VecDatasetData/part-r-00000-687e6e87-c614-4865-a342-3329ab58ddf0.txt")
+   
+    // Search the directory word2vec data and find the txt one
+    val word2vecData=(returnTxtFile(getListOfFiles("src/main/resources/Word2VecDatasetData/")))
+    val word2VecInput=fetchFileDataDFSc(word2vecData)
  
     //| Make model and save it
     val model = fitWord2VecModel(word2VecInput)
@@ -87,11 +113,17 @@ object Word2VecModelMaker {
     
     //| Or load model
     //> val model = Word2VecModel.load("Word2VecModel")
-    
+    /*
     val synonyms = model.findSynonyms("<http://commons.dbpedia.org/resource/User:warTR1A>",1000)
     synonyms.show(false)
     val result = model.transform(word2VecInput)
     result.select("result").take(3).foreach(println)
+    */
+  }
+
+  def main(args: Array[String]) {
+   
+    MakeWord2VecModel()
 
     println("Stopping Session")
     spark.stop()

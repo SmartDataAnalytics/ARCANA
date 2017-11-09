@@ -6,7 +6,9 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Dataset
 import java.io._
 import org.apache.spark.rdd.RDD
-
+/*
+ * An Object that Deals with the RDF Data and converts it to a format that is suitable to the Word2Vec algorithm
+ */
 object Dataset2Vec {
       val spark = SparkSession.builder
       .master("local[*]")
@@ -82,7 +84,7 @@ object Dataset2Vec {
   }   
   ////////////////////////////////////////////////////////////////////////////////
   def rdfSubjectsToList(file: String): List[String]={
-    val R=RDFApp.exportingData(file)
+    val R=RDFApp.importingData(file)
     var subjectsList = R.select("Subject").rdd.map(r => r(0).asInstanceOf[String]).collect()
     subjectsList.toList.distinct
   }
@@ -247,12 +249,13 @@ object Dataset2Vec {
      //newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
   }
  // This function reads the data and make the word2vecready data while working on subjects related to categories only
-  def ceatingWord2VecCategoryData(file: String){
-      val R=RDFApp.exportingData(file) //"src/main/resources/rdf2.nt"
+  def ceatingWord2VecCategoryData(DS: Dataset[Triple]){
+      val R=DS //"src/main/resources/rdf2.nt"
+      
       //| Fetch Categories
-      //> var myCategories = Categories.categories
+      var Categories = AppConf.categories
      
-      var Categories = List("war","nuclear","Hunebed", "Paddestoel", "Buswachten")
+      //  var Categories = List("war","nuclear","Hunebed", "Paddestoel", "Buswachten")
       
       //| Converting each category to a Category Object with the list of URIs belonging to it
       var categoryOBJs=Categories.map(x => new Category(x,fetchAllOfWordAsSubject(R.toDF(),x)))
@@ -271,12 +274,12 @@ object Dataset2Vec {
       var myRDD=prepareCategoryDataToRDD(thirdTR)
       //myRDD.map(_.toString).toDF.show(false)     
  		
-      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecCategoryData")
+      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecCategoryData") // 'overwrite', 'append', 'ignore', 'error'.
   }
   
   // This function reads the data and make the word2vec ready data while working on each subject of the dataset
-  def ceatingWord2VecDatasetData(file: String){
-      val R=RDFApp.exportingData("src/main/resources/rdf2.nt")
+  def ceatingWord2VecDatasetData(DS: Dataset[Triple]){
+      val R=DS
 
       var CategoriesNT=rdfSubjectsToList("src/main/resources/rdf2.nt")
       
@@ -287,7 +290,6 @@ object Dataset2Vec {
       var firstTR=categoryOBJs.map(x => firstTraverse(x,R.toDF()))
 
       var secondTR=firstTR.map(x => secondTraverse(x,R.toDF()))
-      
       
       var thirdTR=secondTR.map(x => thirdTraverse(x,R.toDF()))
       //showThirdTraverse(thirdTR)
@@ -301,38 +303,30 @@ object Dataset2Vec {
       myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecDatasetData")
   }
   
-  def main(args: Array[String]) {
-      val sc = spark.sparkContext
-
+    def MakeWord2VecModel(DS: Dataset[Triple]){
+      
+      //DS.show(false)
+      
       //| Creates Word2Vec Data from Categories
-      //> ceatingWord2VecCategoryData("src/main/resources/rdf2.nt")
+      //> ceatingWord2VecCategoryData(DS)
       
       //| Creates Word2Vec Data from Dataset
-      //> ceatingWord2VecDatasetData("src/main/resources/rdf2.nt")
- 
+      //> ceatingWord2VecDatasetData(DS)
+  }
+  
+  def main(args: Array[String]) {
+    val sc = spark.sparkContext
+
     println("~Stopping Session~")
     spark.stop()
   }
 }
-//> appendToRDD("""<http://commons.dbpedia.org/resource/File:Paddestoel_002.jpg>""")
-          /*for (sTR <- fTR.URIslist){
-          //println(sTR.Uri)
-          sTR.URIslist=fetchObjectsOfSubject(DF,sTR.Uri)
-          //sTR.URIslist.foreach(x => println(x.Uri))
-          /*for (tTR <- sTR.URIslist){
-            println(sTR.Uri)
-            tTR.URIslist=fetchObjectsOfSubject(DF,sTR.Uri)
-            println(tTR.Uri)
-          }*/
-          //sTR.URIslist.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri)))
-        }*/
- 
-      
+
+
       //output to one file
       //finalRDD.coalesce(1, true).saveAsTextFile("testMie")
       //finalRDD.saveAsTextFile("out\\int\\tezt")
  
-     //bodyRDxD.map(_.toString).toDF.coalesce(1).write.format("text").mode("append").save("Word2VecData") // 'overwrite', 'append', 'ignore', 'error'.
       //finalRDD.map(_.toString).toDF.write.mode("append").text("testMie")
 
 
