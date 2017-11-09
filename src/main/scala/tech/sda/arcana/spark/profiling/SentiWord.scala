@@ -57,13 +57,53 @@ object SentiWord {
        df 
     } 
  
+      def sentimentMapper(X:SentiWordSpark){
+        
+      }
     def main(args: Array[String]) = {
  
+       import spark.implicits._
        val DF = convertSentiWordIntoDF("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt")
        DF.createOrReplaceTempView("senti")
-       val Res = spark.sql(s"SELECT * from senti where Term = 'kill' ") 
-       Res.show()
+       val Res = spark.sql(s"SELECT * from senti where POS='n' and Term = 'bomb' ") 
+       
+       //val T = Res.as[SentiWordSpark]
+       //Res.show()
+       
+       val resul = Res.as[SentiWordSpark].collect()
+       var Score=0.0
+       var Sum=0.0
+       
+       for( x <- resul){
+         
+         Score += (x.PosScore.toDouble-x.NegScore.toDouble)/(x.TermRank.toDouble)
+         Sum+=(1/(x.TermRank.toDouble))
+         
+       }
+       
+       Score /= Sum
+       println(Score)
+       
+       /*
+       val TermsRank = Res.select("TermRank").rdd.map(r => r(0)).collect()
+       val test = Res.select("PosScore","NegScore","TermRank").rdd.map(r => r(0)).collect()
+       val result = Res.select("PosScore", "NegScore")
+       result.show()
+       
+       
+       var sum = 0.0    
+       TermsRank.foreach(i => sum+=1/i.asInstanceOf[String].toDouble)
+       println(sum)
+       
+       */
+       //Res.show()
 
+       
+      //score += setScore.getValue() / (double) setScore.getKey();
+			//sum += 1.0 / (double) setScore.getKey();
+			// Score= 1/2*first + 1/3*second + 1/4*third ..... etc.
+			// Sum = 1/1 + 1/2 + 1/3 ...
+      
        //val rawDF = spark.sparkContext.textFile("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt") 
       
        

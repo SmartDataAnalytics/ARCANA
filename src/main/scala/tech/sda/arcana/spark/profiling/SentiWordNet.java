@@ -145,10 +145,12 @@ public class SentiWordNet {
 		/*
 		System.out.println("good#a "+sentiwordnet.extract("good", "a"));
 		System.out.println("bad#a "+sentiwordnet.extract("bad", "a"));
-		System.out.println("blue#a "+sentiwordnet.extract("blue", "a"));
-		System.out.println("bomb#n "+sentiwordnet.extract("bomb", "v"));
 		*/
-		System.out.println("hydrostatic#v "+sentiwordnet.extract("hydrostatic", "a"));
+		System.out.println("blue#n "+sentiwordnet.extract("bomb", "n"));
+		
+		System.out.println("bomb#v "+sentiwordnet.extract("bomb", "v"));
+		
+		//System.out.println("hydrostatic#v "+sentiwordnet.extract("hydrostatic", "a"));
 		
 	}
 }
