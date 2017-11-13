@@ -151,6 +151,7 @@ public class SentiWordNet {
 		System.out.println("bomb#v "+sentiwordnet.extract("bomb", "v"));
 		
 		//System.out.println("hydrostatic#v "+sentiwordnet.extract("hydrostatic", "a"));
-		
+			// n --> SCORE IS-0.045454545454545456
+		// v --> SCORE IS-0.041666666666666664
 	}
 }
