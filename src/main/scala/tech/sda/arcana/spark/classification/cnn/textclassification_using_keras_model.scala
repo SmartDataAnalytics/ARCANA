@@ -1,4 +1,4 @@
-package tech.sda.arcana.spark.classification.cnn
+/*package tech.sda.arcana.spark.classification.cnn
 import com.intel.analytics.bigdl.example.textclassification
 import com.intel.analytics.bigdl.example.textclassification.TextClassifier
 import com.intel.analytics.bigdl.example.textclassification.TextClassificationParams
@@ -56,4 +56,4 @@ object textclassification_using_keras_model {
    
 }
   
-}
+}*/
