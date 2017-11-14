@@ -94,9 +94,12 @@ object Referance {
   println("-------------training----------------")
   println(LeNet5Model.build(5).training())//draw the deep neural structure (same)
   println("-----------getTimes------------------")
-  println(LeNet5Model.build(5).getTimes())//produce time tubels
+  println(LeNet5Model.build(5).getTimes())          //var y=x.storage()//produce time tubels
   println("-----------------------------")
   //in addition to predict for RDD samples and forward for Tensors
+  //To check the output for a single input tensor
+  val dummyTensor=Tensor[Float](1,20,50).rand()
+  println(DyLeNet5Model.build(20,50).forward(dummyTensor))
   //---------------------------------------------------------
   
   //---------------------------------------------------------
@@ -110,7 +113,7 @@ object Referance {
   println(Reshape(Array(25)).forward(fiTensor))
   
   println("------------Tensor[Float](1,5,4).rand()------------")
-  val fiTensor2=Tensor[Float](1,5,4).rand()
+  val fiTensor2=Tensor[Float](1,5,4).rand          //var y=x.storage()()
   println(fiTensor2)
   println("-----View(25).forward(Tensor[Float](1,5,4).rand())--------")
   println(View(20).forward(fiTensor2))
@@ -120,13 +123,31 @@ object Referance {
   
   //---------------------------------------------------------
   //Scenarios for looping
-  
+  //RDD.collect().foreach(println)
+  //RDD.foreach{x=>printf("\nString= %s Line= %s Word= %s",x._1,x._2._1._1,x._2._1._2) }
+  //RDD.foreach{println("---------------StART---------------------")
+  //               x=>println(x)
+  //               println("----------------END----------------------")}
   //---------------------------------------------------------
   
   //---------------------------------------------------------
+  //Check the built tensors values
+  /*
+    for(tensor <- Array of tensors){
+    var storage=tensor.storage()
+      for(i <- 0 to 999){
+        print((storage(i)).toString()+", ")
+      }
+    println("---------------------")
+  }
+   Do not treat the tensors like arrays because they are not!
+   println(tensor(index)) will print all the lements in the tensor
+   and tensor(index)(index) will produce a huge error
+  */
   //---------------------------------------------------------
   
   //---------------------------------------------------------
+
   //---------------------------------------------------------
   
   //---------------------------------------------------------
