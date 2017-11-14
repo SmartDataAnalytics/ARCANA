@@ -43,28 +43,31 @@ object Referance {
   //Different dimensions of tensors
   var tensorF=Tensor[Float](2,2)
   println("--------------2,2--------------------------")
-  println(tensorF)
+  println(tensorF)//just like 2D array
   println("--------------3,3--------------------------")
   tensorF=Tensor[Float](3,3)
-  println(tensorF)
+  println(tensorF)//just like 3D array (cube)
   println("--------------3,3,3--------------------------")
   tensorF=Tensor[Float](3,3,3)
-  println(tensorF)
+  println(tensorF)//three layers and each layer is 3*3 (cube)
   println("--------------2,2,2--------------------------")
   tensorF=Tensor[Float](2,2,2)
-  println(tensorF)
+  println(tensorF)//two layers and each layers is 2*2 (array)
   println("--------------4,2,3--------------------------")
   tensorF=Tensor[Float](4,2,3)
-  println(tensorF)
+  println(tensorF)//four layers and each layers is 2*3
   println("--------------4,2,3,5--------------------------")
   tensorF=Tensor[Float](4,2,3,5)
-  println(tensorF)
+  println(tensorF)////eight layers (4*2) and each layers is 3*5
+  //the follwing printed layers
+  //(1,1,.,.)...(1,2,.,.)...(2,1,.,.)...(2,2,.,.)...(3,1,.,.) 
+  //(3,2,.,.)...(4,1,.,.)...(4,2,.,.)
   println("--------------4,2,3,9--------------------------")
   tensorF=Tensor[Float](4,2,3,9)
-  println(tensorF)
+  println(tensorF)//eight layers (4*2) and each layers is 3*9
   println("--------------4,4,3,9,4--------------------------")
   tensorF=Tensor[Float](4,4,3,9,4)
-  println(tensorF)
+  println(tensorF)//48 layers (4*4*3) and each layers is 9*4
 
   
   //---------------------------------------------------------
@@ -79,5 +82,20 @@ object Referance {
   //---------------------------------------------------------
   
   //---------------------------------------------------------
+  //List important operations on neural networks models
+  println("------------output-----------------")  
+  println(LeNet5Model.build(5).output)//null do not use
+  println("------------evaluate-----------------")
+  println(LeNet5Model.build(5).evaluate())//draw the deep neural structure
+  println("------------checkEngineType-----------------")
+  println(LeNet5Model.build(5).checkEngineType())//draw the deep neural structure (same)
+  println("------------isTraining-----------------")
+  println(LeNet5Model.build(5).isTraining())//true or false
+  println("-------------training----------------")
+  println(LeNet5Model.build(5).training())//draw the deep neural structure (same)
+  println("-----------getTimes------------------")
+  println(LeNet5Model.build(5).getTimes())//produce time tubels
+  println("-----------------------------")
+  //in addition to predict for RDD samples and forward for Tensors
   //---------------------------------------------------------
 }
