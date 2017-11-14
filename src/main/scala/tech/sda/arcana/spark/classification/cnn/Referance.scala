@@ -98,4 +98,38 @@ object Referance {
   println("-----------------------------")
   //in addition to predict for RDD samples and forward for Tensors
   //---------------------------------------------------------
+  
+  //---------------------------------------------------------
+  //Understanding the different between View and Reshape layers
+  println("------------Tensor[Float](1,5,5).rand()------------")
+  val fiTensor=Tensor[Float](1,5,5).rand()
+  println(fiTensor)
+  println("-----View(25).forward(Tensor[Float](1,5,5).rand())--------")
+  println(View(25).forward(fiTensor))
+  println("-----View(25).forward(Tensor[Float](1,5,5).rand())--------")
+  println(Reshape(Array(25)).forward(fiTensor))
+  
+  println("------------Tensor[Float](1,5,4).rand()------------")
+  val fiTensor2=Tensor[Float](1,5,4).rand()
+  println(fiTensor2)
+  println("-----View(25).forward(Tensor[Float](1,5,4).rand())--------")
+  println(View(20).forward(fiTensor2))
+  println("-----View(25).forward(Tensor[Float](1,5,4).rand())--------")
+  println(Reshape(Array(20)).forward(fiTensor2))
+  //---------------------------------------------------------
+  
+  //---------------------------------------------------------
+  //Scenarios for looping
+  
+  //---------------------------------------------------------
+  
+  //---------------------------------------------------------
+  //---------------------------------------------------------
+  
+  //---------------------------------------------------------
+  //---------------------------------------------------------
+  
+  //---------------------------------------------------------
+  //---------------------------------------------------------
+
 }
