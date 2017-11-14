@@ -1,4 +1,5 @@
 package tech.sda.arcana.spark.representation
+import java.io._
 import org.apache.spark.rdd.RDD
 import com.intel.analytics.bigdl.tensor.TensorNumericMath.TensorNumeric.NumericFloat
 import com.intel.analytics.bigdl.nn.View
@@ -120,7 +121,7 @@ object sentenceToTensor {
           val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
           
           // Read the questions
-          val questions = sc.textFile("/home/mhd/Desktop/Data Set/TestNow.txt")
+          val questions = sc.textFile("/home/mhd/Desktop/Data Set/TestNowM.txt")
 
           
           //Give each question an Id or an order
@@ -150,18 +151,57 @@ object sentenceToTensor {
           
           val great=groupedResultTest.map(testte)
           //great.collect().foreach(println)
-          //val answer=great.collect()
+          //val answer=great.collect()    
+          val tempp=great.collect()
+
+          val ele=tempp(0).storage()
+          //var y=x.storage()
           
-          val sddf= great.map(sasa)
+
+          
+          
+          println("here")
+          println()
+          for(x <- tempp){
+            var y=x.storage()
+              for(i <- 0 to 999){
+                print((y(i)).toString()+", ")
+              }
+            println("---------------------")
+          }
+          println()
+          println("there")
+          
+          //val sddf= great.map(sasa)
           //sddf.collect().foreach(println)
+          
+          
+          
+
+          
+          
           //print the structure
-          println(DyLeNet5Model.build(20,50) )
+          println("------------Tensor[Float](1,5,5).rand()------------")
+          val fiTensor=Tensor[Float](1,5,5).rand()
+          println(fiTensor)
+          println("-----View(25).forward(Tensor[Float](1,5,5).rand())--------")
+          println(View(25).forward(fiTensor))
+          println("-----View(25).forward(Tensor[Float](1,5,5).rand())--------")
+          println(Reshape(Array(25)).forward(fiTensor))
+          
+          println("------------Tensor[Float](1,5,4).rand()------------")
+          val fiTensorr=Tensor[Float](1,5,4).rand()
+          println(fiTensorr)
+          println("-----View(25).forward(Tensor[Float](1,5,4).rand())--------")
+          println(View(20).forward(fiTensorr))
+          println("-----View(25).forward(Tensor[Float](1,5,4).rand())--------")
+          println(Reshape(Array(20)).forward(fiTensorr))
           
           
           /*val tensorF=Tensor[Float](1,20,50).rand()
           println(DyLeNet5Model.build(20,50).forward(tensorF))*/
           
-          
+          /*
           val optimizer = Optimizer(
               model = DyLeNet5Model.build(20,50),
               sampleRDD = sddf,
@@ -171,7 +211,7 @@ object sentenceToTensor {
             println("reach here")
             val trained_model=optimizer.optimize()
             //trained_model.evaluate()
-            
+            */
             
             
             
@@ -211,32 +251,7 @@ object sentenceToTensor {
             
             
           //////////////////////////////************************************************
-        /*
-          var tensorF=Tensor[Float](2,2)
-          println("--------------2,2--------------------------")
-          println(tensorF)
-          println("--------------3,3--------------------------")
-          tensorF=Tensor[Float](3,3)
-          println(tensorF)
-          println("--------------3,3,3--------------------------")
-          tensorF=Tensor[Float](3,3,3)
-          println(tensorF)
-          println("--------------2,2,2--------------------------")
-          tensorF=Tensor[Float](2,2,2)
-          println(tensorF)
-          println("--------------4,2,3--------------------------")
-          tensorF=Tensor[Float](4,2,3)
-          println(tensorF)
-          println("--------------4,2,3,5--------------------------")
-          tensorF=Tensor[Float](4,2,3,5)
-          println(tensorF)
-          println("--------------4,2,3,9--------------------------")
-          tensorF=Tensor[Float](4,2,3,9)
-          println(tensorF)
-          println("--------------4,4,3,9,4--------------------------")
-          tensorF=Tensor[Float](4,4,3,9,4)
-          println(tensorF)
-          */
+
 
           /*
           val reshape = Reshape(Array(1))
@@ -326,84 +341,32 @@ object sentenceToTensor {
           //result1.foreach(println)
           //http://docs.scala-lang.org/overviews/collections/iterators.html
           //Iterable[   (   String, ((String, Int), Array[String])  )    ]
-          /*
-          val it = Iterator(("Mohamad",(("m",1),(1,2,3))))
+       
           
-          
-          val test=it.toArray
-          
-          
-          val test1=(it.toSeq).sortBy(_._2._1._1)
-          
-                    val label=Tensor[Float](T(1f))
-          val sample=Sample(tensor,label)
-          (sample)
-          val x=Tensor[Float](4,5,6)
-          x.apply1(i => i+1)
-          */
-         // val x=Table[Float]()          
-          /*
-          val oo:Int=0
-          x.apply(oo => oo+1)
-          */
-          /*
-          x:apply(function()
-            i = i + 1
-            return i
-          end)
-          */
-          
-          //val vectorizedRdd = result1.map {case (string, varr) => varr. }
-          
-          /*
-          for(i <- result1)
-          {
-            //the second loop for watching the results without using flatmap
-            //for(j<- i){
-              print("The world: ")
-              println(i._1)
-              print("Sentence order: ")
-              println(i._2._1._1)
-              print("Word order: ")
-              println(i._2._1._2)
-              print("vector representation: ")
-              for(j<- i._2._2)
-              print(j+",")
-              println()
-           // }
-          }
-          ////////////////////////////////////////////
-           val tensor=Tensor[Float](sentenceWordCount,vectorLength)
-           val tensorStorage= tensor.storage
-           */
-          
-          
-          
-   /*       
-          //https://bigdl-project.github.io/master/#UserGuide/examples/
-          //example about RDD then converting to tensor
-         
-                      
-            //Build the tensor which represent the question
-            //Achtung when changing this code to take any quetion length you
-            //should intialize the tensor with zeros in the begining
-            val tensor=Tensor[Float](sentenceWordCount,vectorLength)
-            val tensorStorage= tensor.storage()      
-            //the length of each row in the tensor
-            var temp:Array[String] = new Array[String](vectorLength)
-            
-            //to fill the tensor
-            //define the tensor index
-            var tI=0
-            for(i <- 0 to senRep.size){
-              temp=senRep(i)
-              for(j <- 0 to temp.size-1){
-                tensorStorage(tI)=temp(j).toFloat
-                tI=tI+1
-              }
-            }
-            
-            print(tensor)
-*/
+          var tensorF=Tensor[Float](2,2)
+  println("--------------2,2--------------------------")
+  println(tensorF)
+  println("--------------3,3--------------------------")
+  tensorF=Tensor[Float](3,3)
+  println(tensorF)
+  println("--------------3,3,3--------------------------")
+  tensorF=Tensor[Float](3,3,3)
+  println(tensorF)
+  println("--------------2,2,2--------------------------")
+  tensorF=Tensor[Float](2,2,2)
+  println(tensorF)
+  println("--------------4,2,3--------------------------")
+  tensorF=Tensor[Float](4,2,3)
+  println(tensorF)
+  println("--------------4,2,3,5--------------------------")
+  tensorF=Tensor[Float](4,2,3,5)
+  println(tensorF)
+  println("--------------4,2,3,9--------------------------")
+  tensorF=Tensor[Float](4,2,3,9)
+  println(tensorF)
+  println("--------------4,4,3,9,4--------------------------")
+  tensorF=Tensor[Float](4,4,3,9,4)
+  println(tensorF)
+
     }
 }
