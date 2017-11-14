@@ -26,7 +26,7 @@ object SentiWord {
       .appName("SentiWord")
       .getOrCreate()
     import org.apache.spark.sql.Row
-   
+    import spark.implicits._
     def convertSentiWordIntoDF(filename:String):DataFrame={
       val sc = spark.sparkContext
       import spark.implicits._
@@ -56,14 +56,77 @@ object SentiWord {
         }.toDF()
        df 
     } 
- 
-    def main(args: Array[String]) = {
- 
-       val DF = convertSentiWordIntoDF("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt")
-       DF.createOrReplaceTempView("senti")
-       val Res = spark.sql(s"SELECT * from senti where Term = 'kill' ") 
-       Res.show()
 
+    def prepareSentiFile(fileName:String):DataFrame={
+      ///home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt
+      //import spark.implicits._
+      val DF = convertSentiWordIntoDF(fileName)
+      DF
+    }
+    
+    def getSentiScoreForAllPOS(word:String,DF:DataFrame):List[(String,String)]={   
+      DF.createOrReplaceTempView("senti")
+      val Res = spark.sql(s"SELECT * from senti where Term = '$word'  ") // and POS='n' 
+      Res.createOrReplaceTempView("Pos")
+      val Pos = spark.sql(s"SELECT POS from senti where Term = '$word' group by POS  ")
+      val POSList=Pos.select("POS").rdd.map(r => r(0)).collect()
+      var a : List[(String,String)] = List()
+
+      // loop over the POS related to the word 
+       for(x <-POSList){
+         val posCon=spark.sql(s"SELECT * from Pos where POS = '$x'")
+         val resul = posCon.as[SentiWordSpark].collect()
+         var Score=0.0
+         var Sum=0.0
+          for( x <- resul){
+             Score += (x.PosScore.toDouble-x.NegScore.toDouble)/(x.TermRank.toDouble) // decide whether to keep the positive part or delete it 
+             Sum+=(1/(x.TermRank.toDouble))
+           }
+         Score /= Sum
+         //println(x+" --> SCORE IS"+Score)
+         a = a:+((x.toString(),Score.toString()))
+       }
+        a
+      }
+    
+    def main(args: Array[String]) = {
+      //import spark.implicits._
+      val DF=prepareSentiFile("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt")
+      val result = getSentiScoreForAllPOS("bad",DF)
+     // println(result(0)._1,result(0)._2)
+
+      
+      result.foreach(tuple => println(tuple))
+      
+      /*
+        good#a 0.6337632198238539
+        bad#a -0.5706406664316871
+        blue#a -0.21950284713096807
+        blue#n 0.0
+        
+        
+       */
+       //result.foreach(tuple=>println(tuple._2))
+       /*
+       val TermsRank = Res.select("TermRank").rdd.map(r => r(0)).collect()
+       val test = Res.select("PosScore","NegScore","TermRank").rdd.map(r => r(0)).collect()
+       val result = Res.select("PosScore", "NegScore")
+       result.show()
+       
+       
+       var sum = 0.0    
+       TermsRank.foreach(i => sum+=1/i.asInstanceOf[String].toDouble)
+       println(sum)
+       
+       */
+       //Res.show()
+
+       
+      //score += setScore.getValue() / (double) setScore.getKey();
+			//sum += 1.0 / (double) setScore.getKey();
+			// Score= 1/2*first + 1/3*second + 1/4*third ..... etc.
+			// Sum = 1/1 + 1/2 + 1/3 ...
+      
        //val rawDF = spark.sparkContext.textFile("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt") 
       
        
