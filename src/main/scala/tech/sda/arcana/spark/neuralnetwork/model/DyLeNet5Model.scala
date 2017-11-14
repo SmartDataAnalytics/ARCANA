@@ -26,7 +26,7 @@ object DyLeNet5Model {
     LeNet5Model.add(ReLU())
     LeNet5Model.add(SpatialMaxPooling(2,2,2,2))
     //reshapes from a 3D tensor of 16x5x5 into 1D tensor of 16*5*5
-    LeNet5Model.add(View(view))
+    LeNet5Model.add(Reshape(Array(view)))
     //fully connected layer (matrix multiplication between input and weights)
     LeNet5Model.add(Linear(view,120))
     LeNet5Model.add(ReLU())

@@ -91,6 +91,8 @@ object sentenceToTensor {
             def sasa(tenso:Tensor[Float])={
               
             val label=Tensor[Float](T(1f))
+            //val labesl=Tensor[Float](1,1,1).fill(1f)
+            //val sample=Sample(tenso,label)
             val sample=Sample(tenso,label)
             
             //val minibatch=MiniBatch()
@@ -147,12 +149,18 @@ object sentenceToTensor {
           val groupedResultTest=resultTest.groupBy(x=>x._1._1)
           
           val great=groupedResultTest.map(testte)
-          
+          //great.collect().foreach(println)
           //val answer=great.collect()
           
           val sddf= great.map(sasa)
-          //sddf.collect()
-
+          //sddf.collect().foreach(println)
+          //print the structure
+          println(DyLeNet5Model.build(20,50) )
+          
+          
+          /*val tensorF=Tensor[Float](1,20,50).rand()
+          println(DyLeNet5Model.build(20,50).forward(tensorF))*/
+          
           
           val optimizer = Optimizer(
               model = DyLeNet5Model.build(20,50),
@@ -160,9 +168,15 @@ object sentenceToTensor {
               criterion = ClassNLLCriterion[Float](),
               batchSize = 3
             )
-            
+            println("reach here")
             val trained_model=optimizer.optimize()
             //trained_model.evaluate()
+            
+            
+            
+            
+            
+            
             
             /*
             //create some dummy dataset for evaluation
