@@ -40,6 +40,42 @@ object Referance {
   //---------------------------------------------------------
   
   //---------------------------------------------------------
+  //Different dimensions of tensors
+  var tensorF=Tensor[Float](2,2)
+  println("--------------2,2--------------------------")
+  println(tensorF)
+  println("--------------3,3--------------------------")
+  tensorF=Tensor[Float](3,3)
+  println(tensorF)
+  println("--------------3,3,3--------------------------")
+  tensorF=Tensor[Float](3,3,3)
+  println(tensorF)
+  println("--------------2,2,2--------------------------")
+  tensorF=Tensor[Float](2,2,2)
+  println(tensorF)
+  println("--------------4,2,3--------------------------")
+  tensorF=Tensor[Float](4,2,3)
+  println(tensorF)
+  println("--------------4,2,3,5--------------------------")
+  tensorF=Tensor[Float](4,2,3,5)
+  println(tensorF)
+  println("--------------4,2,3,9--------------------------")
+  tensorF=Tensor[Float](4,2,3,9)
+  println(tensorF)
+  println("--------------4,4,3,9,4--------------------------")
+  tensorF=Tensor[Float](4,4,3,9,4)
+  println(tensorF)
+
+  
+  //---------------------------------------------------------
+  
+  //---------------------------------------------------------
+  //Working with Iterators
+  val it = Iterator(("Mohamad",(("m",1),(1,2,3))))
+  //Convert to any other shape like sequences, arrays and enter their values 
+  val itToArray=it.toArray
+  //Entering values and sorting depend them      
+  val itToSeq=(it.toSeq).sortBy(_._2._1._1)
   //---------------------------------------------------------
   
   //---------------------------------------------------------
