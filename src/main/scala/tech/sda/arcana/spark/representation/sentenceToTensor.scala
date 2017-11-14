@@ -27,7 +27,6 @@ object sentenceToTensor {
    val vectorLength:Int=50
   val sentenceWordCount:Int=20
   
-  
       //return each line of the glov representation as follows:
       // { String(word),Array[string](the vector representatiparsedQuestionson) }
           def parseLine(line:String)={
@@ -81,33 +80,23 @@ object sentenceToTensor {
                                 tensorStorage(storageCounter)=x.toFloat
                                 storageCounter=storageCounter+1
                                 }
-            vec=vec.init
-            
+            vec=vec.init  
             }
             (tensor)
             //}
         }
-        //((Long, Int), Array[String])
         
             def sasa(tenso:Tensor[Float])={
-              
+          
             val label=Tensor[Float](T(1f))
-            //val labesl=Tensor[Float](1,1,1).fill(1f)
-            //val sample=Sample(tenso,label)
             val sample=Sample(tenso,label)
-            
-            //val minibatch=MiniBatch()
-            
-            
+
             (sample)
         }
-        
-        //////////////////////////////************************************************
-        
+
   
     def main(args:Array[String]){
       
-           
           // Set the log level to only print errorsval great=groupedResultTest.map(test)
           Logger.getLogger("org").setLevel(Level.ERROR)
           
@@ -116,14 +105,12 @@ object sentenceToTensor {
           val s=new Core("model","train","label","test")
           val sc=s.initialize()
               
-          
           // Read each line of input data
           val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
           
           // Read the questions
           val questions = sc.textFile("/home/mhd/Desktop/Data Set/TestNowM.txt")
 
-          
           //Give each question an Id or an order
           val orderedQuestions=questions.zipWithIndex().map{case(line,i) => i.toString+" "+line}
           val parsedLines = lines.map(parseLine)
@@ -139,10 +126,6 @@ object sentenceToTensor {
           //      i._1,   ((i._2._1._1    ,i._2._1._2, i._2._2             ))
           val result= parsedQuestions.join(parsedLines)
           
-          //result.foreach{x=>printf("\nString= %s Line= %s Word= %s",x._1,x._2._1._1,x._2._1._2) }
-          //////////////////////////////************************************************
-          //New Scenario ...
-          
           // try to simplify the structure 
           val resultTest= result.map{case(a,b)=>b}
           
@@ -153,55 +136,9 @@ object sentenceToTensor {
           //great.collect().foreach(println)
           //val answer=great.collect()    
           val tempp=great.collect()
-
-          val ele=tempp(0).storage()
-          //var y=x.storage()
           
-
-          
-          
-          println("here")
-          println()
-          for(x <- tempp){
-            var y=x.storage()
-              for(i <- 0 to 999){
-                print((y(i)).toString()+", ")
-              }
-            println("---------------------")
-          }
-          println()
-          println("there")
-          
-          //val sddf= great.map(sasa)
-          //sddf.collect().foreach(println)
-          
-          
-          
-
-          
-          
-          //print the structure
-          println("------------Tensor[Float](1,5,5).rand()------------")
-          val fiTensor=Tensor[Float](1,5,5).rand()
-          println(fiTensor)
-          println("-----View(25).forward(Tensor[Float](1,5,5).rand())--------")
-          println(View(25).forward(fiTensor))
-          println("-----View(25).forward(Tensor[Float](1,5,5).rand())--------")
-          println(Reshape(Array(25)).forward(fiTensor))
-          
-          println("------------Tensor[Float](1,5,4).rand()------------")
-          val fiTensorr=Tensor[Float](1,5,4).rand()
-          println(fiTensorr)
-          println("-----View(25).forward(Tensor[Float](1,5,4).rand())--------")
-          println(View(20).forward(fiTensorr))
-          println("-----View(25).forward(Tensor[Float](1,5,4).rand())--------")
-          println(Reshape(Array(20)).forward(fiTensorr))
-          
-          
-          /*val tensorF=Tensor[Float](1,20,50).rand()
-          println(DyLeNet5Model.build(20,50).forward(tensorF))*/
-          
-          /*
+          val sddf= great.map(sasa)
+     
           val optimizer = Optimizer(
               model = DyLeNet5Model.build(20,50),
               sampleRDD = sddf,
@@ -210,163 +147,7 @@ object sentenceToTensor {
             )
             println("reach here")
             val trained_model=optimizer.optimize()
-            //trained_model.evaluate()
-            */
             
-            
-            
-            
-            
-            
-            /*
-            //create some dummy dataset for evaluation
-            val feature = Tensor(10).rand()
-            val label = Tensor(1).randn()
-            
-            val testSample = Sample(feature, label)
-            //sc is is the SparkContxt instance
-            val testSet = sc.parallelize(Seq(testSample))
-            
-            //train a new model or load an existing model
-            val trained_model=optimizer.optimize()
             //val evaluateResult = trained_model.evaluate(testSet, Array(new Top1Accuracy), None)
-            */
-            
-            //trained_model.forward(great.collect())           
-            /*
-            trained_model.predict(sddf).foreach(println)
-            
-            println("done")
-            */
-            //myModel.evaluate(sddf,Array(new Top1Accuracy))
-
-            
-          /*
-          answer.foreach{println("---------------StART---------------------")
-                        x=>println(x)
-                         println("----------------END----------------------")}
-          
-          */
-            
-            
-            
-          //////////////////////////////************************************************
-
-
-          /*
-          val reshape = Reshape(Array(1))
-          //val wow=great.collect()
-          println(reshape.forward(Tensor[Float](4,4,3,9,4)))
-          */
-          
-          
-          // optimizer
-          //println(LeNet5Model.build())
-
-      
-          //val wow=great.collect()
-          //println( DyLeNet5Model.build(20,50).forward( Tensor[Float](1,20,50) ) )
-          //println("-------------------------***----------------------------------------")
-					//println( LeNet5Model.build().forward( Tensor[Float](1,32,32) ) )
-          
-          /*
-          println("------------output-----------------")  
-          println(LeNet5Model.build().output)
-          println("------------evaluate-----------------")
-          println(LeNet5Model.build().evaluate())
-          println("------------checkEngineType-----------------")
-          println(LeNet5Model.build().checkEngineType())
-          println("------------isTraining-----------------")
-          println(LeNet5Model.build().isTraining())
-          println("-------------predict----------------")
-          println(LeNet5Model.build().predict(ss))
-          println("-------------training----------------")
-          println(LeNet5Model.build().training())
-          println("-----------getTimes------------------")
-          println(LeNet5Model.build().getTimes())
-          println("-----------------------------")
-          //println(LeNet5Model.build().forward( )
-          */
-          
-          /*
-              val optimizer = Optimizer(
-              model = LeNet5Model.build(),
-              sampleRDD = ss,
-              criterion = ClassNLLCriterion[Float](),
-              batchSize = 3
-            )
-            val trigger = Trigger.everyEpoch
-            
-            optimizer.setCheckpoint("/home/mhd/Desktop/Data Set/TTT", trigger)
-            println("gell")
-            
-            
-            */
-            
-            /*
-            optimizer
-                .setOptimMethod(new Adagrad(learningRate=0.01, learningRateDecay=0.0002))
-                .setValidation(Trigger.everyEpoch, valRDD, Array(new Top1Accuracy[Float]), param.batchSize)
-                .setEndWhen(Trigger.maxEpoch(2))
-                .optimize()*/
-          //////////////////////////////************************************************
-          
-          /*
-          val groupedResult=result.groupBy(x=>x._2._1._1)
-          //sentenceVectorRepresentation ordered
-          val sentenceVecRep=groupedResult.map{ case(a,b)=>(b.toSeq).sortBy(_._2._1._2)  }
-          
-          val tt=Tensor[Float](1,4,5)
-          
-          val sentenceVecRepT=sentenceVecRep.map{ case(a)=> a.foreach(_._2._2)}
-          
-          val ss=Seq(1,2,3,4,5,6,7,9)
-          ss(8)
-          
-          
-          val tensor=Tensor[Float](10,10)
-         */
-          /*
-          val sampleRDD = sentenceVecRep.map {case (input: Array[Array[Float]], label: Float) =>
-            Sample(
-              featureTensor = Tensor(input.flatten, Array(sequenceLen, embeddingDim))
-                .transpose(1, 2).contiguous(),
-              labelTensor = Tensor(Array(label), Array(1)))
-          }
-          */
-          
-         // val finalResult=groupedResult.sortBy(x=>x._2._1._2, false)
-          //val result1=result.collect()
-          //val result1=groupedResult.collect()
-          //result1.foreach(println)
-          //http://docs.scala-lang.org/overviews/collections/iterators.html
-          //Iterable[   (   String, ((String, Int), Array[String])  )    ]
-       
-          
-          var tensorF=Tensor[Float](2,2)
-  println("--------------2,2--------------------------")
-  println(tensorF)
-  println("--------------3,3--------------------------")
-  tensorF=Tensor[Float](3,3)
-  println(tensorF)
-  println("--------------3,3,3--------------------------")
-  tensorF=Tensor[Float](3,3,3)
-  println(tensorF)
-  println("--------------2,2,2--------------------------")
-  tensorF=Tensor[Float](2,2,2)
-  println(tensorF)
-  println("--------------4,2,3--------------------------")
-  tensorF=Tensor[Float](4,2,3)
-  println(tensorF)
-  println("--------------4,2,3,5--------------------------")
-  tensorF=Tensor[Float](4,2,3,5)
-  println(tensorF)
-  println("--------------4,2,3,9--------------------------")
-  tensorF=Tensor[Float](4,2,3,9)
-  println(tensorF)
-  println("--------------4,4,3,9,4--------------------------")
-  tensorF=Tensor[Float](4,4,3,9,4)
-  println(tensorF)
-
     }
 }
