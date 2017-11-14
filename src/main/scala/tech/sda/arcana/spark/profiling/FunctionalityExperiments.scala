@@ -18,7 +18,7 @@ object FunctionalityExperiments {
       val sc = spark.sparkContext
      
 val data = spark
-  .createDataFrame(Seq(("testing", 1), ("killing", 2), ("runs", 3)))
+  .createDataFrame(Seq(("having writes", 1), ("killing", 2), ("runs", 3)))
   .toDF("word", "id")
 
 val stemmed = new Stemmer()
@@ -27,9 +27,9 @@ val stemmed = new Stemmer()
   .setLanguage("English")
   .transform(data)
 
-stemmed.show
+ stemmed.show
   
 
-       
+       spark.stop()
   }
 }

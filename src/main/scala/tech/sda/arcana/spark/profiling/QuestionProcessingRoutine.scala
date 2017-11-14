@@ -43,7 +43,9 @@ object QuestionProcessingRoutine {
     val countTokens = udf { (words: Seq[String]) => words.length }
     val regexTokenized = regexTokenizer.transform(sentenceDataFrame)
     regexTokenized.select("sentence", "words")
-        .withColumn("tokens", countTokens(col("words"))).show(false)
+        .withColumn("tokens", countTokens(col("words")))
+        
+    removeStopWords(regexTokenized)
   }
   
   def removeStopWords (DF: DataFrame){
@@ -55,8 +57,8 @@ object QuestionProcessingRoutine {
   }
   def main(args: Array[String]) = {
    
-    tokenizeQuestion("Hi There How are you? There was a car walking by a dog nearby the horse")    
-    tokenizeQuestionWithRegex("Hi There How are you?")  
-
+    //tokenizeQuestion("Hi There How are you? There was a car walking by a dog nearby the horse")    
+    tokenizeQuestionWithRegex("Hi There How are you? There was a car walking by a dog nearby the horse?")  
+    
    } 
 }

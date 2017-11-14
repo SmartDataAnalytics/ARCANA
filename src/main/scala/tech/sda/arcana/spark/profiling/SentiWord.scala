@@ -27,6 +27,8 @@ object SentiWord {
       .getOrCreate()
     import org.apache.spark.sql.Row
     import spark.implicits._
+    
+    // Convert the SentiWord file to a form that is easy to deal with and query 
     def convertSentiWordIntoDF(filename:String):DataFrame={
       val sc = spark.sparkContext
       import spark.implicits._
@@ -57,13 +59,12 @@ object SentiWord {
        df 
     } 
 
-    def prepareSentiFile(fileName:String):DataFrame={
-      ///home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt
-      //import spark.implicits._
+    def prepareSentiFile(fileName:String):DataFrame={      
       val DF = convertSentiWordIntoDF(fileName)
       DF
     }
     
+    // Will return all the scores of a word when it takes place in different POS 
     def getSentiScoreForAllPOS(word:String,DF:DataFrame):List[(String,String)]={   
       DF.createOrReplaceTempView("senti")
       val Res = spark.sql(s"SELECT * from senti where Term = '$word'  ") // and POS='n' 
@@ -90,38 +91,11 @@ object SentiWord {
       }
     
     def main(args: Array[String]) = {
-      //import spark.implicits._
+      
       val DF=prepareSentiFile("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt")
       val result = getSentiScoreForAllPOS("bad",DF)
-     // println(result(0)._1,result(0)._2)
+      result.foreach(tuple => println(tuple))// println(result(0)._1,result(0)._2)
 
-      
-      result.foreach(tuple => println(tuple))
-      
-      /*
-        good#a 0.6337632198238539
-        bad#a -0.5706406664316871
-        blue#a -0.21950284713096807
-        blue#n 0.0
-        
-        
-       */
-       //result.foreach(tuple=>println(tuple._2))
-       /*
-       val TermsRank = Res.select("TermRank").rdd.map(r => r(0)).collect()
-       val test = Res.select("PosScore","NegScore","TermRank").rdd.map(r => r(0)).collect()
-       val result = Res.select("PosScore", "NegScore")
-       result.show()
-       
-       
-       var sum = 0.0    
-       TermsRank.foreach(i => sum+=1/i.asInstanceOf[String].toDouble)
-       println(sum)
-       
-       */
-       //Res.show()
-
-       
       //score += setScore.getValue() / (double) setScore.getKey();
 			//sum += 1.0 / (double) setScore.getKey();
 			// Score= 1/2*first + 1/3*second + 1/4*third ..... etc.

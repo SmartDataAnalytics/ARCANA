@@ -205,14 +205,16 @@ object AppDBM {
     import sqlContext.implicits._
     var _idCounter: Int = 0
 
-    // duplicated step
     val DF = DS
-
     val categories = AppConf.categories
-
+    
+    val sentiDF=SentiWord.prepareSentiFile("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt")
+    
     var DBRows = ArrayBuffer[Row]()
     for (x <- categories) {
-      //println(x)
+      // Get different POS scores for category x
+     val sentiPosScore= SentiWord.getSentiScoreForAllPOS(x,sentiDF)
+      
       // get URIS that has the category as a word
       val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(DF.toDF(), x)
       for (y <- myUriList) {
