@@ -21,14 +21,35 @@ object LeNet5Model {
   LeNet5Model.add(Tanh())
   LeNet5Model.add(SpatialMaxPooling(2,2,2,2))
   //reshapes from a 3D tensor of 16x5x5 into 1D tensor of 16*5*5
-  LeNet5Model.add(View(16*5*5))
+  LeNet5Model.add(Reshape(Array(16*5*5)))
   //fully connected layer (matrix multiplication between input and weights)
   LeNet5Model.add(Linear(16*5*5,120).setName("linear_120"))
-  LeNet5Model.add(ReLU())
+  LeNet5Model.add(Tanh())
   LeNet5Model.add(Linear(120,84).setName("linear_84"))
-  LeNet5Model.add(ReLU())
+  LeNet5Model.add(Tanh())
   LeNet5Model.add(Linear(84,classNum).setName("linear_classnum"))
   LeNet5Model.add(LogSoftMax())
   LeNet5Model
   }
+  
+  def graph(classNum: Int)={
+  val input = Reshape(Array(1, 32, 32)).inputs()
+  val conv1 = SpatialConvolution(1, 6, 5, 5).setName("conv1_5x5").inputs(input)
+  val tanh1 = Tanh().inputs(conv1)
+  val pool1 = SpatialMaxPooling(2, 2, 2, 2).inputs(tanh1)
+  val conv2 = SpatialConvolution(6,16,5,5).setName("conv2_5x5").inputs(pool1)
+  val tanh2 = Tanh().inputs(conv2)
+  val pool2 = SpatialMaxPooling(2, 2, 2, 2).inputs(tanh2)
+  val reshape = Reshape(Array(16*5*5)).inputs(pool2)
+  val linear_120 = Linear(16*5*5,120).setName("linear_120").inputs(reshape)
+  val tanh3 = Tanh().inputs(linear_120)
+  val linear_84 = Linear(120,84).setName("linear_84").inputs(tanh3)
+  val tanh4 = Tanh().inputs(linear_84)
+  val linear_classnum = Linear(84,classNum).setName("linear_classnum").inputs(tanh3)
+  val output = LogSoftMax().inputs(linear_classnum)
+  Graph(input, output)
+  
+  }
+  
+  
 }
