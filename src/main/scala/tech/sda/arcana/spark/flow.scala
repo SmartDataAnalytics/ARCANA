@@ -20,27 +20,45 @@ object flow {
   
  
   def main(args: Array[String]) = {
-
+      //Initialize the class responsible of the connection between BigDl and Spark
       val sparkBigDlInitializer=new SparkBigDlInitializer()
+      //Initialize the Sparkcontext using the BigDL engine with setting the Application name
       val sc=sparkBigDlInitializer.initialize(model="Test")
+      //Initialize the class responsible of dealing with the questions
       val questionInitializer=new QuestionsInitializer(sparkContext=sc) 
+      //Parallelize the vectorial representation on the clusters
       val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
+      //Parallelize the questions on the clusters
       val questionsWithoutCleaning=sc.textFile("/home/mhd/Desktop/Data Set/TestNow.txt")
+      //Cleaning the questions and add spaces between punctuations and other chars
       val questions = questionsWithoutCleaning.map(questionInitializer.clean)
+      //Add order numbers to the questions 
       val orderedQuestions=questions.zipWithIndex().map{case(line,i) => i.toString+" "+line}
+      //Initialize the class responsible of the vectorial representation
       val vectorizationDelegator=new VectorizationDelegator(sparkContext=sc,vectorLength=50)
+      //Build the spark structure (RDD) for the vectorial representing using Glov  
       val parsedLines = lines.map(vectorizationDelegator.ParseVecGlov)
+      //Build the spark structure (RDD) pool of the questions' words with two ids on for the sentence and the other for each word inside each question
       val parsedQuestions=orderedQuestions.flatMap(questionInitializer.parseQuestion)
+      //Map the vectorial representation with the words spark pool and produce another structure have all the important info
       val result= parsedQuestions.join(parsedLines)
+      //Discard unnecessary data
       val resultTest= result.map{case(a,b)=>b}
+      //Group the info related to one question in one spark structure (RDD)
       val groupedResultTest=resultTest.groupBy(x=>x._1._1)
-      //val questionTensorTransformer=new QuestionTensorTransformer(sc,questionInitializer.calculateLongestWordsSeq(questions),50)
+      //Initialize the class responsible of mapping questions, vectoral representation RDD to RDD tensors
+      //If you want to extract the dimensions of the tensors dynamically uncomment the following line
+      //val questionTensorTransformer=new QuestionTensorTransformer(sparkContext=sc,longestWordsSeq=questionInitializer.calculateLongestWordsSeq(questions),vectorLength=50)
       val questionTensorTransformer=new QuestionTensorTransformer(sparkContext=sc,longestWordsSeq=20,vectorLength=50)
+      //Transform questions spark structure (RDD) to Tensors (matrices)
       val great=groupedResultTest.map(questionTensorTransformer.transform)
+      //Initialize the class responsible for building the training sample
       val sampler=new TensorSampleTransformer(sparkContext=sc)
+      //Build positive samples
       val samples=great.map(sampler.initializePositiveSample)
-      //val trainer=new Trainer(2,3,questionInitializer.longestWordsSeq,50).build(samples, 3)
+      //Initialize the class responsible for training the neural network models
       val trainer=new Trainer(lossfun=2,model=3,height=20,width=50).build(samples=samples,batch=3)
+      //Train the neural network model
       trainer.optimize()
       println("Done")
 
