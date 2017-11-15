@@ -22,25 +22,25 @@ object flow {
   def main(args: Array[String]) = {
 
       val sparkBigDlInitializer=new SparkBigDlInitializer()
-      val sc=sparkBigDlInitializer.initialize("Test")
-      val questionInitializer=new QuestionsInitializer(sc) 
+      val sc=sparkBigDlInitializer.initialize(model="Test")
+      val questionInitializer=new QuestionsInitializer(sparkContext=sc) 
       val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
       val questionsWithoutCleaning=sc.textFile("/home/mhd/Desktop/Data Set/TestNow.txt")
       val questions = questionsWithoutCleaning.map(questionInitializer.clean)
       val orderedQuestions=questions.zipWithIndex().map{case(line,i) => i.toString+" "+line}
-      val vectorizationDelegator=new VectorizationDelegator(sc,50)
+      val vectorizationDelegator=new VectorizationDelegator(sparkContext=sc,vectorLength=50)
       val parsedLines = lines.map(vectorizationDelegator.ParseVecGlov)
       val parsedQuestions=orderedQuestions.flatMap(questionInitializer.parseQuestion)
       val result= parsedQuestions.join(parsedLines)
       val resultTest= result.map{case(a,b)=>b}
       val groupedResultTest=resultTest.groupBy(x=>x._1._1)
       //val questionTensorTransformer=new QuestionTensorTransformer(sc,questionInitializer.calculateLongestWordsSeq(questions),50)
-      val questionTensorTransformer=new QuestionTensorTransformer(sc,20,50)
+      val questionTensorTransformer=new QuestionTensorTransformer(sparkContext=sc,longestWordsSeq=20,vectorLength=50)
       val great=groupedResultTest.map(questionTensorTransformer.transform)
-      val sampler=new TensorSampleTransformer(sc)
+      val sampler=new TensorSampleTransformer(sparkContext=sc)
       val samples=great.map(sampler.initializePositiveSample)
       //val trainer=new Trainer(2,3,questionInitializer.longestWordsSeq,50).build(samples, 3)
-      val trainer=new Trainer(2,3,20,50).build(samples, 3)
+      val trainer=new Trainer(lossfun=2,model=3,height=20,width=50).build(samples=samples,batch=3)
       trainer.optimize()
       println("Done")
 
