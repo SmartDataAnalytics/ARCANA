@@ -9,8 +9,8 @@ import org.apache.log4j._
  *  @param SparkContext object, which tells Spark how to access a cluster
  *  @param vectorLength represents the length of the delegated vector 
  */
-class VectorizationDelegator(sc:SparkContext,vectorLength:Int) extends Serializable {
-  val this.sc:SparkContext=sc
+class VectorizationDelegator(sparkContext:SparkContext,vectorLength:Int) extends Serializable {
+  val this.sparkContext:SparkContext=sparkContext
   val this.vectorLength:Int=vectorLength
     
      /** parse the vector representation regarding GloVe: Global Vectors for Word Representation
