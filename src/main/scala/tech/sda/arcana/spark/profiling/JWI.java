@@ -2,11 +2,13 @@ package tech.sda.arcana.spark.profiling;
 import edu.mit.jwi.Dictionary; 
 import edu.mit.jwi.IDictionary; 
 import edu.mit.jwi.item.IIndexWord; 
-import edu.mit.jwi.item.ISynset; 
-
+import edu.mit.jwi.item.ISynset;
+import edu.mit.jwi.item.ISynsetID;
 import edu.mit.jwi.item.IWord; 
 import edu.mit.jwi.item.IWordID; 
-import edu.mit.jwi.item.POS; 
+import edu.mit.jwi.item.POS;
+import edu.mit.jwi.item.Pointer;
+
 import java.io.IOException;
 import java.net.URL;
 
@@ -26,7 +28,7 @@ public class JWI {
 	 static { 
 	  //String wnhome = System.getenv("WNHOME"); 
 	  //String path = wnhome + File.separator + "dict"; 
-	  String path = "src/WordNet/2.1/dict";
+	  String path = "src/WordNet/3.0/dict";
 	  URL url; 
 	  try { 
 	   url = new URL("file", null, path); 
@@ -128,13 +130,16 @@ public class JWI {
 		   
 		 } 
 	 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		JWI obj = new JWI();
-		List<String> Synonyms=obj.getSynomyns("bomb");
+		List<String> Synonyms=obj.getSynomyns("small");
 		for (String Synonym : Synonyms) {
 		    // fruit is an element of the `fruits` array.
 			System.out.println(Synonym);
 		}
  
+
+
+		
 	}
 }
