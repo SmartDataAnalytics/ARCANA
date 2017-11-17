@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Iterator; 
 import java.util.List; 
  
+
+import edu.smu.tspell.wordnet.*;
 /*
  * A class that implements an API for the Wordnet files
  */
@@ -131,14 +133,60 @@ public class JWI {
 		 } 
 	 
 	public static void main(String[] args) throws IOException {
+		/*
 		JWI obj = new JWI();
-		List<String> Synonyms=obj.getSynomyns("small");
+		List<String> Synonyms=obj.getSynomyns("dog");
 		for (String Synonym : Synonyms) {
-		    // fruit is an element of the `fruits` array.
 			System.out.println(Synonym);
 		}
- 
+		 	*/
+		
+		String[] myStringArray = new String[]{"kill"};
+		if (myStringArray.length > 0)
+		{
+			//  Concatenate the command-line arguments
+			StringBuffer buffer = new StringBuffer();
+			for (int i = 0; i < myStringArray.length; i++)
+			{
+				buffer.append((i > 0 ? " " : "") + myStringArray[i]);
+			}
+			 
+			String wordForm = buffer.toString();
+			System.setProperty("wordnet.database.dir", "src/WordNet/3.0/dict");
 
+
+			//  Get the synsets containing the wrod form
+			WordNetDatabase database = WordNetDatabase.getFileInstance();
+			Synset[] synsets = database.getSynsets(wordForm);
+			//  Display the word forms and definitions for synsets retrieved
+			if (synsets.length > 0)
+			{
+				System.out.println("The following synsets contain '" +
+						wordForm + "' or a possible base form " +
+						"of that text:");
+				for (int i = 0; i < synsets.length; i++)
+				{
+					System.out.println("");
+					String[] wordForms = synsets[i].getWordForms();
+					for (int j = 0; j < wordForms.length; j++)
+					{
+						System.out.print((j > 0 ? ", " : "") +
+								wordForms[j]);
+					}
+					System.out.println(": " + synsets[i].getDefinition());
+				}
+			}
+			else
+			{
+				System.err.println("No synsets exist that contain " +
+						"the word form '" + wordForm + "'");
+			}
+		}
+		else
+		{
+			System.err.println("You must specify " +
+					"a word form for which to retrieve synsets.");
+		}
 
 		
 	}

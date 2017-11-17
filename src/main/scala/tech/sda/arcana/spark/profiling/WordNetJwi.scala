@@ -20,12 +20,11 @@ import collection.JavaConverters._
 import akka.dispatch.Foreach
 
 object WordNetJwi {
-  def getSynonyms(dict:Dictionary){
-    // look up first sense of the word " dog "
-      val idxWord = dict . getIndexWord ( " dog " , POS . NOUN ) ;
-      val wordID = idxWord . getWordIDs () . get (0) ; // 1 st meaning
-      val word = dict . getWord ( wordID ) ;
-      val synset = word . getSynset () ;
+  def getSynonyms(dict:Dictionary,expression:String){
+      val idxWord = dict . getIndexWord (expression , POS.NOUN) 
+      val wordID = idxWord.getWordIDs().get (0) // 1 st meaning
+      val word = dict.getWord(wordID) 
+      val synset = word.getSynset() 
       val w = synset.getWords()
       val ITR = w.iterator()
       while(ITR.hasNext()) {
@@ -35,7 +34,7 @@ object WordNetJwi {
   
   def getHypernyms(dict:Dictionary){
         // get the synset
-        val idxWord = dict . getIndexWord ( " dog " , POS . NOUN ) ;
+        val idxWord = dict . getIndexWord ( " dog " , POS.NOUN ) ;
         val wordID = idxWord . getWordIDs () . get (0) ; // 1 st meaning
         val word = dict . getWord ( wordID ) ;
         var synset = word.getSynset();
@@ -63,15 +62,17 @@ object WordNetJwi {
       val dict = new Dictionary ( url ) 
       
       dict.open() 
-      //getSynonyms(dict)
-      getHypernyms(dict)
+      getSynonyms(dict,"capacity")
+      //getHypernyms(dict)
       // look up first sense of the word " dog "
-      val idxWord = dict . getIndexWord ( " dog " , POS . NOUN ) 
+      /*
+      val idxWord = dict . getIndexWord ( " dog " , POS.NOUN ) 
       val wordID = idxWord . getWordIDs () . get (0) 
       val word = dict . getWord ( wordID ) 
       println(" Id = " + wordID )
       println(" Lemma = " + word . getLemma () ) 
       println(" Gloss = " + word . getSynset () . getGloss () ) 
+      */
         dict.close() 
   }
 }
