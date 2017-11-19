@@ -20,6 +20,10 @@ object flow {
   
  
   def main(args: Array[String]) = {
+      //Path to the vectorial representation 
+      val vectorialRepresentationPath="/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt"
+      //Path to the questions
+      val questionPath="/home/mhd/Desktop/Data Set/TestNow.txt"
       //Initialize the class responsible of the connection between BigDl and Spark
       val sparkBigDlInitializer=new SparkBigDlInitializer()
       //Initialize the Sparkcontext using the BigDL engine with setting the Application name
@@ -27,9 +31,9 @@ object flow {
       //Initialize the class responsible of dealing with the questions
       val questionInitializer=new QuestionsInitializer(sparkContext=sc) 
       //Parallelize the vectorial representation on the clusters
-      val vectorialRepresentation = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
+      val vectorialRepresentation = sc.textFile(vectorialRepresentationPath)
       //Parallelize the questions on the clusters
-      val questionsWithoutCleaning=sc.textFile("/home/mhd/Desktop/Data Set/TestNow.txt")
+      val questionsWithoutCleaning=sc.textFile(questionPath)
       //Cleaning the questions and add spaces between punctuations and other chars
       val questions = questionsWithoutCleaning.map(questionInitializer.clean)
       //Add order numbers to the questions 
