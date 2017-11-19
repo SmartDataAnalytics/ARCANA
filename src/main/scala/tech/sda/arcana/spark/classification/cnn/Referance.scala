@@ -146,8 +146,87 @@ object Referance {
   */
   //---------------------------------------------------------
   
+  
   //---------------------------------------------------------
-
+  //BigDl previous manual environment setting
+  //-Dspark.master=local[1] 
+  //-Dspark.executor.cores=1 
+  //-Dspark.total.executor.cores=1 
+  //-Dspark.executor.memory=1g 
+  //-Dspark.driver.memory=1g 
+  //-Xmx1024m -Xms1024m
+  //---------------------------------------------------------
+  
+  //---------------------------------------------------------
+  //Build a sample
+  println("-----------------Begin-----------------------")
+  val image=Tensor[Float](3,5,5).rand
+  val label=Tensor(T(1f))    
+  val sample=Sample(image, label)
+  println(image)
+  println("------------------#1#----------------------")
+  println(label)
+  println("------------------#2#----------------------")
+  println(sample)
+  println("------------------#3#----------------------")
+  //convert to set
+  val test=Tensor[Float](1,3,3).set()
+  //---------------------------------------------------------
+  
+  //---------------------------------------------------------
+  //dealing with buffers
+  val senRep:ListBuffer[Array[String]]=ListBuffer()
+  senRep+=Array("1", "28", "28")
+  senRep+=Array("1", "28", "28")
+  senRep+=Array("1", "28", "28")
+  val xx=Tensor[Float](3,3)
+  val ss= xx.storage()
+  //check if it can be done without new variable
+  val revsenRep=senRep.reverse
+  var temp:Array[String] = new Array[String](3)
+  
+  var h=0
+  for(i <- 0 to revsenRep.size-1){
+    temp=revsenRep(i)
+    for(j <- 0 to temp.size-1) {
+      ss(h) =temp(j).toFloat
+      h=h+1
+    }
+  }
+  println(xx)
+  //---------------------------------------------------------
+  
+  //---------------------------------------------------------
+  //Use spark to match,map or join on actual gathered data 
+  /* Data:
+   * val sentense=Array("my","name","is","ghost")
+     Create a SparkContext using every core of the local machine
+     val sc = new SparkContext("local[*]", "MinTemperatures")      
+     Read each line of input data
+     val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
+     val parsedLines = lines.map(parseLine)
+     using filter 
+     val representation = parsedLines.filter( (x) => (x._1 == "the") )
+     val representation = parsedLines.filter( (x) => (sentense.contains(x._1)) )
+     gather the answers and continue arranging without Spark   
+     val result = representation.collect()  
+        //this section has been done locally because the data is rather small
+        val senRep:ListBuffer[Array[String]]=ListBuffer()
+        for(i <- 0 to sentenceWordCount-1)
+          for(j<-result)
+            if(j._1 == sentense(i))
+              senRep += j._2
+        
+        //achtung this is done locally 
+        for(i<-senRep){
+          for(j<-i){
+            print(j)
+            print(" ")
+          }
+          println()
+        }
+   */
+  
   //---------------------------------------------------------
   
   //---------------------------------------------------------
