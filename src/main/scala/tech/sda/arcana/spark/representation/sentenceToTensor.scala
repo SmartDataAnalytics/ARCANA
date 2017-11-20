@@ -20,9 +20,10 @@ import tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model
 import tech.sda.arcana.spark.neuralnetwork.model.DyLeNet5Model
 import com.intel.analytics.bigdl.nn.Reshape
 import com.intel.analytics.bigdl.nn.Module
+import com.intel.analytics.bigdl.visualization._
 
 object sentenceToTensor {
-  //Transfer one question one sentence to multi-represential tensor
+  //Transfer one question one sentence to multi-represential tensorcom.intel.analytics.bigdl.visualization
   
    val vectorLength:Int=50
   val sentenceWordCount:Int=20
@@ -90,6 +91,8 @@ object sentenceToTensor {
           
             val label=Tensor[Float](T(1f))
             val sample=Sample(tenso,label)
+            
+        
 
             (sample)
         }
@@ -135,7 +138,6 @@ object sentenceToTensor {
           val great=groupedResultTest.map(testte)
           //great.collect().foreach(println)
           //val answer=great.collect()    
-          val tempp=great.collect()
           
           val sddf= great.map(sasa)
      
@@ -146,8 +148,39 @@ object sentenceToTensor {
               batchSize = 3
             )
             println("reach here")
-            val trained_model=optimizer.optimize()
             
+            
+            //optimizer.setValidation(trigger, dataset, vMethods)
+            //optimizer.setOptimMethod(method)
+            //optimizer.setEndWhen(endWhen)
+            /*
+            optimizer
+            .setValidation(
+              trigger = Trigger.everyEpoch,
+              dataset = validationSet,
+              vMethods = Array(new Top1Accuracy))
+            .setOptimMethod(new Adagrad(learningRate=0.01, learningRateDecay=0.0002))
+            .setEndWhen(Trigger.maxEpoch(param.maxEpoch))
+            .optimize()
+            */
+            
+            
+            val logdir = "mylogdir"
+            val appName = "myapp"
+            val trainSummary = TrainSummary(logdir, appName)
+            val validationSummary = ValidationSummary(logdir, appName)
+            optimizer.setTrainSummary(trainSummary)
+            optimizer.setValidationSummary(validationSummary)
+            optimizer.setValidation(Trigger.everyEpoch ,sddf, Array(new Top1Accuracy), 3)
+            
+            val trained_model=optimizer.optimize()
+            val evaluateResult=trained_model.evaluate(sddf, Array(new Top1Accuracy), None)
             //val evaluateResult = trained_model.evaluate(testSet, Array(new Top1Accuracy), None)
-    }
+            evaluateResult.foreach(println)  
+            
+            
+            
+            val re=trained_model.predict(sddf).collect()
+            re.foreach(println)
+    }        
 }
