@@ -20,9 +20,10 @@ import tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model
 import tech.sda.arcana.spark.neuralnetwork.model.DyLeNet5Model
 import com.intel.analytics.bigdl.nn.Reshape
 import com.intel.analytics.bigdl.nn.Module
+import com.intel.analytics.bigdl.visualization._
 
 object sentenceToTensor {
-  //Transfer one question one sentence to multi-represential tensor
+  //Transfer one question one sentence to multi-represential tensorcom.intel.analytics.bigdl.visualization
   
    val vectorLength:Int=50
   val sentenceWordCount:Int=20
@@ -164,10 +165,20 @@ object sentenceToTensor {
             */
             
             
+            val logdir = "mylogdir"
+            val appName = "myapp"
+            val trainSummary = TrainSummary(logdir, appName)
+            val validationSummary = ValidationSummary(logdir, appName)
+            optimizer.setTrainSummary(trainSummary)
+            optimizer.setValidationSummary(validationSummary)
+            optimizer.setValidation(Trigger.everyEpoch ,sddf, Array(new Top1Accuracy), 3)
+            
             val trained_model=optimizer.optimize()
             val evaluateResult=trained_model.evaluate(sddf, Array(new Top1Accuracy), None)
             //val evaluateResult = trained_model.evaluate(testSet, Array(new Top1Accuracy), None)
             evaluateResult.foreach(println)  
+            
+            
             
             val re=trained_model.predict(sddf).collect()
             re.foreach(println)
