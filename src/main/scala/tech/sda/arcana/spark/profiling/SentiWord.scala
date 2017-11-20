@@ -7,6 +7,11 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Dataset
 import java.io._
 import org.apache.spark.rdd.RDD
+
+/*
+ * An Object that deals with SentiWordNet and makes its data queryable (Providing Score)
+ */
+
 /*
 # The pair (POS,ID) uniquely identifies a WordNet (3.0) synset.
 # The values PosScore and NegScore are the positivity and negativity
@@ -92,7 +97,7 @@ object SentiWord {
     
     def main(args: Array[String]) = {
       
-      val DF=prepareSentiFile("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt")
+      val DF=prepareSentiFile(AppConf.SentiWordFile)
       val result = getSentiScoreForAllPOS("bad",DF)
       result.foreach(tuple => println(tuple))// println(result(0)._1,result(0)._2)
 

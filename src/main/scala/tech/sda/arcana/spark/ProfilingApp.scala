@@ -4,7 +4,10 @@ import tech.sda.arcana.spark.profiling.Word2VecModelMaker
 import tech.sda.arcana.spark.profiling.RDFApp
 import org.apache.spark.sql.SparkSession
 import tech.sda.arcana.spark.profiling.AppDBM
-
+/*
+ * Entry Point that should contain the triggering action 
+ * For example trigger answering a question, or trigger filling the database etc 
+ */
 object ExecuteOperations {
   
   def main(args: Array[String]) = {

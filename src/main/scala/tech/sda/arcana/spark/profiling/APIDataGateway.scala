@@ -18,6 +18,10 @@ import scala.collection.mutable
 //import spray.json._
 //import DefaultJsonProtocol._ // if you don't supply your own Protocol (see below)
 
+ /*
+ * An Object that is responsible for the communication with other APIs
+ */
+
 /*
  * My Keys -> merriam webster      
       Key (Dictionary):7a94d88d-4647-416b-bb3c-74bed96d4188

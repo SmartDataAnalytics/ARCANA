@@ -14,7 +14,7 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Dataset
 import scala.io.Source
 /*
- * An Object that Deals with the RDF Data and parse it 
+ * An Object that Deals with the RDF Data (Cleansing, Making it queryable)
  */
 object RDFApp {
 

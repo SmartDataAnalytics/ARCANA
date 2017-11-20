@@ -19,7 +19,9 @@ import collection.JavaConverters._
 
 import akka.dispatch.Foreach
 import edu.smu.tspell.wordnet._
-
+/*
+ * An Object that is capable of extract Synsets form Wordnet using JWI & JAWS
+ */
 object WordNetJwi {
   def getSynonyms(dict:Dictionary,expression:String){
       val idxWord = dict . getIndexWord (expression , POS.NOUN) 
@@ -35,7 +37,7 @@ object WordNetJwi {
        
   def getSynsets(word:String):scala.collection.mutable.Set[String]={
      var set = scala.collection.mutable.Set[String]()
-     System.setProperty("wordnet.database.dir", "src/WordNet/3.0/dict")
+     System.setProperty("wordnet.database.dir", AppConf.WordNetDict)
      
      val database: WordNetDatabase = WordNetDatabase.getFileInstance
      val synsets: Array[Synset] = database.getSynsets(word)
@@ -77,7 +79,7 @@ object WordNetJwi {
     }
   def main(args: Array[String]) = {
     // THIS USES JWI
-      val url = new URL ( "file" , null , "src/WordNet/3.0/dict" ) 
+      val url = new URL ( "file" , null , AppConf.WordNetDict ) 
       // construct the dictionary object and open it
       val dict = new Dictionary ( url ) 
       

@@ -208,7 +208,7 @@ object AppDBM {
     val DF = DS
     val categories = AppConf.categories
     
-    val sentiDF=SentiWord.prepareSentiFile("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt")
+    val sentiDF=SentiWord.prepareSentiFile(AppConf.SentiWordFile)
     
     var DBRows = ArrayBuffer[Row]()
     for (x <- categories) {

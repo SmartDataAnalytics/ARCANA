@@ -1,6 +1,10 @@
 package tech.sda.arcana.spark.profiling
 import scala.collection.mutable.ListBuffer
 
+/*
+ * A scala file that has all classes used in the project 
+ */
+
 class RDFURI(var Uri: String) {
    //var uris = new ListBuffer[RDFURI]()
    //var URIslist = List.newBuilder[URI]

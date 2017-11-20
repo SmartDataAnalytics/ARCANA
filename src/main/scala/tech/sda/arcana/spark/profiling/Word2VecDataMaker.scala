@@ -7,7 +7,7 @@ import org.apache.spark.sql.Dataset
 import java.io._
 import org.apache.spark.rdd.RDD
 /*
- * An Object that Deals with the RDF Data and converts it to a format that is suitable to the Word2Vec algorithm
+ * An Object that process the RDF Data and converts it to a format that is suitable to the Word2Vec algorithm
  */
 object Dataset2Vec {
       val spark = SparkSession.builder
