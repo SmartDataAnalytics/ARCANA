@@ -18,6 +18,7 @@ import collection.JavaConverters._
 
 
 import akka.dispatch.Foreach
+import edu.smu.tspell.wordnet._
 
 object WordNetJwi {
   def getSynonyms(dict:Dictionary,expression:String){
@@ -31,7 +32,25 @@ object WordNetJwi {
         println(ITR.next().asInstanceOf[IWord].getLemma)
       }
   }
-  
+       
+  def getSynsets(word:String):scala.collection.mutable.Set[String]={
+     var set = scala.collection.mutable.Set[String]()
+     System.setProperty("wordnet.database.dir", "src/WordNet/3.0/dict")
+     
+     val database: WordNetDatabase = WordNetDatabase.getFileInstance
+     val synsets: Array[Synset] = database.getSynsets(word)
+     
+     for (i <- 0 until synsets.length) {
+        //println("")
+        val wordForms: Array[String] = synsets(i).getWordForms
+        for (j <- 0 until wordForms.length) {
+          //System.out.print((if (j > 0) ", " else "") + wordForms(j))
+          set.add(wordForms(j))
+        }
+        //println(": " + synsets(i).getDefinition)
+      }
+     set
+   }
   def getHypernyms(dict:Dictionary){
         // get the synset
         val idxWord = dict . getIndexWord ( " dog " , POS.NOUN ) ;
@@ -57,6 +76,7 @@ object WordNetJwi {
 
     }
   def main(args: Array[String]) = {
+    // THIS USES JWI
       val url = new URL ( "file" , null , "src/WordNet/3.0/dict" ) 
       // construct the dictionary object and open it
       val dict = new Dictionary ( url ) 
@@ -74,5 +94,9 @@ object WordNetJwi {
       println(" Gloss = " + word . getSynset () . getGloss () ) 
       */
         dict.close() 
+        println("ResultsFromJAWS")
+         getSynsets("kill").foreach(println)
+      // THIS USES JAWS
+        
   }
 }
