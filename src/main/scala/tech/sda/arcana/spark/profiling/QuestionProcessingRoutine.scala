@@ -59,6 +59,14 @@ object QuestionProcessingRoutine {
    
     //tokenizeQuestion("Hi There How are you? There was a car walking by a dog nearby the horse")    
     tokenizeQuestionWithRegex("Hi There How are you? There was a car walking by a dog nearby the horse?")  
-    
+      val sc = spark.sparkContext
+      import spark.implicits._
+      val lines = sc.textFile("/home/elievex/Repository/ExtResources/sentences")
+      val DF=lines.toDF()
+      DF.createOrReplaceTempView("triples")
+      val word="Achtung"
+      val REG = raw"(?<![a-zA-Z])$word(?![a-zA-Z])".r
+      val Res = spark.sql(s"SELECT * from triples where value RLIKE '$REG' ")
+      Res.show()
    } 
 }

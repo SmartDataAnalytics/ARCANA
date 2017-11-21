@@ -91,7 +91,8 @@ object SentiWord {
          Score /= Sum
          //println(x+" --> SCORE IS"+Score)
          a = a:+((x.toString(),Score.toString()))
-       }
+       }// CATEGORIES
+  var categories = List("military", "nuclear", "terrorism", "weapon", "technology", "security", "harm", "suicide", "war")
         a
       }
     
