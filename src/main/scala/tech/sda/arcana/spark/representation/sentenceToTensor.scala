@@ -145,7 +145,7 @@ object sentenceToTensor {
               model = DyLeNet5Model.build(20,50),
               sampleRDD = sddf,
               criterion = ClassNLLCriterion[Float](),
-              batchSize = 3
+              batchSize = 6
             )
             println("reach here")
             
@@ -164,9 +164,11 @@ object sentenceToTensor {
             .optimize()
             */
             
+            val nowModel = LeNet5Model.graph(5)
+            nowModel.saveGraphTopology("/home/mhd/Desktop/bigdl_summaries")
             
-            val logdir = "mylogdir"
-            val appName = "myapp"
+            val logdir = "/home/mhd/Desktop/bigdl_summaries"
+            val appName = "testApp"
             val trainSummary = TrainSummary(logdir, appName)
             val validationSummary = ValidationSummary(logdir, appName)
             optimizer.setTrainSummary(trainSummary)
