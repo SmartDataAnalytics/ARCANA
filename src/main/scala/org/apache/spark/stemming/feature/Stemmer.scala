@@ -1,6 +1,6 @@
 package org.apache.spark.stemming.feature
 
-import org.tartarus.snowball.SnowballStemmer
+//import org.tartarus.snowball.SnowballStemmer
 
 import org.apache.spark.sql.types.{DataType, StringType}
 import org.apache.spark.ml.util.Identifiable
@@ -18,7 +18,7 @@ class Stemmer(override val uid: String) extends UnaryTransformer[String, String,
   setDefault(language -> "English")
 
   override protected def createTransformFunc: String => String = {
-    val stemClass = Class.forName("org.tartarus.snowball.ext." + $(language).toLowerCase + "Stemmer")
+    val stemClass = Class.forName("org.apache.spark.stemming.feature." + $(language).toLowerCase + "Stemmer")
     val stemmer = stemClass.newInstance.asInstanceOf[SnowballStemmer]
     originStr => try {
       stemmer.setCurrent(originStr)

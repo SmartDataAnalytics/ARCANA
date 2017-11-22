@@ -1,4 +1,4 @@
-package org.tartarus.snowball;
+package org.apache.spark.stemming.feature;
 import java.lang.reflect.InvocationTargetException;
 import java.io.Serializable;
 
