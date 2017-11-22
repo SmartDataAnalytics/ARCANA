@@ -145,7 +145,7 @@ object sentenceToTensor {
               model = DyLeNet5Model.build(20,50),
               sampleRDD = sddf,
               criterion = ClassNLLCriterion[Float](),
-              batchSize = 3
+              batchSize = 6
             )
             println("reach here")
             
