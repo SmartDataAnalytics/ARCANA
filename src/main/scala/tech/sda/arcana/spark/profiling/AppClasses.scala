@@ -20,5 +20,9 @@ class Category (var Category: String,var uri:  List[RDFURI] ) {
   case class Triple(Subject:String, Predicate:String, Object:String)
   case class Synonym(word: String, similarity: Double)
   case class DBRecord(_id: Int, uri: String, expression: String, category: String, score: Double, weight: Double, objectOf: String) // score = cosine similary - weight = sentiment analysis
+  // for SentiWordFile
   case class SentiWordNetClass(POS:String, ID:String, PosScore:String, NegScore:String, SynsetTerms:String)
   case class SentiWordSpark(POS:String, ID:String, PosScore:String, NegScore:String, Term:String,TermRank:String)
+  // for SentiWordFeedbackFile
+  case class SentiWordNetFeedbackClass(count: String,synsetId:String,synsetPOS:String,swnPositivity:String,	swnNegativity:String,	feedbackPositivity:String,	feedbackNegativity:String,	date:String,	IPano:String,	IPcountry:String,	list:String)
+  case class SentiWordNetFeedbackSpark(synsetPOS:String,swnPositivity:String,	swnNegativity:String,	feedbackPositivity:String, feedbackNegativity:String, Term:String, TermRank:String)

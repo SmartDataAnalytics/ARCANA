@@ -22,6 +22,7 @@ import org.apache.spark.rdd.RDD
 # to the synset (separated by spaces).
 
 # POS	ID	PosScore	NegScore	SynsetTerms	Gloss
+# count	synsetId	synsetPOS	swnPositivity	swnNegativity	feedbackPositivity	feedbackNegativity	date	IPanon	IPcountry	list(word#sense)
 */
 
 object SentiWord {
@@ -30,13 +31,40 @@ object SentiWord {
       .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .appName("SentiWord")
       .getOrCreate()
+      val sc = spark.sparkContext
+      import spark.implicits._
     import org.apache.spark.sql.Row
     import spark.implicits._
     
+    
+    def convertSentiWordFeedbackIntoDF(filename:String):DataFrame={
+      var DBRows = ArrayBuffer[Row]()
+      val rawDF = spark.sparkContext.textFile(filename) 
+      val DF = rawDF.map(x => x.split("\t")).map( x=> SentiWordNetFeedbackClass(x(0),x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),x(10)) ).toDF()
+
+      val result = DF.as[SentiWordNetFeedbackClass].collect()
+      for(x<-result){
+        //	list:String
+        val terms = x.list.split(" ")
+        if(terms.size>1){
+          for(q<-terms){
+            val WordnRank=(q.split("#"))
+            DBRows += Row(x.synsetPOS,x.swnPositivity,x.swnNegativity, x.feedbackPositivity,x.feedbackNegativity, WordnRank(0),WordnRank(1))
+          }
+         }
+        else{
+            val WordnRank=(x.list.split("#"))
+            DBRows += Row(x.synsetPOS,x.swnPositivity,x.swnNegativity, x.feedbackPositivity,x.feedbackNegativity, WordnRank(0),WordnRank(1))
+        }
+      }
+        val dbRdd = sc.makeRDD(DBRows)
+        val df = dbRdd.map {
+          case Row(s0, s1, s2, s3, s4, s5, s6) => SentiWordNetFeedbackSpark(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[String], s4.asInstanceOf[String], s5.asInstanceOf[String],s6.asInstanceOf[String])
+        }.toDF()
+       df 
+    }
     // Convert the SentiWord file to a form that is easy to deal with and query 
     def convertSentiWordIntoDF(filename:String):DataFrame={
-      val sc = spark.sparkContext
-      import spark.implicits._
       var DBRows = ArrayBuffer[Row]()
       val rawDF = spark.sparkContext.textFile(filename) 
       val DF = rawDF.map(x => x.split("\t")).map( x=> SentiWordNetClass(x(0),x(1),x(2),x(3),x(4)) ).toDF()
@@ -98,35 +126,20 @@ object SentiWord {
     
     def main(args: Array[String]) = {
       
+      val df=convertSentiWordFeedbackIntoDF(AppConf.SentiWordFilefeedback)
+      df.show()
+      println(df.count())
+      /*
       val DF=prepareSentiFile(AppConf.SentiWordFile)
       val result = getSentiScoreForAllPOS("bad",DF)
       result.foreach(tuple => println(tuple))// println(result(0)._1,result(0)._2)
-
+			*/
+      
       //score += setScore.getValue() / (double) setScore.getKey();
 			//sum += 1.0 / (double) setScore.getKey();
 			// Score= 1/2*first + 1/3*second + 1/4*third ..... etc.
 			// Sum = 1/1 + 1/2 + 1/3 ...
-      
-       //val rawDF = spark.sparkContext.textFile("/home/elievex/Repository/ExtResources/SentiWordNet/home/swn/www/admin/dump/SentiWordNet.txt") 
-      
-       
-       
-       //val DFN = rawDF.map(x => x.split("\t")).map( x=> SentiWordNetClass(x(0),x(1),x(2),x(3),x(4)) )
-       //val DFNT=  DFN.map(MAPT)
-       
-      //val DFN = DF.as[SentiWord].map(mapperT)
-      //val df2 = DF.map(x => (x.getString(1),x.getString(0).length))
-      
-      
-      /*val DF =  rawDF.map(mapperT).toDS().cache()
-      //DF.show()
-      val dbRdd = sc.makeRDD(DBRows)
-
-      val df = dbRdd.map {
-        case Row(s0, s1, s2, s3, s4) => SentiWord(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[String], s4.asInstanceOf[String])
-      }.toDF()
-      df.show()*/
- 
+  
     println("~Ending Session~")
     spark.stop()
     }
