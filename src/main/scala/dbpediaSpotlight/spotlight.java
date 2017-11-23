@@ -111,37 +111,6 @@ public class spotlight
 				json_array.add(jo);
             }
 			
-			
-			/*
-			 * 
-			 * Old stuff
-			 * 
-			 * */
-			
-//			Document doc_json = Jsoup.parse(links.text());
-//
-//			Elements content = doc.getElementsByTag("@surfaceForm");
-//			
-//			
-//			
-//			for (Element link : content) {
-//				System.out.println("check");
-//				System.out.println(link.attr("@offset"));
-//
-//				JSONObject jo = new JSONObject();
-//				jo.put("offset",link.attr("@offset"));
-//				jo.put("name",link.attr("@name"));
-//				Elements children = link.children();
-//				for (Element child_link : children){
-//					jo.put("uri","<http://dbpedia.org/resource/"+child_link.attr("@uri")+">");
-//					jo.put("label",child_link.attr("@label"));
-//					jo.put("contextualScore",child_link.attr("@contextualScore"));
-//					jo.put("finalScore",child_link.attr("@finalScore"));
-//				}
-////				json_array.put(jo);
-//				json_array.add(jo);
-//			}
-			
 			DBpEquivalent = json_array;
 		}
 		catch(Exception e){

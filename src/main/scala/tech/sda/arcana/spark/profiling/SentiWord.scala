@@ -36,7 +36,7 @@ object SentiWord {
     import org.apache.spark.sql.Row
     import spark.implicits._
     
-    
+    // Convert the SentiWordFeedback file to a form that is easy to deal with and query 
     def convertSentiWordFeedbackIntoDF(filename:String):DataFrame={
       var DBRows = ArrayBuffer[Row]()
       val rawDF = spark.sparkContext.textFile(filename) 
