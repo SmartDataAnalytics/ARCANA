@@ -59,6 +59,7 @@ object QuestionProcessingRoutine {
    
     //tokenizeQuestion("Hi There How are you? There was a car walking by a dog nearby the horse")    
     tokenizeQuestionWithRegex("Hi There How are you? There was a car walking by a dog nearby the horse?")  
+      // -----------REGEX---------------//
       val sc = spark.sparkContext
       import spark.implicits._
       val lines = sc.textFile("/home/elievex/Repository/ExtResources/sentences")
@@ -68,5 +69,12 @@ object QuestionProcessingRoutine {
       val REG = raw"(?<![a-zA-Z])$word(?![a-zA-Z])".r
       val Res = spark.sql(s"SELECT * from triples where value RLIKE '$REG' ")
       Res.show()
+      // -----------dbpedia---------------//
+      import dbpediaSpotlight.spotlight
+      import org.json.simple.{JSONArray,JSONObject}
+
+      val DBpEquivalent: JSONArray = spotlight.getDBLookup("germany", "0.0")
+      val obj2: JSONObject = DBpEquivalent.get(0).asInstanceOf[JSONObject]
+      println(obj2.get("uri").toString)
    } 
 }
