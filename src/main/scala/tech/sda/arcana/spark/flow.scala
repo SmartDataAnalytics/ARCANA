@@ -61,7 +61,7 @@ object flow {
       //Build positive samples
       val samples=Tensors.map(sampler.initializePositiveSample)
       //Initialize the class responsible for training the neural network models
-      val trainer=new Trainer(lossfun=2,model=3,height=20,width=50).build(samples=samples,batch=3)
+      val trainer=new Trainer(lossfun=2,model=3,height=20,width=50,classNum=5).build(samples=samples,batch=3)
       //Train the neural network model
       trainer.optimize()
       println("Done")

@@ -16,8 +16,9 @@ import com.intel.analytics.bigdl.dataset.MiniBatch
  * @param model 1 for AlexNetModel, 2 for GoogLeNetModel, 3 for dynamic LeNet5Model
  * @param height the longest question word sequence essential for neurons view 
  * @param width the vectors representation length for each word
+ * @param classNum the number of ouptut classes
  */
-class Trainer(lossfun:Int,model:Int,height:Int,width:Int) extends Serializable  {
+class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int) extends Serializable  {
   val lossFunctions = Array(L1Cost[Float](),ClassNLLCriterion[Float]())
  
   /** Build a trainer which is going to train the a neural network model
@@ -54,7 +55,7 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int) extends Serializable  
    
    if(model==3){
          val optimizer = Optimizer(
-          model = DyLeNet5Model.build(height,width),
+          model = DyLeNet5Model.build(height,width,classNum),
           sampleRDD = samples,
           criterion = lossFunctions(lossfun-1),
           batchSize = batch
