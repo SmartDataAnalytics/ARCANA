@@ -142,10 +142,10 @@ object sentenceToTensor {
           val sddf= great.map(sasa)
      
           val optimizer = Optimizer(
-              model = DyLeNet5Model.build(20,50),
+              model = DyLeNet5Model.build(20,50,5),
               sampleRDD = sddf,
               criterion = ClassNLLCriterion[Float](),
-              batchSize = 6
+              batchSize = 3
             )
             println("reach here")
             
