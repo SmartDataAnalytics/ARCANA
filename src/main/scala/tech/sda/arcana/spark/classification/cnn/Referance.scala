@@ -99,7 +99,7 @@ object Referance {
   //in addition to predict for RDD samples and forward for Tensors
   //To check the output for a single input tensor
   val dummyTensor=Tensor[Float](1,20,50).rand()
-  println(DyLeNet5Model.build(20,50).forward(dummyTensor))
+  println(DyLeNet5Model.build(Height=20,Width=50,classNum=5).forward(dummyTensor))
   //---------------------------------------------------------
   
   //---------------------------------------------------------
