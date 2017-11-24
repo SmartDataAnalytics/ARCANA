@@ -10,6 +10,7 @@ import scala.collection.JavaConverters._
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.concat_ws
+import org.apache.spark.sql.functions._
 
 import com.google.common.io.Files
 import edu.stanford.nlp.process.CoreLabelTokenFactory
@@ -29,7 +30,7 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations.SentimentAnnotatedTre
 import org.apache.spark.ml.feature.StopWordsRemover
 
 import scala.collection.mutable.ListBuffer
-
+import org.apache.spark.ml.feature.{RegexTokenizer, Tokenizer}
 /*
  * An Object that make use of stanford.nlp to perform operations on the text
  */
@@ -46,13 +47,58 @@ object ProcessQuestion {
     props.put("annotators", "tokenize, ssplit, pos, lemma, parse, sentiment")
     val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
     
+     
+ // Simple Question Tokenizing
+  def tokenizeQuestion(question: String){
+    /*
+     * in case of many question you can do:
+      val sentenceDataFrame = spark.createDataFrame(Seq(
+      (0, "Hi I heard about Spark"),
+      (1, "I wish Java could use case classes"),
+      (2, "Logistic,regression,models,are,neat")
+  	  )).toDF("id", "sentence")
+     */
+    val sentenceDataFrame = spark.createDataFrame(Seq(
+      (0, question)
+    )).toDF("id", "sentence")
+    val tokenizer = new Tokenizer().setInputCol("sentence").setOutputCol("words")
+    val countTokens = udf { (words: Seq[String]) => words.length }
+    val tokenized = tokenizer.transform(sentenceDataFrame)
+    tokenized.select("sentence", "words")
+        .withColumn("tokens", countTokens(col("words"))).show(false)
+    removeStopWordDfs(tokenized)
+  }
+  // Question Tokenizing while using Regex
+  def tokenizeQuestionWithRegex(question: String){
+    val sentenceDataFrame = spark.createDataFrame(Seq(
+      (0, question)
+    )).toDF("id", "sentence")
+    val regexTokenizer = new RegexTokenizer()
+      .setInputCol("sentence")
+      .setOutputCol("words")
+      .setPattern("\\W") // alternatively .setPattern("\\w+").setGaps(false)
+    val countTokens = udf { (words: Seq[String]) => words.length }
+    val regexTokenized = regexTokenizer.transform(sentenceDataFrame)
+    regexTokenized.select("sentence", "words")
+        .withColumn("tokens", countTokens(col("words")))
+        
+    removeStopWordDfs(regexTokenized)
+  }  
+ def removeStopWordDfs (DF: DataFrame){
+    val remover = new StopWordsRemover()
+      .setInputCol("words")
+      .setOutputCol("filtered")
+    
+    remover.transform(DF).show(false)
+  }
+ //////////////////////////////////////////////////////////////////////////////////
   def getSentiment(sentiment: Int): String = sentiment match {
     case x if x == 0 || x == 1 => "Negative"
     case 2 => "Neutral"
     case x if x == 3 || x == 4 => x.toString()
   }
  def getScore(){
-    val text1 = "That was very amazing"
+    val text1 = "How to run faster than light?"
     val text2 = "Barack Obama is leaving Presidency. Donald Trump will be President of USA."
 
     // create blank annotator
@@ -79,32 +125,43 @@ object ProcessQuestion {
       .map { case (sentence, tree) => (sentence.toString, getSentiment(RNNCoreAnnotations.getPredictedClass(tree))) }
       .foreach(println)
  }
- 
-   @transient private var sentimentPipeline: StanfordCoreNLP = _
 
-  private def getOrCreateSentimentPipeline(): StanfordCoreNLP = {
-    if (sentimentPipeline == null) {
-      val props = new Properties()
-      props.setProperty("annotators", "tokenize, ssplit, parse, sentiment")
-      sentimentPipeline = new StanfordCoreNLP(props)
-    }
-    sentimentPipeline
-  }
-   
- def sentiment (sentence: String) { 
+ def queryQuestionOnDbpedia(){
+      val sc = spark.sparkContext
+      import spark.implicits._
+      val lines = sc.textFile("/home/elievex/Repository/ExtResources/sentences")
+      val DF=lines.toDF()
+      DF.createOrReplaceTempView("triples")
+      val word="Achtung"
+      val REG = raw"(?<![a-zA-Z])$word(?![a-zA-Z])".r
+      val Res = spark.sql(s"SELECT * from triples where value RLIKE '$REG' ")
+      Res.show()
+ }
+ 
+ def consultDbpediaSpotlight(){
+     import dbpediaSpotlight.spotlight
+     import org.json.simple.{JSONArray,JSONObject}
+
+      val DBpEquivalent: JSONArray = spotlight.getDBLookup("germany", "0.0")
+      val obj2: JSONObject = DBpEquivalent.get(0).asInstanceOf[JSONObject]
+      println(obj2.get("uri").toString)
+ }
+
+ // SentiWord of entire sentence
+ def sentiment (sentence: String):Int= { 
 
    //Measures the sentiment of an input sentence on a scale of 0 (strong negative) to 4 (strong positive).
-    val pipeline = getOrCreateSentimentPipeline()
+ //   val pipeline = getOrCreateSentimentPipeline()
     val annotation = pipeline.process(sentence)
     val tree = annotation.get(classOf[CoreAnnotations.SentencesAnnotation])
       .asScala
       .head
       .get(classOf[SentimentCoreAnnotations.SentimentAnnotatedTree])
     val x = RNNCoreAnnotations.getPredictedClass(tree)
-    println(x)
+    x
      }
  
- 
+  // Convert String to DF
   def stringToDF(sentence: String):DataFrame={
        val dataSet = spark.createDataFrame(Seq(
           (0, sentence.split(" ").toSeq)
@@ -124,27 +181,8 @@ object ProcessQuestion {
     
     sentence
   }
-  def PosTagger(){
-    val text = "Quick brown fox jumps over the lazy dog. This is Harshal."
-
-    // create blank annotator
-    val document: Annotation = new Annotation(text)
-
-    // run all Annotator - Tokenizer on this text
-    pipeline.annotate(document)
-
-    val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
-
-    (for {
-      sentence: CoreMap <- sentences
-      token: CoreLabel <- sentence.get(classOf[TokensAnnotation]).asScala.toList
-      word: String = token.get(classOf[TextAnnotation])
-      pos: String = token.get(classOf[PartOfSpeechAnnotation])
-
-    } yield (token, word, pos)) foreach(t => println("token: " + t._1 + " word: " +  t._2 + " pos: " +  t._3))
-
-  }
-  def Lemmatizer():List[Token]={
+  // Process question and fill it as an object
+  def ProcessSentence(text:String):List[Token]={
 
         var tokens = new ListBuffer[Token]()
 
@@ -165,96 +203,30 @@ object ProcessQuestion {
           pos: String = token.get(classOf[PartOfSpeechAnnotation])
           lemma: String = token.get(classOf[LemmaAnnotation])
     
-        } yield (token, word, pos, lemma)) //foreach(t => println("token: " + t._1 + " word: " +  t._2 + " pos: " +  t._3 +  " lemma: " + t._4))
-        //  case class Token(index:Int,word:String,posTag:String,lemma:String)
+        } yield (token, word, pos, lemma)) 
       Tokens.foreach(t => tokens+=new Token(t._1.toString(),t._2.toLowerCase(),t._3,t._4.toLowerCase())     )
       tokens.toList
   }
-   case class Sentence(sentence: String)
+   
    
   def main(args: Array[String]) = {
 
     // match number (?<=\D)\d+(?=\D)
-     
+
     val question = "hello how can i go to the next airport?".toLowerCase()
-    //he writes that and she is writing it now he was walking and she walks today there?
-    //Hi There How are you There was a car walking by a dog nearby the horse?
+
+    val questionObj = new QuestionSentence(question,removeStopWords(stringToDF(question)),sentiment(question),ProcessSentence(question))
     
-     val questionObj = new QuestionSentence(question,removeStopWords(stringToDF(question)),"",Lemmatizer())
-    
-   questionObj.tokens.foreach(t=>println(t.index+" "+t.word+" "+t.posTag+" "+t.lemma))
- 
-    //| Removing Stop Words
-    //>println(removeStopWords(stringToDF(text)))
-    
-   
-/*
-    // create blank annotator
-    val document: Annotation = new Annotation(text)
+    questionObj.tokens.foreach(t=>println(t.index+" "+t.word+" "+t.posTag+" "+t.lemma))
 
-    // run all Annotator - Tokenizer on this text
-    pipeline.annotate(document)
-
-    val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
-
-    (for {
-      sentence: CoreMap <- sentences
-      token: CoreLabel <- sentence.get(classOf[TokensAnnotation]).asScala.toList
-      word: String = token.get(classOf[TextAnnotation])
-
-    } yield (word, token)) foreach(t => println("word: " + t._1 + " token: " +  t._2))
-
-*/
-
-
-   /*
-    // create blank annotator
-    val document: Annotation = new Annotation(text)
-
-    // run all Annotator - Tokenizer on this text
-    pipeline.annotate(document)
-
-    val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
-
-    val tokens=(for {
-      sentence: CoreMap <- sentences
-      token: CoreLabel <- sentence.get(classOf[TokensAnnotation]).asScala.toList
-      word: String = token.get(classOf[TextAnnotation])
-      pos: String = token.get(classOf[PartOfSpeechAnnotation])
-      lemma: String = token.get(classOf[LemmaAnnotation])
-
-    } yield (token, word, pos, lemma)) 
-
-    tokens.foreach(t => println("token: " + t._1 + " word: " +  t._2 + " pos: " +  t._3 +  " lemma: " + t._4))
-  	*/
+    //| Old Way
+    //> tokenizeQuestionWithRegex("Hi There How are you? There was a car walking by a dog nearby the horse?")
     spark.stop()
   }
   
 }
 
-/*
-     val text = "Quick brown fox jumps over the lazy dog. This is Harshal."
-    val tst="How to kill an animal?"
-    sentiment(tst)
-    getScore()
-    val document: Annotation = new Annotation(text)
-    pipeline.annotate(document)
-    
+// How to kill an animal
+//he writes that and she is writing it now he was walking and she walks today there?
+//Hi There How are you There was a car walking by a dog nearby the horse?
 
-       val R = new CoreLabel()
-        R.setWord("Play")
-        
-        println("This: "+R.get(classOf[PartOfSpeechAnnotation]))
-        
-        val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
-    
-        (for {
-          sentence: CoreMap <- sentences
-          token: CoreLabel <- sentence.get(classOf[TokensAnnotation]).asScala.toList
-          word: String = token.get(classOf[TextAnnotation])
-          pos: String = token.get(classOf[PartOfSpeechAnnotation])
-    
-        } yield (token, word, pos)) foreach(t => println("token: " + t._1 + " word: " +  t._2 + " pos: " +  t._3))
-   getScore()
-   println("DONE")
- */
