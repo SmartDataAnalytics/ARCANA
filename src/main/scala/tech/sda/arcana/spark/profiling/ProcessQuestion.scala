@@ -31,6 +31,8 @@ import org.apache.spark.ml.feature.StopWordsRemover
 
 import scala.collection.mutable.ListBuffer
 import org.apache.spark.ml.feature.{RegexTokenizer, Tokenizer}
+//import scala.collection.parallel.ParIterableLike.Foreach
+
 /*
  * An Object that make use of stanford.nlp to perform operations on the text
  */
@@ -181,12 +183,12 @@ object ProcessQuestion {
     
     sentence
   }
-  // Process question and fill it as an object
-  def ProcessSentence(text:String):List[Token]={
-
+  // Process question and fill it as an object//:List[Token]=
+  def ProcessSentence(text:String):(List[Token],String)={
+        val extractNumber = raw"(\d+)".r
         var tokens = new ListBuffer[Token]()
-
-        val text = "Quick brown fox jumps over the lazy dog. This is Harshal."
+        var posTagString = ""
+        val text = "Quick brown fox jumps over the lazy dog?"
 
         // create blank annotator
         val document: Annotation = new Annotation(text)
@@ -204,8 +206,20 @@ object ProcessQuestion {
           lemma: String = token.get(classOf[LemmaAnnotation])
     
         } yield (token, word, pos, lemma)) 
-      Tokens.foreach(t => tokens+=new Token(t._1.toString(),t._2.toLowerCase(),t._3,t._4.toLowerCase())     )
-      tokens.toList
+        Tokens.foreach{t => 
+            tokens+=new Token(extractNumber.findFirstIn(t._1.toString()).getOrElse("0"),t._2.toLowerCase(),t._3,t._4.toLowerCase())
+            var temp=""
+            if(t._3.toString()=="NN"||t._3.toString()=="NNS"||t._3.toString()=="NNS"||t._3.toString()=="NNP"||t._3.toString()=="NNPS"){
+              posTagString+="N"+" "
+            }else if(t._3.toString()=="VBZ"||t._3.toString()=="VB"||t._3.toString()=="VBD"||t._3.toString()=="VBG"||t._3.toString()=="VBN"||t._3.toString()=="VBP"){
+               posTagString+="V"+" "
+            } else {
+                          posTagString+=t._3.toString()+" "
+            }
+          }
+       
+        //tokens.toList
+      (tokens.toList, posTagString)
   }
    
    
@@ -214,11 +228,12 @@ object ProcessQuestion {
     // match number (?<=\D)\d+(?=\D)
 
     val question = "hello how can i go to the next airport?".toLowerCase()
-
-    val questionObj = new QuestionSentence(question,removeStopWords(stringToDF(question)),sentiment(question),ProcessSentence(question))
+    
+    val questionInfo = ProcessSentence(question)
+    val questionObj = new QuestionSentence(question,removeStopWords(stringToDF(question)),sentiment(question),questionInfo._1,questionInfo._2)
     
     questionObj.tokens.foreach(t=>println(t.index+" "+t.word+" "+t.posTag+" "+t.lemma))
-
+    println(questionObj.PosSentence)
     //| Old Way
     //> tokenizeQuestionWithRegex("Hi There How are you? There was a car walking by a dog nearby the horse?")
     spark.stop()
@@ -230,3 +245,42 @@ object ProcessQuestion {
 //he writes that and she is writing it now he was walking and she walks today there?
 //Hi There How are you There was a car walking by a dog nearby the horse?
 
+//POS TAGS
+/*
+CC Coordinating conjunction
+CD Cardinal number
+DT Determiner
+EX Existential there
+FW Foreign word
+IN Preposition or subordinating conjunction
+JJ Adjective
+JJR Adjective, comparative
+JJS Adjective, superlative
+LS List item marker
+MD Modal
+NN Noun, singular or mass
+NNS Noun, plural
+NNP Proper noun, singular
+NNPS Proper noun, plural
+PDT Predeterminer
+POS Possessive ending
+PRP Personal pronoun
+PRP$ Possessive pronoun
+RB Adverb
+RBR Adverb, comparative
+RBS Adverb, superlative
+RP Particle
+SYM Symbol
+TO to
+UH Interjection
+VB Verb, base form
+VBD Verb, past tense
+VBG Verb, gerund or present participle
+VBN Verb, past participle
+VBP Verb, non­3rd person singular present
+VBZ Verb, 3rd person singular present
+WDT Wh­determiner
+WP Wh­pronoun
+WP$ Possessive wh­pronoun
+WRB Wh­adverb
+ */
