@@ -48,7 +48,7 @@ object LeNet5Model {
   val tanh3 = Tanh().inputs(linear_120)
   val linear_84 = Linear(120,84).setName("linear_84").inputs(tanh3)
   val tanh4 = Tanh().inputs(linear_84)
-  val linear_classnum = Linear(84,classNum).setName("linear_classnum").inputs(tanh3)
+  val linear_classnum = Linear(84,classNum).setName("linear_classnum").inputs(tanh4)
   val output = LogSoftMax().inputs(linear_classnum)
   Graph(input, output)
   }
