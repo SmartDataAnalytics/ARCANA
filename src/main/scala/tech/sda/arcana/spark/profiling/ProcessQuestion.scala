@@ -188,7 +188,7 @@ object ProcessQuestion {
         val extractNumber = raw"(\d+)".r
         var tokens = new ListBuffer[Token]()
         var posTagString = ""
-        val text = "Quick brown fox jumps over the lazy dog?"
+        val text = "How to kill an animal?"
 
         // create blank annotator
         val document: Annotation = new Annotation(text)
@@ -234,6 +234,9 @@ object ProcessQuestion {
     
     questionObj.tokens.foreach(t=>println(t.index+" "+t.word+" "+t.posTag+" "+t.lemma))
     println(questionObj.PosSentence)
+    
+    val extractCase = raw"V\s(.+)?N\s+".r
+    println(extractCase.findFirstIn(questionObj.PosSentence).getOrElse("0"))
     //| Old Way
     //> tokenizeQuestionWithRegex("Hi There How are you? There was a car walking by a dog nearby the horse?")
     spark.stop()

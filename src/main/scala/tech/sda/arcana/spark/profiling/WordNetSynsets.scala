@@ -17,7 +17,7 @@ import java.util.Iterator;
 import collection.JavaConverters._
 
 
-import akka.dispatch.Foreach
+//import akka.dispatch.Foreach
 import edu.smu.tspell.wordnet._
 /*
  * An Object that is capable of extract Synsets form Wordnet using JWI & JAWS
