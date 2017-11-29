@@ -9,6 +9,8 @@ object AppConf {
   val dbName = "ArcanaDB"
   val firstPhaseCollection = "ArcanaTest"
   val secondPhaseCollection = "ArcanaPOS"
+  val inputUri = "spark.mongodb.input.uri"
+  val outputUri = "spark.mongodb.output.uri"
   // WordNet Dict
   val WordNetDict = "src/WordNet/3.0/dict"
   // SentiWord File
@@ -20,4 +22,5 @@ object AppConf {
   // Malicious expression that we don't wish to answer
   var tuples = List(("kill", "person"),("bomb", "building"),("make","bomb"))
  
+  
 }

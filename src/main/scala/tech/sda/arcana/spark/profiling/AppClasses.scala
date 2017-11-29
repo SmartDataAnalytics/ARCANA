@@ -27,8 +27,8 @@ class Category (var Category: String,var uri:  List[RDFURI] ) {
   case class SentiWordNetFeedbackClass(count: String,synsetId:String,synsetPOS:String,swnPositivity:String,	swnNegativity:String,	feedbackPositivity:String,	feedbackNegativity:String,	date:String,	IPano:String,	IPcountry:String,	list:String)
   case class SentiWordNetFeedbackSpark(synsetPOS:String,swnPositivity:String,	swnNegativity:String,	feedbackPositivity:String, feedbackNegativity:String, Term:String, TermRank:String)
   // Question processing
-  case class QuestionSentence(sentence:String,sentenceWoSW:String,SentimentExtraction:Int,tokens:List[Token],PosSentence:String)
-  case class Token(index:String,word:String,posTag:String,lemma:String)
+  case class QuestionSentence(sentence:String,sentenceWoSW:String,SentimentExtraction:Int,tokens:List[Token],PosSentence:String,var phaseTwoScore:Int)
+  case class Token(index:String,word:String,posTag:String,lemma:String,var relationID:Int)
   case class Sentence(sentence: String)
   // Phase two
   case class Expression(verb:String,noun:String,relationshipID:Int)

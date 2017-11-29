@@ -31,6 +31,7 @@ import org.apache.spark.ml.feature.StopWordsRemover
 
 import scala.collection.mutable.ListBuffer
 import org.apache.spark.ml.feature.{RegexTokenizer, Tokenizer}
+ 
 //import scala.collection.parallel.ParIterableLike.Foreach
 
 /*
@@ -40,7 +41,8 @@ import org.apache.spark.ml.feature.{RegexTokenizer, Tokenizer}
 object ProcessQuestion {
      val spark = SparkSession.builder
       .master("local[*]")
-      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .config(AppConf.inputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
+      .config(AppConf.outputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
       .appName("Dataset2Vec")
       .getOrCreate()
     import spark.implicits._
@@ -206,14 +208,14 @@ object ProcessQuestion {
     
         } yield (token, word, pos, lemma)) 
         Tokens.foreach{t => 
-            tokens+=new Token(extractNumber.findFirstIn(t._1.toString()).getOrElse("0"),t._2.toLowerCase(),t._3,t._4.toLowerCase())
+            tokens+=new Token(extractNumber.findFirstIn(t._1.toString()).getOrElse("0"),t._2.toLowerCase(),t._3,t._4.toLowerCase(),0)
             var temp=""
-            if(t._3.toString()=="NN"||t._3.toString()=="NNS"||t._3.toString()=="NNS"||t._3.toString()=="NNP"||t._3.toString()=="NNPS"){
+            if(t._3.toString()=="NN"||t._3.toString()=="NNS"||t._3.toString()=="NNP"||t._3.toString()=="NNPS"){
               posTagString+="N"+" "
             }else if(t._3.toString()=="VBZ"||t._3.toString()=="VB"||t._3.toString()=="VBD"||t._3.toString()=="VBG"||t._3.toString()=="VBN"||t._3.toString()=="VBP"){
-               posTagString+="V"+" "
+              posTagString+="V"+" "
             } else {
-                          posTagString+=t._3.toString()+" "
+              posTagString+=t._3.toString()+" "
             }
           }
        
@@ -221,68 +223,81 @@ object ProcessQuestion {
       (tokens.toList, posTagString)
   }
    
-   
+  def expressionCheck(questionObj:QuestionSentence):Int={
+    val extractCase = raw"V\s(.+)?N\s?".r
+    //println(questionObj.PosSentence)
+    var flag=0
+    //| check whether there is combination of V followed by N
+    if(extractCase.findFirstIn(questionObj.PosSentence).getOrElse("0")!="0"){
+      var verbs = new ListBuffer[Token]()
+      var nouns = new ListBuffer[Token]()
+     
+      //| Add only V and N tokens to buffers
+      for(token<-questionObj.tokens){
+        //print(token.posTag+"-")
+        if(token.posTag=="NN" ||token.posTag=="NNS"||token.posTag=="NNP" ||token.posTag=="NNPS"){
+          nouns += token
+        }
+        if(token.posTag=="VBZ" ||token.posTag=="VB"||token.posTag=="VBD" ||token.posTag=="VBG"||token.posTag=="VBN" ||token.posTag=="VBP"){
+          verbs += token
+        }
+      }
+      //| Get DB Info
+      val DF = AppDBM.readDBCollection(AppConf.secondPhaseCollection)
+      DF.createOrReplaceTempView("DB")
+
+      //| check if Verb is present in DB
+      verbs.foreach{
+        t=>val word = t.lemma
+        val res = spark.sql(s"SELECT distinct relationshipID FROM DB where verb = '$word' ")
+        val rellist = res.select("relationshipID").rdd.map(r => r(0).asInstanceOf[Int]).collect()
+        if(!rellist.isEmpty){
+          flag=1
+          t.relationID=rellist(0)
+        }
+      }
+     if(flag==1){
+       //| check if Noun is present in DB
+      nouns.foreach{
+        t=>val word = t.lemma
+        val res = spark.sql(s"SELECT distinct relationshipID FROM DB where noun = '$word' ")
+        val rellist = res.select("relationshipID").rdd.map(r => r(0).asInstanceOf[Int]).collect()
+        if(!rellist.isEmpty){
+          flag=2
+          t.relationID=rellist(0)
+        }
+      }
+     }
+     //nouns.foreach(t=>println(t.word+" "+t.relationID))
+
+     //| Cross the results and see if verb and nount are from the same relationship if yes its bad \\ ofcourse there is a place to improve this for example by checking if there is a CC (or / and) between the verb and noun
+     if(flag==2){
+       verbs.foreach{
+        t=>nouns.foreach{u=>
+          if(t.relationID==u.relationID)
+          {
+            flag=3 // malicious 
+          }
+        }
+      }
+     }
+    }
+      flag
+  }
   def main(args: Array[String]) = {
 
-    // match number (?<=\D)\d+(?=\D)
-
-    val question = "hello how can i go to the next airport and kill the pilot?".toLowerCase()
+    val question = "How to make a bomb ?".toLowerCase()
     
     val questionInfo = ProcessSentence(question)
-    val questionObj = new QuestionSentence(question,removeStopWords(stringToDF(question)),sentiment(question),questionInfo._1,questionInfo._2)
-    
-    questionObj.tokens.foreach(t=>println(t.index+" "+t.word+" "+t.posTag+" "+t.lemma))
-    println(questionObj.PosSentence)
-    
-    val extractCase = raw"V\s(.+)?N\s+".r
-    println(extractCase.findFirstIn(questionObj.PosSentence).getOrElse("0"))
+    val questionObj = new QuestionSentence(question,removeStopWords(stringToDF(question)),sentiment(question),questionInfo._1,questionInfo._2,0)
+    println(expressionCheck(questionObj))//3 is malicious other is not 
+
+
     //| Old Way
     //> tokenizeQuestionWithRegex("Hi There How are you? There was a car walking by a dog nearby the horse?")
+    println("STOPPING")
     spark.stop()
   }
   
 }
 
-// How to kill an animal
-//he writes that and she is writing it now he was walking and she walks today there?
-//Hi There How are you There was a car walking by a dog nearby the horse?
-
-//POS TAGS
-/*
-CC Coordinating conjunction
-CD Cardinal number
-DT Determiner
-EX Existential there
-FW Foreign word
-IN Preposition or subordinating conjunction
-JJ Adjective
-JJR Adjective, comparative
-JJS Adjective, superlative
-LS List item marker
-MD Modal
-NN Noun, singular or mass
-NNS Noun, plural
-NNP Proper noun, singular
-NNPS Proper noun, plural
-PDT Predeterminer
-POS Possessive ending
-PRP Personal pronoun
-PRP$ Possessive pronoun
-RB Adverb
-RBR Adverb, comparative
-RBS Adverb, superlative
-RP Particle
-SYM Symbol
-TO to
-UH Interjection
-VB Verb, base form
-VBD Verb, past tense
-VBG Verb, gerund or present participle
-VBN Verb, past participle
-VBP Verb, non­3rd person singular present
-VBZ Verb, 3rd person singular present
-WDT Wh­determiner
-WP Wh­pronoun
-WP$ Possessive wh­pronoun
-WRB Wh­adverb
- */

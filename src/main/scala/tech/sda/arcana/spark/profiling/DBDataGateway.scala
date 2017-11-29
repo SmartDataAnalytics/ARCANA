@@ -21,14 +21,13 @@ import org.apache.spark.ml.feature.Word2VecModel
  */
 object AppDBM {
 
-  val inputUri = "spark.mongodb.input.uri"
-  val outputUri = "spark.mongodb.output.uri"
+
 
   val spark = SparkSession.builder()
     .master("local")
     .appName("MongoSparkConnector")
-    .config(inputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
-    .config(outputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
+    .config(AppConf.inputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
+    .config(AppConf.outputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
     //.config("spark.sql.warehouse.dir", "file:///c:/tmp/spark-warehouse") >> Windows
     .getOrCreate()
 
@@ -167,7 +166,9 @@ object AppDBM {
     res.collect().foreach(println)
     //for (e <- res) println(e)
   }
-
+   def readDBCollection(collection: String):DataFrame= {
+     MongoSpark.load(spark, ReadConfig(Map("collection" -> collection), Some(ReadConfig(spark))))
+   }
   def EnterSchemaData() {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
@@ -273,8 +274,6 @@ object AppDBM {
     //>expressionsDB()
 
     //> writeToMongoDB("ALIroops","3",List[String]("http://dbpedia.org/resource/Territorial_Troops1", "http://dbpedia.org/resource/Territorial_Troops2", "http://dbpedia.org/resource/Territorial_Troops3","http://dbpedia.org/resource/Territorial_Troops4","http://dbpedia.org/resource/Territorial_Troops5","http://dbpedia.org/resource/Territorial_Troops6","http://dbpedia.org/resource/Territorial_Troops7"))
- 
-    //println(FetchMaxId("ArcanaTest"))
 
     /////////////// READING
     /*
