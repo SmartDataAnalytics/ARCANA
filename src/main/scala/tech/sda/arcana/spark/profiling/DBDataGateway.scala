@@ -7,12 +7,10 @@ import scala.collection.JavaConverters._
 import com.mongodb.spark._
 import com.mongodb.spark.config._
 import scala.collection.mutable.ArrayBuffer
-import org.apache.spark.sql.SparkSession
 import com.mongodb
 import org.bson.Document
 import com.mongodb.spark.config._
 import org.apache.spark.SparkContext
-import org.bson.Document
 import scala.util.parsing.json._
 import org.bson.types.ObjectId
 import org.apache.spark.sql.SparkSession
@@ -29,8 +27,8 @@ object AppDBM {
   val spark = SparkSession.builder()
     .master("local")
     .appName("MongoSparkConnector")
-    .config(inputUri, AppConf.host + AppConf.dbName + "." + AppConf.defaultCollection)
-    .config(outputUri, AppConf.host + AppConf.dbName + "." + AppConf.defaultCollection)
+    .config(inputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
+    .config(outputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
     //.config("spark.sql.warehouse.dir", "file:///c:/tmp/spark-warehouse") >> Windows
     .getOrCreate()
 
@@ -198,6 +196,31 @@ object AppDBM {
     temp
   }
 
+  def expressionsDB(){
+    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
+    import sqlContext.implicits._
+    var DBRows = ArrayBuffer[Row]()
+    var rlID = 0 
+    for(t<-AppConf.tuples){
+             rlID += 1
+
+       DBRows += Row(t._1,t._2,rlID)
+       WordNet.getSynsets(t._1).foreach(x=>DBRows += Row(x,t._2,rlID))
+       WordNet.getSynsets(t._2).foreach(x=>DBRows += Row(t._1,x,rlID))
+    }
+
+          //DBRows += Row
+      DBRows.foreach(println)
+      val dbRdd = sc.makeRDD(DBRows)
+
+    val df = dbRdd.map {
+      case Row(s0, s1, s2) => Expression(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[Int])
+    }.toDF()
+    
+    MongoSpark.save(df.write.option("collection", AppConf.secondPhaseCollection).mode("overwrite"))//Accepted save modes are 'overwrite', 'append', 'ignore', 'error'.
+    println(DBRows.size)
+    println("expressionsDB Done")
+  }
   // Build the Database with resources
   def operateOnDB(DS: Dataset[Triple], model: Word2VecModel) {
 
@@ -235,7 +258,7 @@ object AppDBM {
     val df = dbRdd.map {
       case Row(s0, s1, s2, s3, s4, s5, s6) => DBRecord(s0.asInstanceOf[Int], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[String], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[String])
     }.toDF()
-    MongoSpark.save(df.write.option("collection", AppConf.defaultCollection).mode("append"))
+    MongoSpark.save(df.write.option("collection", AppConf.firstPhaseCollection).mode("append"))
   }
 
   def buildDB(DS: Dataset[Triple]){
@@ -247,13 +270,10 @@ object AppDBM {
   def main(args: Array[String]) = {
     //> showConfigMap()
 
-
+    //>expressionsDB()
 
     //> writeToMongoDB("ALIroops","3",List[String]("http://dbpedia.org/resource/Territorial_Troops1", "http://dbpedia.org/resource/Territorial_Troops2", "http://dbpedia.org/resource/Territorial_Troops3","http://dbpedia.org/resource/Territorial_Troops4","http://dbpedia.org/resource/Territorial_Troops5","http://dbpedia.org/resource/Territorial_Troops6","http://dbpedia.org/resource/Territorial_Troops7"))
-
-    //"src/main/resources/rdf2.nt"
-    //val synonyms = model.findSynonyms("school",1000)
-    //    val model=Word2VecModelMaker.loadWord2VecModel()
+ 
     //println(FetchMaxId("ArcanaTest"))
 
     /////////////// READING
@@ -284,22 +304,3 @@ object AppDBM {
     spark.stop()
   }
 }
-
-    /*
-    val buf = new ArrayBuffer[String]()
- 
-    buf += formRecord(100,"A1",10,List("A1Rsc1","A1Rsc2", "A1Rsc3"))
-    buf += "@#@"
-    buf += formRecord(101,"A2",20,List("A2Rsc1","A2Rsc2", "A2Rsc3"))
-    buf += "@#@"
-    buf += formRecord(102,"A3",30,List("A3Rsc1","A3Rsc2", "A3Rsc3"))
-
-    //Solve the abo
-    
-    println("S1")
-    //writeFormedChunkToMongoDB(buf.mkString(" "),"ChunkCase")
-    //writeChunkToMongoDB("TEST")
-    
-    readCollection("neuclear")
-    
-    */

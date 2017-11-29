@@ -188,8 +188,7 @@ object ProcessQuestion {
         val extractNumber = raw"(\d+)".r
         var tokens = new ListBuffer[Token]()
         var posTagString = ""
-        val text = "How to kill an animal?"
-
+       
         // create blank annotator
         val document: Annotation = new Annotation(text)
     
@@ -227,7 +226,7 @@ object ProcessQuestion {
 
     // match number (?<=\D)\d+(?=\D)
 
-    val question = "hello how can i go to the next airport?".toLowerCase()
+    val question = "hello how can i go to the next airport and kill the pilot?".toLowerCase()
     
     val questionInfo = ProcessSentence(question)
     val questionObj = new QuestionSentence(question,removeStopWords(stringToDF(question)),sentiment(question),questionInfo._1,questionInfo._2)

@@ -30,4 +30,6 @@ class Category (var Category: String,var uri:  List[RDFURI] ) {
   case class QuestionSentence(sentence:String,sentenceWoSW:String,SentimentExtraction:Int,tokens:List[Token],PosSentence:String)
   case class Token(index:String,word:String,posTag:String,lemma:String)
   case class Sentence(sentence: String)
+  // Phase two
+  case class Expression(verb:String,noun:String,relationshipID:Int)
 

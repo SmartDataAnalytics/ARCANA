@@ -22,7 +22,7 @@ import edu.smu.tspell.wordnet._
 /*
  * An Object that is capable of extract Synsets form Wordnet using JWI & JAWS
  */
-object WordNetJwi {
+object WordNet {
   def getSynonyms(dict:Dictionary,expression:String){
       val idxWord = dict . getIndexWord (expression , POS.NOUN) 
       val wordID = idxWord.getWordIDs().get (0) // 1 st meaning
@@ -75,7 +75,6 @@ object WordNetJwi {
           println(i.next().getLemma())
           }
         }
-
     }
   def main(args: Array[String]) = {
     // THIS USES JWI
