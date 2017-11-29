@@ -173,7 +173,7 @@ object sentenceToTensor {
             val validationSummary = ValidationSummary(logdir, appName)
             optimizer.setTrainSummary(trainSummary)
             optimizer.setValidationSummary(validationSummary)
-            optimizer.setValidation(Trigger.everyEpoch ,sddf, Array(new Top1Accuracy), 3)
+            optimizer.setValidation(Trigger.everyEpoch ,sddf, Array(new Top1Accuracy),3)
             
             val trained_model=optimizer.optimize()
             val evaluateResult=trained_model.evaluate(sddf, Array(new Top1Accuracy), None)
