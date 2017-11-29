@@ -6,7 +6,7 @@ import com.intel.analytics.bigdl.nn._
 object AlexNetModel {
   
   /** creates an instance of AlexNetModel model */
-  def build()={
+  def build(classNum: Int)={
   val firstbranch=Sequential()
   //Achtung 3->1 from me
   firstbranch.add(SpatialConvolution(nInputPlane=1,nOutputPlane=48,kernelW=11,kernelH=11,strideW=4,strideH=4,padW=2,padH=2)) //-- 224 -> 55
@@ -68,7 +68,7 @@ object AlexNetModel {
   classifier.add(Dropout(0.5))
   classifier.add(Linear(4096,4096))
   classifier.add(Threshold(0,1e-6))
-  classifier.add(Linear(4096,1000))
+  classifier.add(Linear(4096,classNum))
   classifier.add(LogSoftMax())
   val model=Sequential().add(features).add(classifier)
   model
