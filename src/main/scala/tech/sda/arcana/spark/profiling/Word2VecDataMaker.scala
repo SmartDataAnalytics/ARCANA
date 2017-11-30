@@ -155,7 +155,7 @@ object Dataset2Vec {
       //| Loop URIS of each category <Traverse 1>
        for (line <- instance.uri){
          line.FormedURI=line.Uri+" "+line.URIslist.map(_.Uri).mkString(" ")
-         println(line.FormedURI)
+         //println(line.FormedURI)
          //| Loop URIS of each URI of category <Traverse 2>
          for (x <- line.URIslist){
            line.FormedURI +=" "+x.URIslist.map(_.Uri).mkString(" ")
@@ -249,7 +249,7 @@ object Dataset2Vec {
      //newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
   }
  // This function reads the data and make the word2vecready data while working on subjects related to categories only
-  def ceatingWord2VecCategoryData(DS: Dataset[Triple]){
+  def ceatingWord2VecCategoryData(DS: Dataset[Triple],path:String){
       val R=DS //"src/main/resources/rdf2.nt"
       
       //| Fetch Categories
@@ -274,14 +274,15 @@ object Dataset2Vec {
       var myRDD=prepareCategoryDataToRDD(thirdTR)
       //myRDD.map(_.toString).toDF.show(false)     
  		
-      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecCategoryData") // 'overwrite', 'append', 'ignore', 'error'.
+      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save(path+"Word2Vec/CategoryData") // 'overwrite', 'append', 'ignore', 'error'.
   }
   
   // This function reads the data and make the word2vec ready data while working on each subject of the dataset
-  def ceatingWord2VecDatasetData(DS: Dataset[Triple]){
+  def ceatingWord2VecDatasetData(DS: Dataset[Triple],path:String){
       val R=DS
-
-      var CategoriesNT=rdfSubjectsToList("src/main/resources/rdf2.nt")
+ 
+      var subjectsList = R.select("Subject").rdd.map(r => r(0).asInstanceOf[String]).collect()
+      var CategoriesNT=subjectsList.toList.distinct
       
       //| Converting each category to a Category Object with the list of URIs belonging to it
       var categoryOBJs=CategoriesNT.map(x => new Category(x,fetchObjectsOfSubject(R.toDF(),x)))
@@ -300,18 +301,18 @@ object Dataset2Vec {
       var myRDD=prepareDatasetDataToRDD(thirdTR)
       // myRDD.map(_.toString).toDF.show(100,false)     
  		
-      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecDatasetData")
+      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save(path+"Word2Vec/DatasetData")
   }
   
-    def MakeWord2VecModel(DS: Dataset[Triple]){
-      
-      //DS.show(false)
-      
-      //| Creates Word2Vec Data from Categories
-      //> ceatingWord2VecCategoryData(DS)
-      
-      //| Creates Word2Vec Data from Dataset
-      //> ceatingWord2VecDatasetData(DS)
+    def MakeWord2VecModel(DS: Dataset[Triple],path:String,choice:Int){
+      if(choice==1){
+        //| Creates Word2Vec Data from Categories
+        ceatingWord2VecCategoryData(DS,path)
+      }
+      if(choice==2){
+        //| Creates Word2Vec Data from Dataset
+        ceatingWord2VecDatasetData(DS,path)
+      }
   }
   
   def main(args: Array[String]) {

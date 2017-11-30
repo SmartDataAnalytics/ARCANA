@@ -18,6 +18,9 @@ object UnitTestProfiling {
 
    def main(args: Array[String]) = {
     println("Test")
+    val textFile = sc.textFile("/home/elievex/Repository/resources/dbpedia/*")
+    textFile.foreach(println)
+
     spark.stop()
    }
 }

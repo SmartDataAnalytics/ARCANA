@@ -19,7 +19,8 @@ object AppConf {
   // SentiWord File
   val SentiWordFile=path+"sentiwordnet/SentiWordNet.txt"
   val SentiWordFilefeedback=path+"sentiwordnet/SentiWordNetFeedback.txt"
-  
+  // dbpedia
+  val dbpedia = "dbpedia/*"
   // Malicious categories that we don't wish to answer
   var categories = List("military", "nuclear", "terrorism", "weapon", "technology", "security", "harm", "suicide", "war")
   // Malicious expression that we don't wish to answer
