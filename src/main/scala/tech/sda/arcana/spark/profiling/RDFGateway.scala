@@ -138,10 +138,10 @@ object RDFApp {
     println("|        RDF Gateway       |")
     println("============================")
     val input1 = "src/main/resources/rdf.nt" //Single File
-    val input2 = "src/main/resources/ntTest/*" //Set of safe Files
-    val input3 = "../ExtResources/ntTest2/*" //Set of problamatic Files
-    val input4 = "../ExtResources/problemData.nt" //Single File
-    val input5 = "../ExtResources/ntFiles/*" //dbpedia
+    //val input2 = "src/main/resources/ntTest/*" //Set of safe Files
+    //val input3 = "../ExtResources/ntTest2/*" //Set of problamatic Files
+    //val input4 = "../ExtResources/problemData.nt" //Single File
+    //val input5 = "../ExtResources/ntFiles/*" //dbpedia
    
     val input = if (args.length > 0) args(0) else input1;
 
@@ -149,13 +149,3 @@ object RDFApp {
     spark.stop()
   }
 }
- /*
-    the subject, which is an RDF URI reference or a blank node
-    the predicate, which is an RDF URI reference
-    the object, which is an RDF URI reference, a literal or a blank node
- */
-// Problamatic cases
-//<http://simple.dbpedia.org/resource/4'33%22> <http://www.w3.org/2000/01/rdf-schema#label> "4'33\""@en .
-//<http://simple.dbpedia.org/resource/%5C> <http://www.w3.org/2000/01/rdf-schema#label> "\\"@en .
-//<http://simple.dbpedia.org/resource/%22beat-em_up%22> <http://www.w3.org/2000/01/rdf-schema#label> "\"beat-em up\""@en .
-//<http://simple.dbpedia.org/resource/%22Captain%22_Lou_Albano> <http://www.w3.org/2000/01/rdf-schema#label> "\"Captain\" Lou Albano"@en .

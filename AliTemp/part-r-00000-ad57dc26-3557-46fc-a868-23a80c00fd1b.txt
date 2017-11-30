@@ -1,4 +1,0 @@
-<http://commons.dbpedia.org/resource/File:Hunebed_015.jpg> <http://commons.dbpedia.org/resource/File:Hunebed_013.jpg>
-BODY2
-FOOTER
-FOOTER

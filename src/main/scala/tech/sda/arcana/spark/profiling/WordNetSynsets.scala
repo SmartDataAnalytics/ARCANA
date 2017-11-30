@@ -34,7 +34,7 @@ object WordNet {
         println(ITR.next().asInstanceOf[IWord].getLemma)
       }
   }
-       
+ // THIS USES JAWS
   def getSynsets(word:String):scala.collection.mutable.Set[String]={
      var set = scala.collection.mutable.Set[String]()
      System.setProperty("wordnet.database.dir", AppConf.WordNetDict)

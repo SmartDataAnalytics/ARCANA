@@ -4,6 +4,9 @@ package tech.sda.arcana.spark.profiling
  * A class that contains the configuration of the Profiling App 
  */
 object AppConf {
+  //This to be entered by user
+  val path = "/home/elievex/Repository/resources/"
+  
   // MONGODB
   val host = "mongodb://127.0.0.1/"
   val dbName = "ArcanaDB"
@@ -12,10 +15,10 @@ object AppConf {
   val inputUri = "spark.mongodb.input.uri"
   val outputUri = "spark.mongodb.output.uri"
   // WordNet Dict
-  val WordNetDict = "src/WordNet/3.0/dict"
+  val WordNetDict = path+"WordNet/3.0/dict"
   // SentiWord File
-  val SentiWordFile="src/main/resources/SentiWordNet/SentiWordNet.txt"
-  val SentiWordFilefeedback="src/main/resources/SentiWordNet/SWN_feedback_20130513.txt"
+  val SentiWordFile=path+"sentiwordnet/SentiWordNet.txt"
+  val SentiWordFilefeedback=path+"sentiwordnet/SentiWordNetFeedback.txt"
   
   // Malicious categories that we don't wish to answer
   var categories = List("military", "nuclear", "terrorism", "weapon", "technology", "security", "harm", "suicide", "war")
