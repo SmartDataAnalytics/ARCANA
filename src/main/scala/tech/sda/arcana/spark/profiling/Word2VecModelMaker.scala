@@ -63,8 +63,8 @@ object Word2VecModelMaker {
     val word2Vec = new Word2Vec()
       .setInputCol("text")
       .setOutputCol("result")
-      .setVectorSize(10)
-      .setMinCount(0)
+      .setVectorSize(AppConf.VectorSize)
+      .setMinCount(AppConf.MinCount)
     word2Vec.fit(fileName)
   }
   
@@ -87,15 +87,15 @@ object Word2VecModelMaker {
     myfile
   }
   // Save the model
-  def saveWord2VecModel(model:Word2VecModel){
-      model.write.overwrite().save("Word2VecModel")
+  def saveWord2VecModel(path:String,model:Word2VecModel){
+      model.write.overwrite().save(path+AppConf.Word2VecModel)
   }
   // Load model
   def loadWord2VecModel(fileName:String):Word2VecModel={
     Word2VecModel.load(fileName)
   }
  
-  def MakeWord2VecModel(){
+  def MakeWord2VecModel(path:String,Word2VecDataType:Int){
     val sqlContext= new org.apache.spark.sql.SQLContext(spark.sparkContext)
     import sqlContext.implicits._
 
@@ -103,13 +103,15 @@ object Word2VecModelMaker {
     //val word2VecInput=fetchCodedDataDF()
     //val word2VecInput=fetchFileDataDF("src/main/resources/textTest.txt")
    
+    val newPath = if (Word2VecDataType == 1) path+AppConf.CategoryData else path+AppConf.DatasetData
+    
     // Search the directory word2vec data and find the txt one
-    val word2vecData=(returnTxtFile(getListOfFiles("src/main/resources/Word2VecDatasetData/")))
+    val word2vecData=(returnTxtFile(getListOfFiles(newPath)))
     val word2VecInput=fetchFileDataDFSc(word2vecData)
  
     //| Make model and save it
     val model = fitWord2VecModel(word2VecInput)
-    saveWord2VecModel(model)
+    saveWord2VecModel(path,model)
     
     //| Or load model
     //> val model = Word2VecModel.load("Word2VecModel")
@@ -123,7 +125,7 @@ object Word2VecModelMaker {
 
   def main(args: Array[String]) {
    
-    MakeWord2VecModel()
+    //MakeWord2VecModel()
 
     println("Stopping Session")
     spark.stop()

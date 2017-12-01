@@ -5,7 +5,7 @@ package tech.sda.arcana.spark.profiling
  */
 object AppConf {
   //This to be entered by user
-  val path = "/home/elievex/Repository/resources/"
+  //val path = "/home/elievex/Repository/resources/"
   
   // MONGODB
   val host = "mongodb://127.0.0.1/"
@@ -14,13 +14,23 @@ object AppConf {
   val secondPhaseCollection = "ArcanaPOS"
   val inputUri = "spark.mongodb.input.uri"
   val outputUri = "spark.mongodb.output.uri"
-  // WordNet Dict
-  val WordNetDict = path+"WordNet/3.0/dict"
-  // SentiWord File
-  val SentiWordFile=path+"sentiwordnet/SentiWordNet.txt"
-  val SentiWordFilefeedback=path+"sentiwordnet/SentiWordNetFeedback.txt"
+  // Word2Vec
+  val VectorSize=10
+  val MinCount=0
+  
   // dbpedia
-  val dbpedia = "dbpedia/*"
+  val dbpedia = "DBpedia/*"
+  // Word2Vec
+  val CategoryData = "Word2Vec/Data/CategoryData"
+  val DatasetData = "Word2Vec/Data/DatasetData"
+  val Word2VecModel = "Word2Vec/Model/Word2VecModel"
+  // WordNet Dict
+  val WordNetDict = "WordNet/3.0/dict"
+  // SentiWord File
+  val SentiWordFile = "SentiWordNet/SentiWordNet.txt"
+  val SentiWordFilefeedback = "SentiWordNet/SentiWordNetFeedback.txt"
+
+  
   // Malicious categories that we don't wish to answer
   var categories = List("military", "nuclear", "terrorism", "weapon", "technology", "security", "harm", "suicide", "war")
   // Malicious expression that we don't wish to answer

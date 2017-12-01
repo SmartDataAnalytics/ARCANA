@@ -274,7 +274,7 @@ object Dataset2Vec {
       var myRDD=prepareCategoryDataToRDD(thirdTR)
       //myRDD.map(_.toString).toDF.show(false)     
  		
-      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save(path+"Word2Vec/CategoryData") // 'overwrite', 'append', 'ignore', 'error'.
+      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save(path+AppConf.CategoryData) // 'overwrite', 'append', 'ignore', 'error'.
   }
   
   // This function reads the data and make the word2vec ready data while working on each subject of the dataset
@@ -301,7 +301,7 @@ object Dataset2Vec {
       var myRDD=prepareDatasetDataToRDD(thirdTR)
       // myRDD.map(_.toString).toDF.show(100,false)     
  		
-      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save(path+"Word2Vec/DatasetData")
+      myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save(path+AppConf.DatasetData)
   }
   
     def MakeWord2VecModel(DS: Dataset[Triple],path:String,choice:Int){

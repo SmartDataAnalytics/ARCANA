@@ -19,12 +19,16 @@ object ExecuteOperations {
     
     //| Read Data & Clean and transform it   
     val RDFDs=RDFApp.importingData(path+AppConf.dbpedia)
-
+    
+    //| 1 for category, 2 for dataset
+    val Word2VecDataType = 1 
+    
     //| Prepare Data for the Word2Vec Model  
-    Dataset2Vec.MakeWord2VecModel(RDFDs,path,1) // 1 for category, 2 for dataset
-    println("DON")
+    Dataset2Vec.MakeWord2VecModel(RDFDs,path,Word2VecDataType)
+    
     //| Create the Word2Vec Model
-    //Word2VecModelMaker.MakeWord2VecModel()
+    Word2VecModelMaker.MakeWord2VecModel(path,Word2VecDataType)
+    println("DONE")
     //| Build MongoDB Data
     //AppDBM.buildDB(RDFDs)
   
