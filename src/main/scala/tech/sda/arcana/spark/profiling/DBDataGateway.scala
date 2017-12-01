@@ -218,8 +218,10 @@ object AppDBM {
     
     MongoSpark.save(df.write.option("collection", AppConf.secondPhaseCollection).mode("overwrite"))//Accepted save modes are 'overwrite', 'append', 'ignore', 'error'.
     //println(DBRows.size)
-    println("~ExpressionsCollection Done~")
+    println("~Expressions Collection is created~")
   }
+  
+  
   // Build the Database with resources
   def operateOnDB(DS: Dataset[Triple], model: Word2VecModel) {
 

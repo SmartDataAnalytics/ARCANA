@@ -223,7 +223,7 @@ object ProcessQuestion {
       (tokens.toList, posTagString)
   }
    
-  def expressionCheck(questionObj:QuestionSentence):Int={
+  def expressionCheck(questionObj:QuestionObj):Int={
     val extractCase = raw"V\s(.+)?N\s?".r
     //println(questionObj.PosSentence)
     var flag=0
@@ -284,14 +284,20 @@ object ProcessQuestion {
     }
       flag
   }
-  def main(args: Array[String]) = {
-
-    val question = "How to make a bomb ?".toLowerCase()
-    
+ 
+  def processQuestion(input:String): QuestionObj = {
+    //QuestionObj(sentence:String,sentenceWoSW:String,SentimentExtraction:Int,tokens:List[Token],PosSentence:String,var phaseTwoScore:Int)
+    //Token(index:String,word:String,posTag:String,lemma:String,var relationID:Int)
+      
+    val question = input.toLowerCase()
     val questionInfo = ProcessSentence(question)
-    val questionObj = new QuestionSentence(question,removeStopWords(stringToDF(question)),sentiment(question),questionInfo._1,questionInfo._2,0)
-    println(expressionCheck(questionObj))//3 is malicious other is not 
+    val questionObj = new QuestionObj(question,removeStopWords(stringToDF(question)),sentiment(question),questionInfo._1,questionInfo._2,0)
+    questionObj.phaseTwoScore=expressionCheck(questionObj)
+    
+    questionObj
+  }
 
+  def main(args: Array[String]) = {
 
     //| Old Way
     //> tokenizeQuestionWithRegex("Hi There How are you? There was a car walking by a dog nearby the horse?")

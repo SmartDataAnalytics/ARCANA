@@ -17,10 +17,31 @@ object UnitTestProfiling {
          val sc = spark.sparkContext
 
    def main(args: Array[String]) = {
-    println("Test")
-    val textFile = sc.textFile("/home/elievex/Repository/resources/Word2Vec/Data/CategoryData")
-    textFile.foreach(println)
 
+    //val textFile = sc.textFile("/home/elievex/Repository/resources/"+AppConf.Questions)
+    //val noEmptyRDD = textFile.filter(x => (x != null) && (x.length > 0))
+    //noEmptyRDD.foreach(println)
+
+          
+    val sentiDF=SentiWord.prepareSentiFile("/home/elievex/Repository/resources/"+AppConf.SentiWordFile)
+    sentiDF.show(false)
+    
+    val sc = spark.sqlContext
+    
+    sentiDF.write.format("com.databricks.spark.csv").option("header", "true").save("file.csv")
+    val df = sc.read.format("com.databricks.spark.csv").option("header", "true").option("inferSchema", "true").load("file.csv")
+    df.show(false)
+          // FETCHING WORDS
+          /*
+    val RDFDs=RDFApp.importingData("/home/elievex/Repository/resources/"+AppConf.dbpedia)
+   // RDFDs.show(false)    
+      val DF=RDFDs.toDF()
+      DF.createOrReplaceTempView("triples")
+      val word="b"
+      val REG = raw"(?i)(?<![a-zA-Z])$word(?![a-zA-Z])".r
+      val Res = spark.sql(s"SELECT * from triples where Subject RLIKE '$REG' ")
+      //Res.show(false)*/
+    println("YA")
     spark.stop()
    }
 }

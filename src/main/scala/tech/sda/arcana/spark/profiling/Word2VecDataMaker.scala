@@ -313,7 +313,7 @@ object Dataset2Vec {
         //| Creates Word2Vec Data from Dataset
         ceatingWord2VecDatasetData(DS,path)
       }
-      println("~Word2VecData Ready~")
+      println("~Word2Vec data are created~")
   }
   
   def main(args: Array[String]) {

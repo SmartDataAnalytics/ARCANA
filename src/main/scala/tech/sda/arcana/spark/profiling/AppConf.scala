@@ -28,8 +28,10 @@ object AppConf {
   val WordNetDict = "WordNet/3.0/dict"
   // SentiWord File
   val SentiWordFile = "SentiWordNet/SentiWordNet.txt"
+  val ProcessedSentiWordFile = "SentiWordNet/processed/file.csv"
   val SentiWordFilefeedback = "SentiWordNet/SentiWordNetFeedback.txt"
-
+  // Questions
+  val Questions = "Questions"
   
   // Malicious categories that we don't wish to answer
   var categories = List("military", "nuclear", "terrorism", "weapon", "technology", "security", "harm", "suicide", "war")
