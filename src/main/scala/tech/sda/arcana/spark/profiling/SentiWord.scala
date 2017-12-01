@@ -123,18 +123,31 @@ object SentiWord {
  // var categories = List("military", "nuclear", "terrorism", "weapon", "technology", "security", "harm", "suicide", "war")
         a
       }
-    
+    def writeProcessedSentiWord(path:String){
+      val sentiDF=SentiWord.prepareSentiFile(path+AppConf.SentiWordFile)
+      val sc = spark.sqlContext
+      sentiDF.write.format("com.databricks.spark.csv").option("header", "true").save(path+AppConf.ProcessedSentiWordFile)
+      println("Processed SentiWord files are created")
+    }
+    def readProcessedSentiWord(path:String):DataFrame={
+      val sc = spark.sqlContext
+      sc.read.format("com.databricks.spark.csv").option("header", "true").option("inferSchema", "true").load(path+AppConf.ProcessedSentiWordFile)
+    }
     def main(args: Array[String]) = {
       
+      //FEEDBACK sentiword
+      /*
       val df=convertSentiWordFeedbackIntoDF(AppConf.SentiWordFilefeedback)
       df.show()
       println(df.count())
-      /*
-      val DF=prepareSentiFile(AppConf.SentiWordFile)
-      val result = getSentiScoreForAllPOS("bad",DF)
+      */
+    
+      val DF=prepareSentiFile("/home/elievex/Repository/resources/"+AppConf.SentiWordFile)
+      val result = getSentiScoreForAllPOS("kill",DF)
       result.foreach(tuple => println(tuple))// println(result(0)._1,result(0)._2)
-			*/
-      
+			println("==========================")
+      val result2 = getSentiScoreForAllPOS("kill",readProcessedSentiWord("/home/elievex/Repository/resources/"))
+      result2.foreach(tuple => println(tuple))// println(result(0)._1,result(0)._2)
       //score += setScore.getValue() / (double) setScore.getKey();
 			//sum += 1.0 / (double) setScore.getKey();
 			// Score= 1/2*first + 1/3*second + 1/4*third ..... etc.

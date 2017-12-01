@@ -5,6 +5,7 @@ import tech.sda.arcana.spark.profiling.RDFApp
 import org.apache.spark.sql.SparkSession
 import tech.sda.arcana.spark.profiling.AppDBM
 import tech.sda.arcana.spark.profiling.AppConf
+import tech.sda.arcana.spark.profiling.SentiWord
 
 /*
  * Entry Point that should contain the triggering action 
@@ -24,7 +25,7 @@ object ExecuteOperations {
 
     //| Read Data & Clean and transform it   
     val RDFDs=RDFApp.importingData(path+AppConf.dbpedia) 
-    println("~RDFData Ready~")
+    println("~RDF data are created~")
     
     //| 1 for category, 2 for dataset
     val Word2VecDataType = 1 
@@ -35,11 +36,18 @@ object ExecuteOperations {
     //| Create the Word2Vec Model
     Word2VecModelMaker.MakeWord2VecModel(path,Word2VecDataType)
     
+    //| Create the SentiWord Data
+    SentiWord.writeProcessedSentiWord(path)
+    
     //| Set up Expression Collection
     AppDBM.expressionsDB(path)
 
-    //| Build MongoDB Data
+    //| Build URI Data
     //AppDBM.buildDB(RDFDs)
+    
+    //| Process Questions
+    //XX
+    
     spark.stop()
   }
 }
