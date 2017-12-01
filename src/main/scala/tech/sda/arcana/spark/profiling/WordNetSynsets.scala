@@ -35,9 +35,9 @@ object WordNet {
       }
   }
  // THIS USES JAWS
-  def getSynsets(word:String):scala.collection.mutable.Set[String]={
+  def getSynsets(word:String,path:String):scala.collection.mutable.Set[String]={
      var set = scala.collection.mutable.Set[String]()
-     System.setProperty("wordnet.database.dir", AppConf.WordNetDict)
+     System.setProperty("wordnet.database.dir", path+AppConf.WordNetDict)
      
      val database: WordNetDatabase = WordNetDatabase.getFileInstance
      val synsets: Array[Synset] = database.getSynsets(word)
@@ -53,6 +53,27 @@ object WordNet {
       }
      set
    }
+  
+  def getJWISynsets(){
+        // THIS USES JWI
+      val url = new URL ( "file" , null , AppConf.WordNetDict ) 
+      // construct the dictionary object and open it
+      val dict = new Dictionary ( url ) 
+      
+      dict.open() 
+      getSynonyms(dict,"capacity")
+      //getHypernyms(dict)
+      // look up first sense of the word " dog "
+      /*
+      val idxWord = dict . getIndexWord ( " dog " , POS.NOUN ) 
+      val wordID = idxWord . getWordIDs () . get (0) 
+      val word = dict . getWord ( wordID ) 
+      println(" Id = " + wordID )
+      println(" Lemma = " + word . getLemma () ) 
+      println(" Gloss = " + word . getSynset () . getGloss () ) 
+      */
+        dict.close()
+  }
   def getHypernyms(dict:Dictionary){
         // get the synset
         val idxWord = dict . getIndexWord ( " dog " , POS.NOUN ) ;
@@ -77,27 +98,8 @@ object WordNet {
         }
     }
   def main(args: Array[String]) = {
-    // THIS USES JWI
-      val url = new URL ( "file" , null , AppConf.WordNetDict ) 
-      // construct the dictionary object and open it
-      val dict = new Dictionary ( url ) 
-      
-      dict.open() 
-      getSynonyms(dict,"capacity")
-      //getHypernyms(dict)
-      // look up first sense of the word " dog "
-      /*
-      val idxWord = dict . getIndexWord ( " dog " , POS.NOUN ) 
-      val wordID = idxWord . getWordIDs () . get (0) 
-      val word = dict . getWord ( wordID ) 
-      println(" Id = " + wordID )
-      println(" Lemma = " + word . getLemma () ) 
-      println(" Gloss = " + word . getSynset () . getGloss () ) 
-      */
-        dict.close() 
-        println("ResultsFromJAWS")
-         getSynsets("kill").foreach(println)
-      // THIS USES JAWS
-        
+
+
+
   }
 }

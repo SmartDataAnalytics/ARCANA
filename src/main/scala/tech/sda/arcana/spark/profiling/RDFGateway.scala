@@ -20,6 +20,8 @@ object RDFApp {
 
   val spark = SparkSession.builder()
       .master("local")
+      //.config(AppConf.inputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
+      //.config(AppConf.outputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
       .appName("RDFApp")
       .master("local[*]")
       .getOrCreate()

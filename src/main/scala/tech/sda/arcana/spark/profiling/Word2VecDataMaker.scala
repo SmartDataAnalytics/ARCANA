@@ -304,7 +304,7 @@ object Dataset2Vec {
       myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save(path+AppConf.DatasetData)
   }
   
-    def MakeWord2VecModel(DS: Dataset[Triple],path:String,choice:Int){
+    def MakeWord2VecData(DS: Dataset[Triple],path:String,choice:Int){
       if(choice==1){
         //| Creates Word2Vec Data from Categories
         ceatingWord2VecCategoryData(DS,path)
@@ -313,6 +313,7 @@ object Dataset2Vec {
         //| Creates Word2Vec Data from Dataset
         ceatingWord2VecDatasetData(DS,path)
       }
+      println("~Word2VecData Ready~")
   }
   
   def main(args: Array[String]) {

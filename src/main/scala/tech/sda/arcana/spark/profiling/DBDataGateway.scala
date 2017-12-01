@@ -21,8 +21,6 @@ import org.apache.spark.ml.feature.Word2VecModel
  */
 object AppDBM {
 
-
-
   val spark = SparkSession.builder()
     .master("local")
     .appName("MongoSparkConnector")
@@ -197,7 +195,7 @@ object AppDBM {
     temp
   }
 
-  def expressionsDB(){
+  def expressionsDB(path:String){
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
     var DBRows = ArrayBuffer[Row]()
@@ -206,12 +204,12 @@ object AppDBM {
              rlID += 1
 
        DBRows += Row(t._1,t._2,rlID)
-       WordNet.getSynsets(t._1).foreach(x=>DBRows += Row(x,t._2,rlID))
-       WordNet.getSynsets(t._2).foreach(x=>DBRows += Row(t._1,x,rlID))
+       WordNet.getSynsets(t._1,path).foreach(x=>DBRows += Row(x,t._2,rlID))
+       WordNet.getSynsets(t._2,path).foreach(x=>DBRows += Row(t._1,x,rlID))
     }
 
           //DBRows += Row
-      DBRows.foreach(println)
+      //DBRows.foreach(println)
       val dbRdd = sc.makeRDD(DBRows)
 
     val df = dbRdd.map {
@@ -219,8 +217,8 @@ object AppDBM {
     }.toDF()
     
     MongoSpark.save(df.write.option("collection", AppConf.secondPhaseCollection).mode("overwrite"))//Accepted save modes are 'overwrite', 'append', 'ignore', 'error'.
-    println(DBRows.size)
-    println("expressionsDB Done")
+    //println(DBRows.size)
+    println("~ExpressionsCollection Done~")
   }
   // Build the Database with resources
   def operateOnDB(DS: Dataset[Triple], model: Word2VecModel) {

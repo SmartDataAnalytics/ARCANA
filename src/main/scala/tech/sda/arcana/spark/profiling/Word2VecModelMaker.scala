@@ -112,7 +112,7 @@ object Word2VecModelMaker {
     //| Make model and save it
     val model = fitWord2VecModel(word2VecInput)
     saveWord2VecModel(path,model)
-    
+    println("~Word2VecModel Saved~")
     //| Or load model
     //> val model = Word2VecModel.load("Word2VecModel")
     /*
