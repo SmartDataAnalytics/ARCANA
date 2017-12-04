@@ -68,6 +68,7 @@ object GoogLeNetModel {
     
       //Building the blocks
       def main0=Sequential()
+      main0.add(SpatialZeroPadding(0, 224-Width, 0, 224-Height))
       main0.add(fac())
       main0.add(SpatialMaxPooling(3,3,2,2))
       main0.add(SpatialConvolution(64,64,1,1))
