@@ -6,8 +6,11 @@ import com.intel.analytics.bigdl.nn._
 object AlexNetModel {
   
   /** creates an instance of AlexNetModel model */
-  def build(classNum: Int)={
+  def build(Height:Int,Width:Int,classNum: Int)={
   val firstbranch=Sequential()
+  //Adding a padding layer
+  firstbranch.add(SpatialZeroPadding(0, 224-Width, 0, 224-Height))
+  //val spatialZeroPadding = SpatialZeroPadding(0, 224-Width, 0, 224-Height)
   //Achtung 3->1 from me
   firstbranch.add(SpatialConvolution(nInputPlane=1,nOutputPlane=48,kernelW=11,kernelH=11,strideW=4,strideH=4,padW=2,padH=2)) //-- 224 -> 55
   //Rectified Linear Unit non-linearity (+Z) =max(0,x)
@@ -30,6 +33,9 @@ object AlexNetModel {
   firstbranch.add(SpatialMaxPooling(3,3,2,2)) //13 ->  6
   
   val secondbranch=Sequential()
+  //Adding a padding layer
+  secondbranch.add(SpatialZeroPadding(0, 224-Width, 0, 224-Height))
+  //val spatialZeroPadding = SpatialZeroPadding(0, 224-Width, 0, 224-Height)
   //Achtung 3->1 from me
   secondbranch.add(SpatialConvolution(1,48,11,11,4,4,2,2)) //-- 224 -> 55
   //non-linearity (+Z) =max(0,x)
