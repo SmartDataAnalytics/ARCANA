@@ -2,6 +2,62 @@ package tech.sda.arcana.spark.neuralnetwork.model
 import com.intel.analytics.bigdl.numeric.NumericFloat
 import com.intel.analytics.bigdl.nn._
 
+/*
+ * Sequential[56017e46]{
+  [input -> (1) -> (2) -> output]
+  (1): Concat[be8f8ca5]{
+    input
+      |`-> (1): Sequential[619149ca]{
+      |      [input -> (1) -> (2) -> (3) -> (4) -> (5) -> (6) -> (7) -> (8) -> (9) -> (10) -> (11) -> (12) -> (13) -> (14) -> output]
+      |      (1): SpatialZeroPadding[d683687](l=0, r=214, t=0, b=214)
+      |      (2): SpatialConvolution[6e0a3c83](1 -> 48, 11 x 11, 4, 4, 2, 2)
+      |      (3): ReLU[9f30530f](0.0, 0.0)
+      |      (4): SpatialMaxPooling[df8ca311](3, 3, 2, 2, 0, 0)
+      |      (5): SpatialConvolution[ad624171](48 -> 128, 5 x 5, 1, 1, 2, 2)
+      |      (6): ReLU[e2274aa](0.0, 0.0)
+      |      (7): SpatialMaxPooling[6758ee40](3, 3, 2, 2, 0, 0)
+      |      (8): SpatialConvolution[e4597cc5](128 -> 192, 3 x 3, 1, 1, 1, 1)
+      |      (9): ReLU[250dd5dd](0.0, 0.0)
+      |      (10): SpatialConvolution[9c37a5db](192 -> 192, 3 x 3, 1, 1, 1, 1)
+      |      (11): ReLU[12411d40](0.0, 0.0)
+      |      (12): SpatialConvolution[a35839bd](192 -> 128, 3 x 3, 1, 1, 1, 1)
+      |      (13): ReLU[3812ef58](0.0, 0.0)
+      |      (14): SpatialMaxPooling[16754517](3, 3, 2, 2, 0, 0)
+      |    }
+      |`-> (2): Sequential[c33103a9]{
+             [input -> (1) -> (2) -> (3) -> (4) -> (5) -> (6) -> (7) -> (8) -> (9) -> (10) -> (11) -> (12) -> (13) -> (14) -> output]
+             (1): SpatialZeroPadding[d5eab40f](l=0, r=214, t=0, b=214)
+             (2): SpatialConvolution[fe9ca7a1](1 -> 48, 11 x 11, 4, 4, 2, 2)
+             (3): ReLU[eca02b00](0.0, 0.0)
+             (4): SpatialMaxPooling[4ebdf3ee](3, 3, 2, 2, 0, 0)
+             (5): SpatialConvolution[24b54ae6](48 -> 128, 5 x 5, 1, 1, 2, 2)
+             (6): ReLU[a339b0d8](0.0, 0.0)
+             (7): SpatialMaxPooling[c0c7491a](3, 3, 2, 2, 0, 0)
+             (8): SpatialConvolution[581d8da3](128 -> 192, 3 x 3, 1, 1, 1, 1)
+             (9): ReLU[95e070d6](0.0, 0.0)
+             (10): SpatialConvolution[e8501af5](192 -> 192, 3 x 3, 1, 1, 1, 1)
+             (11): ReLU[8e25bfa0](0.0, 0.0)
+             (12): SpatialConvolution[7b012986](192 -> 128, 3 x 3, 1, 1, 1, 1)
+             (13): ReLU[7d401044](0.0, 0.0)
+             (14): SpatialMaxPooling[857df55f](3, 3, 2, 2, 0, 0)
+           }
+       ... -> output
+    }
+  (2): Sequential[3852d115]{
+    [input -> (1) -> (2) -> (3) -> (4) -> (5) -> (6) -> (7) -> (8) -> (9) -> output]
+    (1): View[c00848ee](9216)
+    (2): Dropout[72741753](0.5)
+    (3): Linear[7ed99bbf](9216 -> 4096)
+    (4): Threshold[fbbdb66f](0.0, 1.0E-6)
+    (5): Dropout[830502fb](0.5)
+    (6): Linear[10252a2](4096 -> 4096)
+    (7): Threshold[6e4103e4](0.0, 1.0E-6)
+    (8): Linear[7c4794cf](4096 -> 5)
+    (9): LogSoftMax[28d3b45e]
+  }
+}
+ */
+
 /** Object represents AlexNetModel */
 object AlexNetModel {
   
