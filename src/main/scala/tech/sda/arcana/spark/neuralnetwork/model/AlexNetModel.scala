@@ -80,11 +80,12 @@ object AlexNetModel {
   model
   }
   
-  def graph(classNum: Int)={
+  def graph(Height:Int,Width:Int,classNum: Int)={
   //FB first branch
   //SB second branch
    
-  val conv1FB = SpatialConvolution(1,48,11,11,4,4,2,2).inputs()
+  val padding1=SpatialZeroPadding(0, 224-Width, 0, 224-Height).inputs()
+  val conv1FB = SpatialConvolution(1,48,11,11,4,4,2,2).inputs(padding1)
   val recLinUn1FB = ReLU().inputs(conv1FB)
   val pool1FB = SpatialMaxPooling(kW=3,kH=3,dW=2,dH=2).inputs(recLinUn1FB)
   val conv2FB = SpatialConvolution(48,128,5,5,1,1,2,2).inputs(pool1FB)
@@ -98,7 +99,8 @@ object AlexNetModel {
   val recLinUn5FB=ReLU().inputs(conv5FB)
   val pool3FB = SpatialMaxPooling(3,3,2,2).inputs(recLinUn5FB)
   
-  val conv1SB = SpatialConvolution(1,48,11,11,4,4,2,2).inputs()
+  val padding2=SpatialZeroPadding(0, 224-Width, 0, 224-Height).inputs()
+  val conv1SB = SpatialConvolution(1,48,11,11,4,4,2,2).inputs(padding1)
   val recLinUn1SB =ReLU().inputs(conv1SB)
   val pool1SB = SpatialMaxPooling(kW=3,kH=3,dW=2,dH=2).inputs(recLinUn1SB)
   val conv2SB = SpatialConvolution(48,128,5,5,1,1,2,2).inputs(pool1SB)
