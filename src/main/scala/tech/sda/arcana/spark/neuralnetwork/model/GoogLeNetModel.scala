@@ -6,7 +6,9 @@ import com.intel.analytics.bigdl.nn._
 object GoogLeNetModel {
   
   /** creates an instance of GoogleNetModel model */
-    def build()={
+    def build(Height:Int,Width:Int)={
+      
+      /////////////////////////////////////////////////////////////////////////////////////
       //Building the inception module
       def inc(input_size:Int,config:Array[Array[Int]])={
       val depthCat=Concat(2)
@@ -27,7 +29,7 @@ object GoogLeNetModel {
       conv5.add(SpatialConvolution(input_size,config(3)(1),1,1))
       conv5.add(ReLU(true))
       conv5.add(SpatialConvolution(config(3)(1),config(3)(2),5,5,1,1,2,2))
-      conv5.add(ReLU(true))
+      conv5.add(ReLU(true))/////////////////////////////////////////////////////////////////////////////////////
       depthCat.add(conv5)
       
       val pool=Sequential()
@@ -37,7 +39,10 @@ object GoogLeNetModel {
       depthCat.add(pool)
       depthCat
     }
- 
+    /////////////////////////////////////////////////////////////////////////////////////
+      
+      
+    /////////////////////////////////////////////////////////////////////////////////////
     //first layer factorize convolution
     def fac()={
       val conv=Sequential()
@@ -58,18 +63,19 @@ object GoogLeNetModel {
       factorised.add(ReLU(true))
       factorised
     }
-    //Building the blocks
-    def main0=Sequential()
-    main0.add(fac())
-    main0.add(SpatialMaxPooling(3,3,2,2))
-    main0.add(SpatialConvolution(64,64,1,1))
-    main0.add(ReLU(true))
-    main0.add(SpatialConvolution(64,192,3,3,1,1,1,1))
-    main0.add(ReLU(true))
-    main0.add(SpatialMaxPooling(3,3,2,2))
-    //Array(Array(3, 5, 7),Array(0, 4,5),Array(1, 8, 6))
-  //Array(Array(160, 0),Array(112, 224),Array(24, 64),Array(3, 64))
-  //main0.add(inc(512,{{160},{112,224},{24,64},{3,64}}))
+    /////////////////////////////////////////////////////////////////////////////////////
+    
+    
+      //Building the blocks
+      def main0=Sequential()
+      main0.add(fac())
+      main0.add(SpatialMaxPooling(3,3,2,2))
+      main0.add(SpatialConvolution(64,64,1,1))
+      main0.add(ReLU(true))
+      main0.add(SpatialConvolution(64,192,3,3,1,1,1,1))
+      main0.add(ReLU(true))
+      main0.add(SpatialMaxPooling(3,3,2,2))
+
       main0.add(inc(192,Array(Array(64, 0),Array(96, 128),Array(16, 32),Array(3, 32))))
       main0.add(inc(256,Array(Array(128, 0),Array(128, 192),Array(32, 96),Array(3, 64))))
       main0.add(SpatialAveragePooling(3,3,2,2))
@@ -87,61 +93,63 @@ object GoogLeNetModel {
       main2.add(inc(832,Array(Array(256, 0),Array(160, 320),Array(32, 128),Array(3, 128))))
       main2.add(inc(832,Array(Array(384, 0),Array(192, 384),Array(48, 128),Array(3, 128))))
  
+      //ocsiliary classifier
       val sftMx0=Sequential()
       sftMx0.add(SpatialAveragePooling(5,5,3,3))
       sftMx0.add(SpatialConvolution(512,128,1,1))
       sftMx0.add(ReLU())   
       sftMx0.add(View(128*4*4))
       //something missing
-  sftMx0.add(Linear(128*4*4,1024))
-  sftMx0.add(ReLU())
-  sftMx0.add(Dropout(0.7))
-  sftMx0.add(Linear(1024,1000))
-  sftMx0.add(ReLU())
-  sftMx0.add(LogSoftMax())
+      sftMx0.add(Linear(128*4*4,1024))
+      sftMx0.add(ReLU())
+      sftMx0.add(Dropout(0.7))
+      sftMx0.add(Linear(1024,1000))
+      sftMx0.add(ReLU())
+      sftMx0.add(LogSoftMax())
   
-  val sftMx1=Sequential()
-  sftMx1.add(SpatialAveragePooling(5,5,3,3))
-  sftMx1.add(SpatialConvolution(512,128,1,1))
-  sftMx1.add(ReLU())   
-  sftMx1.add(View(128*4*4))
-  //something missing
-  sftMx1.add(Linear(128*4*4,1024))
-  sftMx1.add(ReLU())
-  sftMx1.add(Dropout(0.7))
-  sftMx1.add(Linear(1024,1000))
-  sftMx1.add(ReLU())
-  sftMx1.add(LogSoftMax())
+      val sftMx1=Sequential()
+      sftMx1.add(SpatialAveragePooling(5,5,3,3))
+      sftMx1.add(SpatialConvolution(512,128,1,1))
+      sftMx1.add(ReLU())   
+      sftMx1.add(View(128*4*4))
+      //something missing
+      sftMx1.add(Linear(128*4*4,1024))
+      sftMx1.add(ReLU())
+      sftMx1.add(Dropout(0.7))
+      sftMx1.add(Linear(1024,1000))
+      sftMx1.add(ReLU())
+      sftMx1.add(LogSoftMax())
   
-  val sftMx2=Sequential()
-  sftMx2.add(SpatialAveragePooling(7,7,1,1))
-  sftMx2.add(View(1024))
-  sftMx2.add(Dropout(0.4))
-  sftMx2.add(Linear(1024,1000))
-  sftMx2.add(ReLU())
-  sftMx2.add(LogSoftMax())
+      val sftMx2=Sequential()
+      sftMx2.add(SpatialAveragePooling(7,7,1,1))
+      sftMx2.add(View(1024))
+      sftMx2.add(Dropout(0.4))
+      sftMx2.add(Linear(1024,1000))
+      sftMx2.add(ReLU())
+      sftMx2.add(LogSoftMax())
+      
+      //Logo blocks
+      val block2 = Sequential()
+      block2.add(main2)
+      block2.add(sftMx2)
   
-  val block2 = Sequential()
-  block2.add(main2)
-  block2.add(sftMx2)
+      val split1 = Concat(2)
+      split1.add(block2)
+      split1.add(sftMx1)
   
-  val split1 = Concat(2)
-  split1.add(block2)
-  split1.add(sftMx1)
+      val block1 = Sequential()
+      block1.add(main1)
+      block1.add(split1)
   
-  val block1 = Sequential()
-  block1.add(main1)
-  block1.add(split1)
+      val split0 = Concat(2)
+      split0.add(block1)
+      split0.add(sftMx0)
   
-  val split0 = Concat(2)
-  split0.add(block1)
-  split0.add(sftMx0)
+      val block0 = Sequential()
+      block0.add(main0)/////////////////////////////////////////////////////////////////////////////////////
+      block0.add(split0)
   
-  val block0 = Sequential()
-  block0.add(main0)
-  block0.add(split0)
-  
-  val model = block0
-  model
+      val model = block0
+      model
   }
 }
