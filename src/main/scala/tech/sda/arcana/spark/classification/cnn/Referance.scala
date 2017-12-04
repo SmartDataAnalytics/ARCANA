@@ -19,7 +19,7 @@ import tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model
 import tech.sda.arcana.spark.neuralnetwork.model.DyLeNet5Model
 import com.intel.analytics.bigdl.nn.Reshape
 import com.intel.analytics.bigdl.nn.Module
-
+// import com.intel.analytics.bigdl.utils
 
 object Referance {
   //---------------------------------------------------------
@@ -230,6 +230,9 @@ object Referance {
   //---------------------------------------------------------
   
   //---------------------------------------------------------
+  //Using table for the inception module configuration
+  //val conf:Tabel={{1},{2},{4}}
+  val config:Array[Array[Int]]=Array(Array(64, 0),Array(96, 128),Array(16, 32),Array(3, 32))
   //---------------------------------------------------------
 
 }
