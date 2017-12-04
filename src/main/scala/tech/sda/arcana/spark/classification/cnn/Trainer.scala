@@ -39,7 +39,7 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int) extends S
    //Switch case didn't solve the problem because the return time is object
     if(model==1){
          val optimizer = Optimizer(
-          model = AlexNetModel.build(3),
+          model = AlexNetModel.build(height,width,classNum),
           sampleRDD = samples,
           criterion = lossFunctions(lossfun-1),
           batchSize = batch
@@ -50,7 +50,7 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int) extends S
    
    if(model==2){
          val optimizer = Optimizer(
-          model = GoogLeNetModel.build(),
+          model = GoogLeNetModel.build(height,width),
           sampleRDD = samples,
           criterion = lossFunctions(lossfun-1),
           batchSize = batch
