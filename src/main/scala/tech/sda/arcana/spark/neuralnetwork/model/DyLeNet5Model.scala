@@ -2,6 +2,27 @@ package tech.sda.arcana.spark.neuralnetwork.model
 import com.intel.analytics.bigdl.numeric.NumericFloat
 import com.intel.analytics.bigdl.nn._
 
+/*
+ * Sequential[35d53adf]{
+  [input -> (1) -> (2) -> (3) -> (4) -> (5) -> (6) -> (7) -> (8) -> (9) -> (10) -> (11) -> (12) -> (13) -> (14) -> (15) -> output]
+  (1): SpatialConvolution[conv1_5x5](1 -> 6, 5 x 5, 1, 1, 0, 0)
+  (2): Tanh[e5140e84]
+  (3): SpatialMaxPooling[8d58b3d0](2, 2, 2, 2, 0, 0)
+  (4): SpatialConvolution[conv2_5x5](6 -> 16, 5 x 5, 1, 1, 0, 0)
+  (5): Tanh[fd407d37]
+  (6): SpatialMaxPooling[975daa72](2, 2, 2, 2, 0, 0)
+  (7): Reshape[7aed6500](64)
+  (8): Linear[linear_120](64 -> 120)
+  (9): Tanh[816e97b5]
+  (10): Linear[linear_84](120 -> 84)
+  (11): Tanh[1bf8c8e4]
+  (12): Linear[linear_10](84 -> 10)
+  (13): Tanh[ffc1f628]
+  (14): Linear[linear_classnum](10 -> 5)
+  (15): LogSoftMax[eff55]
+}
+ */
+
 /** Object represents LeNetModel takes ([even#]>12 X [even#]>12) input size */
 object DyLeNet5Model {
   
@@ -43,7 +64,6 @@ object DyLeNet5Model {
     //LeNet5Model.add(Tanh())
     LeNet5Model.add(LogSoftMax())
     //Printing the model specifications
-    //println(LeNet5Model.getParametersTable())
     LeNet5Model
   }
   

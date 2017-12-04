@@ -3,6 +3,25 @@ import com.intel.analytics.bigdl.numeric.NumericFloat
 import com.intel.analytics.bigdl.nn._
 import com.intel.analytics.bigdl.nn
 
+/*
+ * Sequential[1464e262]{
+  [input -> (1) -> (2) -> (3) -> (4) -> (5) -> (6) -> (7) -> (8) -> (9) -> (10) -> (11) -> (12) -> (13) -> output]
+  (1): SpatialConvolution[conv1_5x5](1 -> 6, 5 x 5, 1, 1, 0, 0)
+  (2): Tanh[aa8c6e5d]
+  (3): SpatialMaxPooling[15dbf799](2, 2, 2, 2, 0, 0)
+  (4): SpatialConvolution[conv2_5x5](6 -> 16, 5 x 5, 1, 1, 0, 0)
+  (5): Tanh[1d148dac]
+  (6): SpatialMaxPooling[e9aeb379](2, 2, 2, 2, 0, 0)
+  (7): Reshape[d82a65cb](400)
+  (8): Linear[linear_120](400 -> 120)
+  (9): Tanh[a6b3fb4f]
+  (10): Linear[linear_84](120 -> 84)
+  (11): Tanh[59ebc3b5]
+  (12): Linear[linear_classnum](84 -> 5)
+  (13): LogSoftMax[4dd837ca]
+}
+ */
+
 /** Object represents LeNetModel takes (32x32) input size */
 object LeNet5Model {
 
