@@ -7,6 +7,7 @@ object GoogLeNetModel {
   
   /** creates an instance of GoogleNetModel model */
     def build()={
+      //Building the inception module
       def inc(input_size:Int,config:Array[Array[Int]])={
       val depthCat=Concat(2)
       
@@ -37,17 +38,18 @@ object GoogLeNetModel {
       depthCat
     }
  
-    
+    //first layer factorize convolution
     def fac()={
       val conv=Sequential()
       conv.add(Contiguous())
+      //View the input as three of one plane
       conv.add(View(-1,1,224,224))
       conv.add(SpatialConvolution(1,8,7,7,2,2,3,3))
       
       val depthWiseConv=ParallelTable()
-      depthWiseConv.add(conv)
-      depthWiseConv.add(conv.cloneModule())
-      depthWiseConv.add(conv.cloneModule())
+      depthWiseConv.add(conv) //R
+      depthWiseConv.add(conv.cloneModule()) //G
+      depthWiseConv.add(conv.cloneModule()) //B
       
       val factorised=Sequential()
       factorised.add(depthWiseConv)
@@ -56,7 +58,7 @@ object GoogLeNetModel {
       factorised.add(ReLU(true))
       factorised
     }
-    
+    //Building the blocks
     def main0=Sequential()
     main0.add(fac())
     main0.add(SpatialMaxPooling(3,3,2,2))
