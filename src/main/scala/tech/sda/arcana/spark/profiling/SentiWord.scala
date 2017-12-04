@@ -143,10 +143,10 @@ object SentiWord {
       */
     
       val DF=prepareSentiFile("/home/elievex/Repository/resources/"+AppConf.SentiWordFile)
-      val result = getSentiScoreForAllPOS("kill",DF)
+      val result = getSentiScoreForAllPOS("bad",DF)
       result.foreach(tuple => println(tuple))// println(result(0)._1,result(0)._2)
 			println("==========================")
-      val result2 = getSentiScoreForAllPOS("kill",readProcessedSentiWord("/home/elievex/Repository/resources/"))
+      val result2 = getSentiScoreForAllPOS("bad",readProcessedSentiWord("/home/elievex/Repository/resources/"))
       result2.foreach(tuple => println(tuple))// println(result(0)._1,result(0)._2)
       //score += setScore.getValue() / (double) setScore.getKey();
 			//sum += 1.0 / (double) setScore.getKey();

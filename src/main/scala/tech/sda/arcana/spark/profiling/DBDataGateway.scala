@@ -195,7 +195,7 @@ object AppDBM {
     temp
   }
 
-  def expressionsDB(path:String){
+  def buildExpressionsDB(path:String){
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
     var DBRows = ArrayBuffer[Row]()
@@ -223,25 +223,21 @@ object AppDBM {
   
   
   // Build the Database with resources
-  def operateOnDB(DS: Dataset[Triple], model: Word2VecModel) {
-
+  def operateOnDB(DF: Dataset[Triple], model: Word2VecModel,sentiDF:DataFrame,path:String) {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
-    var _idCounter: Int = 0
 
-    val DF = DS
     val categories = AppConf.categories
-    
-    val sentiDF=SentiWord.prepareSentiFile(AppConf.SentiWordFile)
-    
     var DBRows = ArrayBuffer[Row]()
+
+    var _idCounter: Int = 0
     for (x <- categories) {
-      // Get different POS scores for category x
-     val sentiPosScore= SentiWord.getSentiScoreForAllPOS(x,sentiDF)
-      
-      // get URIS that has the category as a word
+      //| Get different POS scores for category x
+      val sentiPosScore= SentiWord.getSentiScoreForAllPOS(x,sentiDF)
+      //| get URIS that has the category as a word
       val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(DF.toDF(), x)
-      for (y <- myUriList) {
+     
+     for (y <- myUriList) {
         DBRows += Row(_idCounter, y.Uri, getExpFromSubject(y.Uri), x, 0.0, 0.0, "")
         _idCounter += 1
         // Find synonyms to this URI
@@ -262,10 +258,11 @@ object AppDBM {
     MongoSpark.save(df.write.option("collection", AppConf.firstPhaseCollection).mode("append"))
   }
 
-  def buildDB(DS: Dataset[Triple]){
+  def buildCategoriesDB(DS: Dataset[Triple],path:String){
     import spark.implicits._
-    val model = Word2VecModelMaker.loadWord2VecModel("Word2VecModel")
-    operateOnDB(DS,model)
+    val Word2VecModel = Word2VecModelMaker.loadWord2VecModel(path+AppConf.Word2VecModel)
+    val sentiDF = SentiWord.readProcessedSentiWord(path)
+    operateOnDB(DS,Word2VecModel,sentiDF,path)
   }
   
   def main(args: Array[String]) = {

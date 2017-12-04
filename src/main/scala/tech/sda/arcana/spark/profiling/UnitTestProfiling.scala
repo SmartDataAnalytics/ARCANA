@@ -22,15 +22,12 @@ object UnitTestProfiling {
     //val noEmptyRDD = textFile.filter(x => (x != null) && (x.length > 0))
     //noEmptyRDD.foreach(println)
 
+
+
+      val DF=SentiWord.prepareSentiFile("/home/elievex/Repository/resources/"+AppConf.SentiWordFile)
+      val result = SentiWord.getSentiScoreForAllPOS("bad",DF)
+      result.foreach(tuple => println(tuple))// println(result(0)._1,result(0)._2)
           
-    val sentiDF=SentiWord.prepareSentiFile("/home/elievex/Repository/resources/"+AppConf.SentiWordFile)
-    sentiDF.show(false)
-    
-    val sc = spark.sqlContext
-    
-    sentiDF.write.format("com.databricks.spark.csv").option("header", "true").save("file.csv")
-    val df = sc.read.format("com.databricks.spark.csv").option("header", "true").option("inferSchema", "true").load("file.csv")
-    df.show(false)
           // FETCHING WORDS
           /*
     val RDFDs=RDFApp.importingData("/home/elievex/Repository/resources/"+AppConf.dbpedia)
@@ -46,6 +43,8 @@ object UnitTestProfiling {
    }
 }
 
+
+//  Syntactic category: n for noun files, v for verb files, a for adjective files, r for adverb files.
 
 // How to kill an animal
 //he writes that and she is writing it now he was walking and she walks today there?

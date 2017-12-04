@@ -40,10 +40,10 @@ object ExecuteOperations {
     SentiWord.writeProcessedSentiWord(path)
     
     //| Set up Expression Collection
-    AppDBM.expressionsDB(path)
+    AppDBM.buildExpressionsDB(path)
 
     //| Build URI Data
-    //AppDBM.buildDB(RDFDs)
+    //AppDBM.buildCategoriesDB(RDFDs,path)
     
     //| Process Questions
     //XX

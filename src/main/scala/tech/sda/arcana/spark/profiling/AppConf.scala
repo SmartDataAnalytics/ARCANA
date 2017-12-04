@@ -34,7 +34,7 @@ object AppConf {
   val Questions = "Questions"
   
   // Malicious categories that we don't wish to answer
-  var categories = List("military", "nuclear", "terrorism", "weapon", "technology", "security", "harm", "suicide", "war")
+  var categories = List("Tr","military", "nuclear", "terrorism", "weapon", "technology", "security", "harm", "suicide", "war")
   // Malicious expression that we don't wish to answer
   var tuples = List(("kill", "person"),("bomb", "building"),("make","bomb"))
  
