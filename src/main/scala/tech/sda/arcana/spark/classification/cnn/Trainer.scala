@@ -39,22 +39,26 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int) extends S
    //Switch case didn't solve the problem because the return time is object
     if(model==1){
          val optimizer = Optimizer(
-          model = AlexNetModel.build(3),
+          model = AlexNetModel.build(height,width,classNum),
           sampleRDD = samples,
           criterion = lossFunctions(lossfun-1),
           batchSize = batch
             )
-    return optimizer
+     if(visual)
+       setMonitorPara(optimizer)
+     return optimizer
             //(optimizer)
    }
    
    if(model==2){
          val optimizer = Optimizer(
-          model = GoogLeNetModel.build(),
+          model = GoogLeNetModel.build(height,width,classNum),
           sampleRDD = samples,
           criterion = lossFunctions(lossfun-1),
           batchSize = batch
             )
+     if(visual)
+       setMonitorPara(optimizer)
      return optimizer
           //(optimizer)
    }
@@ -86,15 +90,24 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int) extends S
 
   }
   
+  /**Inner class which responsible of setting the data used for visualisation 
+   * @param optimizer the optimizer to be altered
+   */
   def setMonitorPara(optimizer:Optimizer[Float, MiniBatch[Float]]){
       val trainSummary = TrainSummary(logdir, appName)
       val validationSummary = ValidationSummary(logdir, appName)
       optimizer.setTrainSummary(trainSummary)
       optimizer.setValidationSummary(validationSummary)
       optimizer.setValidation(Trigger.everyEpoch ,testData, Array(new Top1Accuracy),batchS)
-      println("end of the seTMonitorpara")
+      println("End of the seTMonitorpara")
   }
   
+  /**Function that sets and enable the visualisation data used in tensorboard later on
+   * @param logdir the directory path responsible for tensorboard data
+   * @param appName the name responsible for this visualisation data
+   * @param testData RDD used for testing 
+   * @param batchS number of batches
+   */
   def visualise(logdir:String,appName:String,testData:RDD[Sample[Float]],batchS:Int){
      visual=true
      this.logdir=logdir
