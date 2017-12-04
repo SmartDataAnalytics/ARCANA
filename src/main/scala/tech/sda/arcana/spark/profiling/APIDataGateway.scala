@@ -41,15 +41,15 @@ import scala.collection.mutable
  */
 
 object APIData {
-  
+      case class noun(syn: List[String],ant: List[String])
+    case class verb(syn: List[String],ant: List[String])
+    case class Obj(noun:noun,verb:verb)
   // 1st way to do it
   @throws(classOf[java.io.IOException])
   def fetch(url: String) = scala.io.Source.fromURL(url).mkString
 
   def getSynomyns_bighugelabs(expression:String){
-    case class noun(syn: List[String],ant: List[String])
-    case class verb(syn: List[String],ant: List[String])
-    case class Obj(noun:noun,verb:verb)
+
     
     implicit val formats = net.liftweb.json.DefaultFormats
     val result = fetch(s"http://words.bighugelabs.com/api/2/fe297721a04ca9641ae3a5b1ae3033a2/$expression/json")
@@ -72,15 +72,43 @@ object APIData {
       
     } println( (e \\ "syn").text)
   }
-  def getRankUclassify(expression:String){
+  def getRankUclassify(expression:String):(String,String)={
+    implicit val formats = net.liftweb.json.DefaultFormats
     val TERE= "How+to+kill+a+person?"
-    val result3 = fetch("https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text="+TERE)
-    println(result3)
+    val result3 = fetch("https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text="+expression)
+
+    var Negative =""
+    var Positive =""
+    val pattern = """negative\":(\d+\.\d+),\"positive\":(\d+\.\d+)""".r
+    pattern.findAllIn(result3).matchData foreach {
+       m => Negative=m.group(1)
+       Positive=(m.group(2))
+    }
+    (Negative,Positive)
   }
   
   def main(args: Array[String]) = {
-
-      getSynomyns_bighugelabs("bomb")
+        
+        val result = getRankUclassify("bomb")
+        print("word: bomb, "+"Negative: "+result._1+", Positive: "+result._2)
+        /*
+        getRankUclassify("kill")
+        getRankUclassify("hunt")
+        getRankUclassify("terrorist")
+        getRankUclassify("blast")
+        getRankUclassify("spy")
+        getRankUclassify("run")
+        getRankUclassify("move")
+        getRankUclassify("good")
+        getRankUclassify("test")
+        getRankUclassify("run")
+        getRankUclassify("walk")
+        getRankUclassify("jump")
+        getRankUclassify("rap")
+        getRankUclassify("brag")
+        getRankUclassify("dump")
+        getRankUclassify("slump")*/
+      //getSynomyns_bighugelabs("bomb")
       //getSynomyns_merriam("war")
 
   }
