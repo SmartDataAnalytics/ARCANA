@@ -137,7 +137,7 @@ object ProcessQuestion {
       val DF=lines.toDF()
       DF.createOrReplaceTempView("triples")
       val word="Achtung"
-      val REG = raw"(?<![a-zA-Z])$word(?![a-zA-Z])".r
+      val REG = raw"(?i)(?<![a-zA-Z])$word(?![a-zA-Z])".r
       val Res = spark.sql(s"SELECT * from triples where value RLIKE '$REG' ")
       Res.show()
  }

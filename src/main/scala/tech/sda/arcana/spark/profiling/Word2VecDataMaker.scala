@@ -122,7 +122,9 @@ object Dataset2Vec {
   
   def fetchAllOfWordAsSubject(DF: DataFrame, word: String):List[RDFURI]={
       DF.createOrReplaceTempView("triples")
-      val Res = spark.sql(s"SELECT * from triples where Subject like '%$word%'") 
+      val REG = raw"(?i)(?<![a-zA-Z])$word(?![a-zA-Z])".r
+      val Res = spark.sql(s"SELECT * from triples where Subject RLIKE '$REG' ")
+      //val Res = spark.sql(s"SELECT * from triples where Subject like '%$word%'") 
       val UriList=Res.select("Subject").rdd.map(r => r(0)).collect()
       UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
   }
