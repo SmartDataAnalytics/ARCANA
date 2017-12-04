@@ -52,7 +52,7 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int) extends S
    
    if(model==2){
          val optimizer = Optimizer(
-          model = GoogLeNetModel.build(height,width),
+          model = GoogLeNetModel.build(height,width,classNum),
           sampleRDD = samples,
           criterion = lossFunctions(lossfun-1),
           batchSize = batch
