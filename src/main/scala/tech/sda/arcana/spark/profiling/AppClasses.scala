@@ -19,7 +19,9 @@ class Category (var Category: String,var uri:  List[RDFURI] ) {
   case class Record(_id: Int, expression: String, rank: Double, rsc: List[String])
   case class Triple(Subject:String, Predicate:String, Object:String)
   case class Synonym(word: String, similarity: Double)
-  case class DBRecord(_id: Int, uri: String, expression: String, category: String, score: Double, weight: Double, objectOf: String) // score = cosine similary - weight = sentiment analysis
+  case class OldDBRecord(_id: Int, uri: String, expression: String, category: String, score: Double, weight: Double, objectOf: String) // score = cosine similary - weight = sentiment analysis
+  case class DBRecord(uri: String, expression: String, category: String, senti_n: Double, senti_v: Double, senti_a: Double, senti_r: Double, senti_uclassify: Double, relatedTo: String, cosine_similary: Double)
+  //n for noun files, v for verb files, a for adjective files, r for adverb files.
   // for SentiWordFile
   case class SentiWordNetClass(POS:String, ID:String, PosScore:String, NegScore:String, SynsetTerms:String)
   case class SentiWordSpark(POS:String, ID:String, PosScore:String, NegScore:String, Term:String,TermRank:String)

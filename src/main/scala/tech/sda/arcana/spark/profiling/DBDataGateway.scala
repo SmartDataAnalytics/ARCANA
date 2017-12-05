@@ -254,7 +254,7 @@ object AppDBM {
     val dbRdd = sc.makeRDD(DBRows)
 
     val df = dbRdd.map {
-      case Row(s0, s1, s2, s3, s4, s5, s6) => DBRecord(s0.asInstanceOf[Int], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[String], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[String])
+      case Row(s0, s1, s2, s3, s4, s5, s6) => OldDBRecord(s0.asInstanceOf[Int], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[String], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[String])
     }.toDF()
     MongoSpark.save(df.write.option("collection", AppConf.firstPhaseCollection).mode("append"))
   }

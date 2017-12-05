@@ -23,21 +23,85 @@ object UnitTestProfiling {
     //noEmptyRDD.foreach(println)
 
 
+val path="/home/elievex/Repository/resources/"
+      val sqlContext = new org.apache.spark.sql.SQLContext(sc)
+      import sqlContext.implicits._
+  
+      val categories = AppConf.categories
+      var DBRows = ArrayBuffer[Row]()
+//DBRecord(uri: String, expression: String, category: String, senti_n: Double, senti_v: Double, senti_a: Double, senti_r: Double, senti_uclassify: Double, objectOf: String, cosine_similary: Double)  
+      //categories.foreach(println)
+      val RDFDs=RDFApp.importingData(path+AppConf.dbpedia) 
+      val sentiDF = SentiWord.readProcessedSentiWord("/home/elievex/Repository/resources/")
+      val modelvec=Word2VecModelMaker.loadWord2VecModel(path+AppConf.Word2VecModel)
+      
+      
+      for (x <- categories) {
+      val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(RDFDs.toDF(), x)
+      myUriList.foreach(x=>println(x.Uri))
+      //| Get different POS scores for category x
+        println(x)
+        val resultneg="-9"
+        val sentiPosScore= SentiWord.getSentiScoreForAllPOS(x,sentiDF)  // 4 vals
+        if(sentiPosScore(0)=="-9" && sentiPosScore(1)=="-9" && sentiPosScore(2)=="-9" && sentiPosScore(3)=="-9")
+        {
+          val result = APIData.getRankUclassify(x)
+          val resultneg = result._1
+        }
+      
+        for (y <- myUriList) {
+          DBRows += Row(y.Uri, AppDBM.getExpFromSubject(y.Uri), x,sentiPosScore(0),sentiPosScore(1),sentiPosScore(2),sentiPosScore(3), resultneg, "", "")
+//DBRecord(uri: String, expression: String, category: String, senti_n: Double, senti_v: Double, senti_a: Double, senti_r: Double, senti_uclassify: Double, objectOf: String, cosine_similary: Double)  
 
-      val DF=SentiWord.prepareSentiFile("/home/elievex/Repository/resources/"+AppConf.SentiWordFile)
-      val result = SentiWord.getSentiScoreForAllPOS("bad",DF)
-      result.foreach(tuple => println(tuple))// println(result(0)._1,result(0)._2)
           
-          // FETCHING WORDS
+          val synResult=""
+          try {
+             val synonyms = modelvec.findSynonyms(y.Uri, 1000)
+             val synResult = synonyms.filter("similarity>=0.4").as[Synonym].collect
+               for (synonym <- synResult) {
+                      val resultneg="-9"
+                      val synword = AppDBM.getExpFromSubject(synonym.word)
+                      val sentiPosScore= SentiWord.getSentiScoreForAllPOS(synword,sentiDF)  // 4 vals
+                      if(sentiPosScore(0)=="-9" && sentiPosScore(1)=="-9" && sentiPosScore(2)=="-9" && sentiPosScore(3)=="-9")
+                      {
+                        val result = APIData.getRankUclassify(synonym.word)
+                        val resultneg = result._1
+                      }
+                  DBRows += Row(synonym.word, AppDBM.getExpFromSubject(synonym.word), x,sentiPosScore(0),sentiPosScore(1),sentiPosScore(2),sentiPosScore(3),resultneg,y.Uri, synonym.similarity)
+                 }
+            } catch {
+                 case e: Exception => println("didn't find synonyms for: "+y.Uri)
+            }
+            
+            //synonyms.show()
+            
+            synResult.foreach(println)
+            println("II ll keep goin")
+
+        }
+      
+      }
+			
+    
+
+          
           /*
-    val RDFDs=RDFApp.importingData("/home/elievex/Repository/resources/"+AppConf.dbpedia)
-   // RDFDs.show(false)    
-      val DF=RDFDs.toDF()
-      DF.createOrReplaceTempView("triples")
-      val word="b"
-      val REG = raw"(?i)(?<![a-zA-Z])$word(?![a-zA-Z])".r
-      val Res = spark.sql(s"SELECT * from triples where Subject RLIKE '$REG' ")
-      //Res.show(false)*/
+   var A = Array("One", "Two", "Three", "Four", "Five", "Six")
+   var B = Array("Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve")
+          
+   val buf = scala.collection.mutable.ArrayBuffer.empty[String]
+   
+   A.foreach{x=>
+     buf+=x
+     B.foreach{y=>
+        buf+=y
+     }
+   }
+          
+   buf.foreach(println)
+
+          */
+
     println("YA")
     spark.stop()
    }
