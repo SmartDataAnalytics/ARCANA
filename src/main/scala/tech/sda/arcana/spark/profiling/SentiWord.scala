@@ -98,7 +98,7 @@ object SentiWord {
     }
     
     // Will return all the scores of a word when it takes place in different POS 
-    def getSentiScoreForAllPOS(word:String,DF:DataFrame):List[(String,String)]={   
+    def getSentiScoreForAllPOS(word:String,DF:DataFrame):Array[String]={   
       DF.createOrReplaceTempView("senti")
       val Res = spark.sql(s"SELECT * from senti where Term = '$word'  ") // and POS='n' 
       Res.createOrReplaceTempView("Pos")
@@ -119,14 +119,25 @@ object SentiWord {
          Score /= Sum
          //println(x+" --> SCORE IS"+Score)
          a = a:+((x.toString(),Score.toString()))
-       }// CATEGORIES
- // var categories = List("military", "nuclear", "terrorism", "weapon", "technology", "security", "harm", "suicide", "war")
-        a
+       }
+        //  Syntactic category: n for noun files, v for verb files, a for adjective files, r for adverb files.   
+        var SentiScore =  Array("-9", "-9","-9","-9" )
+        a.foreach{tuple => 
+            tuple._1 match {
+            case "n" => SentiScore(0)=tuple._2
+            case "v" => SentiScore(1)=tuple._2
+            case "a" => SentiScore(2)=tuple._2
+            case "r" => SentiScore(3)=tuple._2
+            // catch the default with a variable so you can print it
+            case whoa => println("Unexpected case in SentiWord: " + whoa.toString)
+            }
+        }
+      SentiScore
       }
     def writeProcessedSentiWord(path:String){
       val sentiDF=SentiWord.prepareSentiFile(path+AppConf.SentiWordFile)
       val sc = spark.sqlContext
-      sentiDF.write.format("com.databricks.spark.csv").option("header", "true").save(path+AppConf.ProcessedSentiWordFile)
+      sentiDF.write.format("com.databricks.spark.csv").mode("overwrite").option("header", "true").save(path+AppConf.ProcessedSentiWordFile)
       println("Processed SentiWord files are created")
     }
     def readProcessedSentiWord(path:String):DataFrame={

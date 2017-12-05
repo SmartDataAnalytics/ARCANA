@@ -229,7 +229,8 @@ object AppDBM {
 
     val categories = AppConf.categories
     var DBRows = ArrayBuffer[Row]()
-
+// DBRecord(_id: Int, uri: String, expression: String, category: String, score: Double, weight: Double, objectOf: String) // score = cosine similary - weight = sentiment analysis
+  
     var _idCounter: Int = 0
     for (x <- categories) {
       //| Get different POS scores for category x
