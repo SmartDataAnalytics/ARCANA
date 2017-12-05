@@ -18,6 +18,8 @@ import shapeless._0
 import tech.sda.arcana.spark.classification.cnn.Core
 import tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model
 import tech.sda.arcana.spark.neuralnetwork.model.DyLeNet5Model
+import tech.sda.arcana.spark.neuralnetwork.model.AlexNetModel
+import tech.sda.arcana.spark.neuralnetwork.model.GoogLeNetModel
 import com.intel.analytics.bigdl.nn.Reshape
 import com.intel.analytics.bigdl.nn.Module
 import com.intel.analytics.bigdl.visualization._
@@ -100,6 +102,10 @@ object sentenceToTensor {
   
     def main(args:Array[String]){
       
+
+      
+      
+      
           // Set the log level to only print errorsval great=groupedResultTest.map(test)
           Logger.getLogger("org").setLevel(Level.ERROR)
           
@@ -107,7 +113,21 @@ object sentenceToTensor {
           // val sc = new SparkContext("local[*]", "MinTemperatures")
           val s=new Core("model","train","label","test")
           val sc=s.initialize()
+          
+          
+          println("-------------------first------------------------")
+          println(DyLeNet5Model.build(20,20,5).evaluate())
+          println("-------------------second------------------------")
+          println(LeNet5Model.build(5).evaluate())
+          println("-------------------fourth-------------------------")
+          println(AlexNetModel.build(10,10,5).evaluate())
+          println("--------------------fifth------------------------")
+          println(GoogLeNetModel.build(10,10,5).evaluate())
+          println("--------------------------------------------")
               
+      //new
+      /*
+          
           // Read each line of input data
           val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
           
@@ -184,5 +204,8 @@ object sentenceToTensor {
             
             val re=trained_model.predict(sddf).collect()
             re.foreach(println)
+            * 
+            * 
+            */
     }        
 }
