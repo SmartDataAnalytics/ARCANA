@@ -519,22 +519,22 @@ object GoogLeNetModel {
     
     def graph(Height:Int,Width:Int,classNum: Int)={
       
-      def inc(input_size:Int,config:Table)={
+      def inc(input_size:Int,config:Table,pre:Graph.ModuleNode[Float])={
         
-      val conv1_1=SpatialConvolution(input_size,config[Table](1)(1),1,1).inputs()
+      val conv1_1=SpatialConvolution(input_size,config[Table](1)(1),1,1).inputs(pre)
       val rlu1_1=ReLU(true).inputs(conv1_1)
       
-      val conv1_3=SpatialConvolution(input_size,config[Table](2)(1),1,1).inputs()
+      val conv1_3=SpatialConvolution(input_size,config[Table](2)(1),1,1).inputs(pre)
       val rlu1_3=ReLU(true).inputs(conv1_3)
       val conv2_3=SpatialConvolution(config[Table](2)(1),config[Table](2)(2),3,3,1,1,1,1).inputs(rlu1_3)
       val rlu2_3=ReLU(true).inputs(conv2_3)
       
-      val conv1_5=SpatialConvolution(input_size,config[Table](3)(1),1,1).inputs()
+      val conv1_5=SpatialConvolution(input_size,config[Table](3)(1),1,1).inputs(pre)
       val rlu1_5=ReLU(true).inputs(conv1_5)
       val conv2_5=SpatialConvolution(config[Table](3)(1),config[Table](3)(2),5,5,1,1,2,2).inputs(rlu1_5)
       val rlu2_5=ReLU(true).inputs(conv2_5)
       
-      val sptmxpool=SpatialMaxPooling(config[Table](4)(1),config[Table](4)(1),1,1,1,1).inputs()
+      val sptmxpool=SpatialMaxPooling(config[Table](4)(1),config[Table](4)(1),1,1,1,1).inputs(pre)
       val conv_pool=SpatialConvolution(input_size,config[Table](4)(2),1,1).inputs(sptmxpool)
       val rlu_pool=ReLU(true).inputs(conv_pool)
       
@@ -542,8 +542,8 @@ object GoogLeNetModel {
       depthcat
       }
       
-      def fac():Graph.ModuleNode[Float]={
-      val cnt= Contiguous().inputs()
+      def fac(pre:Graph.ModuleNode[Float]):Graph.ModuleNode[Float]={
+      val cnt= Contiguous().inputs(pre)
       val view=View(-1,1,224,224).inputs(cnt)
       val conv1_fac=SpatialConvolution(1,8,7,7,2,2,3,3).inputs(view)
       val depthwisconv=ParallelTable().inputs(cnt)
@@ -553,9 +553,55 @@ object GoogLeNetModel {
       cnt
       }
       
-      val szp=SpatialZeroPadding(0, 224-Width, 0, 224-Height)
-      val fac:Graph.ModuleNode[Float]=fac()
+      val szp=SpatialZeroPadding(0, 224-Width, 0, 224-Height).inputs()
+      val fac_1=fac(szp)
+      val smp1=SpatialMaxPooling(3,3,2,2).inputs(fac_1)
+      val conv1=SpatialConvolution(64,64,1,1).inputs(smp1)
+      val rlu1=ReLU(true).inputs(conv1)
+      val conv2=SpatialConvolution(64,192,3,3,1,1,1,1).inputs(rlu1)
+      val rlu2=ReLU(true).inputs(conv2)
+      val smp2=SpatialMaxPooling(3,3,2,2).inputs(rlu2)
+      val inc1_0=inc(192,T(T(64),T( 96,128),T(16, 32),T(3, 32)),smp2)
+      val inc2_0=inc(512,T(T(128),T(128, 256),T(24, 64),T(3, 64)),inc1_0)
+      val inc3_0=inc(152,T(T(112),T(144, 288),T(32, 64),T(3, 64)),inc2_0)   
       
+      val inc1_1=inc(512,T(T(160),T(112, 224),T(24, 64),T(3, 64)),null)
+      val inc2_1=inc(512,T(T(128),T(128, 256),T(24, 64),T(3, 64)),inc1_1)
+      val inc3_1=inc(152,T(T(112),T(144, 288),T(32, 64),T(3, 64)),inc2_1)  
+      
+      val inc1_2=inc(528,T(T(256),T(160, 320),T(32, 128),T(3, 128)),null)
+      val smp_2=SpatialMaxPooling(3,3,2,2).inputs(inc1_2)
+      val inc2_2=inc(832,T(T(256),T(160, 320),T(32, 128),T(3, 128)),smp_2)
+      val inc3_2=inc(832,T(T(384),T(192, 384),T(48, 128),T(3, 128)),inc2_2)
+      
+      val sap_sftMx0=SpatialAveragePooling(5,5,3,3).inputs()
+      val conv_sap_sftMx0=SpatialConvolution(512,128,1,1).inputs(sap_sftMx0)
+      val rlu_sap_sftMx0=ReLU().inputs(conv_sap_sftMx0)
+      val view_sftMx0=View(128*4*4).inputs(rlu_sap_sftMx0)
+      val linear1_sftMx0 = Linear(128*4*4,1024).inputs(view_sftMx0)
+      val rlu1_sftMx0 = ReLU().inputs(linear1_sftMx0)
+      val drpout_sftMx0 = Dropout(0.7).inputs(rlu1_sftMx0)
+      val linear2_sftMx0 = Linear(1024,classNum).inputs(drpout_sftMx0)
+      val rlu2_sftMx0 = ReLU().inputs(linear2_sftMx0)
+      val logsoftmax_sftMx0 = LogSoftMax().inputs(rlu2_sftMx0)
+      
+      val sap_sftMx1=SpatialAveragePooling(5,5,3,3)
+      val conv_sftMx1=SpatialConvolution(512,128,1,1)
+      val rlu1_sftMx1=ReLU()   
+      val view_sftMx1=View(128*4*4)
+      val linear1_sftMx1=Linear(128*4*4,1024)
+      val rlu2_sftMx1=ReLU()
+      val drpout_sftMx1=Dropout(0.7)
+      val sftMx1=Linear(1024,classNum)
+      val linear2_sftMx1=ReLU()
+      val logsoftmax_sftMx1=LogSoftMax()
+
+      val sap_sftMx2=SpatialAveragePooling(7,7,1,1)
+      val view_sftMx2=View(1024)
+      val drpout_sftMx2=Dropout(0.4)
+      val linear_sftMx2=Linear(1024,classNum)
+      val rlu_sftMx2=ReLU()
+      val logsoftmax_sftMx2=LogSoftMax()
       
     }
     
