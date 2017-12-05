@@ -392,7 +392,7 @@ object GoogLeNetModel {
       conv5.add(SpatialConvolution(input_size,config[Table](3)(1),1,1))
       conv5.add(ReLU(true))
       conv5.add(SpatialConvolution(config[Table](3)(1),config[Table](3)(2),5,5,1,1,2,2))
-      conv5.add(ReLU(true))/////////////////////////////////////////////////////////////////////////////////////
+      conv5.add(ReLU(true))
       depthCat.add(conv5)
       
       val pool=Sequential()
@@ -416,8 +416,8 @@ object GoogLeNetModel {
       
       val depthWiseConv=ParallelTable()
       depthWiseConv.add(conv) //R
-      depthWiseConv.add(conv.cloneModule()) //G
-      depthWiseConv.add(conv.cloneModule()) //B
+      //depthWiseConv.add(conv.cloneModule()) //G
+      //depthWiseConv.add(conv.cloneModule()) //B
       
       val factorised=Sequential()
       factorised.add(depthWiseConv)
@@ -516,4 +516,49 @@ object GoogLeNetModel {
       
       model
   }
+    
+    def graph(Height:Int,Width:Int,classNum: Int)={
+      
+      def inc(input_size:Int,config:Table)={
+        
+      val conv1_1=SpatialConvolution(input_size,config[Table](1)(1),1,1).inputs()
+      val rlu1_1=ReLU(true).inputs(conv1_1)
+      
+      val conv1_3=SpatialConvolution(input_size,config[Table](2)(1),1,1).inputs()
+      val rlu1_3=ReLU(true).inputs(conv1_3)
+      val conv2_3=SpatialConvolution(config[Table](2)(1),config[Table](2)(2),3,3,1,1,1,1).inputs(rlu1_3)
+      val rlu2_3=ReLU(true).inputs(conv2_3)
+      
+      val conv1_5=SpatialConvolution(input_size,config[Table](3)(1),1,1).inputs()
+      val rlu1_5=ReLU(true).inputs(conv1_5)
+      val conv2_5=SpatialConvolution(config[Table](3)(1),config[Table](3)(2),5,5,1,1,2,2).inputs(rlu1_5)
+      val rlu2_5=ReLU(true).inputs(conv2_5)
+      
+      val sptmxpool=SpatialMaxPooling(config[Table](4)(1),config[Table](4)(1),1,1,1,1).inputs()
+      val conv_pool=SpatialConvolution(input_size,config[Table](4)(2),1,1).inputs(sptmxpool)
+      val rlu_pool=ReLU(true).inputs(conv_pool)
+      
+      val depthcat=Concat(2).inputs(conv1_1,conv1_3,conv1_5,sptmxpool)
+      depthcat
+      }
+      
+      def fac():Graph.ModuleNode[Float]={
+      val cnt= Contiguous().inputs()
+      val view=View(-1,1,224,224).inputs(cnt)
+      val conv1_fac=SpatialConvolution(1,8,7,7,2,2,3,3).inputs(view)
+      val depthwisconv=ParallelTable().inputs(cnt)
+      val rlu1_fac=ReLU(true).inputs(depthwisconv)
+      val conv2_fac=SpatialConvolution(24,64,1,1).inputs(rlu1_fac)
+      val rlu2_fac=ReLU(true).inputs(conv2_fac)
+      cnt
+      }
+      
+      val szp=SpatialZeroPadding(0, 224-Width, 0, 224-Height)
+      val fac:Graph.ModuleNode[Float]=fac()
+      
+      
+    }
+    
+    
+    
 }
