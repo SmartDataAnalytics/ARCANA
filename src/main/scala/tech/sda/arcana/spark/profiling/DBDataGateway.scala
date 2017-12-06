@@ -192,7 +192,7 @@ object AppDBM {
   def getExpFromSubject(Subject: String): String = {
     var temp = (Subject.substring(Subject.lastIndexOf('/') + 1)).replaceAll(">", "")
     temp = if (temp contains ':') temp.substring(temp.lastIndexOf(':') + 1) else temp
-    temp
+    temp.toLowerCase
   }
 
   def buildExpressionsDB(path:String){
@@ -221,42 +221,48 @@ object AppDBM {
     println("~Expressions Collection is created~")
   }
   
-  
+     // get Sentiment analysis for the word as N, V, R, A and if non was fetched then grab the Uclassify score too
+   def getSentiScores(word:String,sentiDF:DataFrame):Array[String]={
+        var resultneg="-9"
+        val sentiPosScore= SentiWord.getSentiScoreForAllPOS(word,sentiDF)  // 5 vals
+        if(sentiPosScore(0)=="-9" && sentiPosScore(1)=="-9" && sentiPosScore(2)=="-9" && sentiPosScore(3)=="-9")
+        {
+          val result = APIData.getRankUclassify(word)
+          resultneg = result._1
+        }
+        sentiPosScore(4) = resultneg
+        sentiPosScore
+   }
   // Build the Database with resources
-  def operateOnDB(DF: Dataset[Triple], model: Word2VecModel,sentiDF:DataFrame,path:String) {
+  def operateOnDB(DF: Dataset[Triple], modelvec: Word2VecModel,sentiDF:DataFrame,path:String) {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
-
     val categories = AppConf.categories
     var DBRows = ArrayBuffer[Row]()
-// DBRecord(_id: Int, uri: String, expression: String, category: String, score: Double, weight: Double, objectOf: String) // score = cosine similary - weight = sentiment analysis
-  
-    var _idCounter: Int = 0
+    
     for (x <- categories) {
-      //| Get different POS scores for category x
-      val sentiPosScore= SentiWord.getSentiScoreForAllPOS(x,sentiDF)
-      //| get URIS that has the category as a word
       val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(DF.toDF(), x)
-     
-     for (y <- myUriList) {
-        DBRows += Row(_idCounter, y.Uri, getExpFromSubject(y.Uri), x, 0.0, 0.0, "")
-        _idCounter += 1
-        // Find synonyms to this URI
-        val synonyms = model.findSynonyms(y.Uri, 1000)
-        val result = synonyms.filter("similarity>0.2").as[Synonym].collect
-        for (synonym <- result) {
-          DBRows += Row(_idCounter, synonym.word, getExpFromSubject(synonym.word), x, synonym.similarity, 0.0, y.Uri)
-          _idCounter += 1
+      val sentiPosScore = getSentiScores(x,sentiDF)        
+      for (y <- myUriList) {
+        DBRows += Row(y.Uri, AppDBM.getExpFromSubject(y.Uri), x,sentiPosScore(0),sentiPosScore(1),sentiPosScore(2),sentiPosScore(3), sentiPosScore(4), "", "")
+        try {
+          val synonyms = modelvec.findSynonyms(y.Uri, 1000)
+          val synResult = synonyms.filter("similarity>=0.4").as[Synonym].collect
+          for (synonym <- synResult) {
+            val synSentiPosScore = getSentiScores(AppDBM.getExpFromSubject(synonym.word),sentiDF)
+            DBRows += Row(synonym.word, AppDBM.getExpFromSubject(synonym.word), x,synSentiPosScore(0),synSentiPosScore(1),synSentiPosScore(2),synSentiPosScore(3),synSentiPosScore(4),y.Uri, synonym.similarity)
+          }
+        } catch {         
+              case e: Exception => println("didn't find synonyms for: "+y.Uri)
+          }
+
+        val dbRdd = sc.makeRDD(DBRows)
+        val df = dbRdd.map {
+        case Row(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9) => DBRecord(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[Double], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[Double],s7.asInstanceOf[Double],s8.asInstanceOf[String],s9.asInstanceOf[Double])
+        }.toDF()
+        MongoSpark.save(df.write.option("collection", AppConf.firstPhaseCollection).mode("append"))
         }
       }
-    }
-
-    val dbRdd = sc.makeRDD(DBRows)
-
-    val df = dbRdd.map {
-      case Row(s0, s1, s2, s3, s4, s5, s6) => OldDBRecord(s0.asInstanceOf[Int], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[String], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[String])
-    }.toDF()
-    MongoSpark.save(df.write.option("collection", AppConf.firstPhaseCollection).mode("append"))
   }
 
   def buildCategoriesDB(DS: Dataset[Triple],path:String){
@@ -301,3 +307,30 @@ object AppDBM {
     spark.stop()
   }
 }
+    /* DONT DELETE Same results using Foreach
+       categories.foreach{x=>
+       val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(RDFDs.toDF(), x)
+       val sentiPosScore = getSentiScores(x.toLowerCase,sentiDF) 
+       myUriList.foreach{y=>
+         DBRows += Row(y.Uri, AppDBM.getExpFromSubject(y.Uri), x,sentiPosScore(0),sentiPosScore(1),sentiPosScore(2),sentiPosScore(3), sentiPosScore(4), "", "")
+         
+          try{
+            val synonyms = modelvec.findSynonyms(y.Uri, 1000)
+            val synResult = synonyms.filter("similarity>=0.3").as[Synonym].collect
+            synResult.foreach{synonym=>
+              val synSentiPosScore = getSentiScores(AppDBM.getExpFromSubject(synonym.word),sentiDF)
+              DBRows += Row(synonym.word, AppDBM.getExpFromSubject(synonym.word), x,synSentiPosScore(0),synSentiPosScore(1),synSentiPosScore(2),synSentiPosScore(3),synSentiPosScore(4),y.Uri, synonym.similarity)
+            }
+          } 
+          catch{
+            case e: Exception => println("didn't find synonyms for: "+y.Uri)
+          }
+          
+          val dbRdd = sc.makeRDD(DBRows)
+          val df = dbRdd.map {
+          case Row(s0, s1, s2, s3, s4, s5, s6,s7,s8,s9) => DBRecord(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[Double], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[Double],s7.asInstanceOf[Double],s8.asInstanceOf[String],s9.asInstanceOf[Double])
+          }.toDF()
+          MongoSpark.save(df.write.option("collection", AppConf.firstPhaseCollection).mode("append"))
+         }
+       }
+     */

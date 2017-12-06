@@ -98,7 +98,8 @@ object SentiWord {
     }
     
     // Will return all the scores of a word when it takes place in different POS 
-    def getSentiScoreForAllPOS(word:String,DF:DataFrame):Array[String]={   
+    def getSentiScoreForAllPOS(sword:String,DF:DataFrame):Array[String]={   
+      val word=sword.toLowerCase
       DF.createOrReplaceTempView("senti")
       val Res = spark.sql(s"SELECT * from senti where Term = '$word'  ") // and POS='n' 
       Res.createOrReplaceTempView("Pos")
@@ -121,7 +122,7 @@ object SentiWord {
          a = a:+((x.toString(),Score.toString()))
        }
         //  Syntactic category: n for noun files, v for verb files, a for adjective files, r for adverb files.   
-        var SentiScore =  Array("-9", "-9","-9","-9" )
+        var SentiScore =  Array("-9", "-9","-9","-9","-9" )
         a.foreach{tuple => 
             tuple._1 match {
             case "n" => SentiScore(0)=tuple._2
