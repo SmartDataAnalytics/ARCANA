@@ -498,7 +498,7 @@ object GoogLeNetModel {
       val split1 = Concat(2)
       split1.add(block2)
       split1.add(sftMx1)
-  
+      
       val block1 = Sequential()
       block1.add(main1)
       block1.add(split1)
@@ -565,16 +565,34 @@ object GoogLeNetModel {
       val inc2_0=inc(512,T(T(128),T(128, 256),T(24, 64),T(3, 64)),inc1_0)
       val inc3_0=inc(152,T(T(112),T(144, 288),T(32, 64),T(3, 64)),inc2_0)   
       
-      val inc1_1=inc(512,T(T(160),T(112, 224),T(24, 64),T(3, 64)),null)
+      val inc1_1=inc(512,T(T(160),T(112, 224),T(24, 64),T(3, 64)),inc3_0)
       val inc2_1=inc(512,T(T(128),T(128, 256),T(24, 64),T(3, 64)),inc1_1)
       val inc3_1=inc(152,T(T(112),T(144, 288),T(32, 64),T(3, 64)),inc2_1)  
       
-      val inc1_2=inc(528,T(T(256),T(160, 320),T(32, 128),T(3, 128)),null)
+      val inc1_2=inc(528,T(T(256),T(160, 320),T(32, 128),T(3, 128)),inc3_1)
       val smp_2=SpatialMaxPooling(3,3,2,2).inputs(inc1_2)
       val inc2_2=inc(832,T(T(256),T(160, 320),T(32, 128),T(3, 128)),smp_2)
       val inc3_2=inc(832,T(T(384),T(192, 384),T(48, 128),T(3, 128)),inc2_2)
       
-      val sap_sftMx0=SpatialAveragePooling(5,5,3,3).inputs()
+      val sap_sftMx2=SpatialAveragePooling(7,7,1,1).inputs(inc3_2)
+      val view_sftMx2=View(1024).inputs(sap_sftMx2)
+      val drpout_sftMx2=Dropout(0.4).inputs(view_sftMx2)
+      val linear_sftMx2=Linear(1024,classNum).inputs(drpout_sftMx2)
+      val rlu_sftMx2=ReLU().inputs(linear_sftMx2)
+      val logsoftmax_sftMx2=LogSoftMax().inputs(rlu_sftMx2)
+      
+      val sap_sftMx1=SpatialAveragePooling(5,5,3,3).inputs(logsoftmax_sftMx2)
+      val conv_sftMx1=SpatialConvolution(512,128,1,1).inputs(sap_sftMx1)
+      val rlu1_sftMx1=ReLU().inputs(conv_sftMx1)   
+      val view_sftMx1=View(128*4*4).inputs(rlu1_sftMx1)
+      val linear1_sftMx1=Linear(128*4*4,1024).inputs(view_sftMx1)
+      val rlu2_sftMx1=ReLU().inputs(linear1_sftMx1)
+      val drpout_sftMx1=Dropout(0.7).inputs(rlu2_sftMx1)
+      val linear2_sftMx1=Linear(1024,classNum).inputs(drpout_sftMx1)
+      val rlu3_sftMx1=ReLU().inputs(linear2_sftMx1)
+      val logsoftmax_sftMx1=LogSoftMax().inputs(rlu3_sftMx1)
+
+      val sap_sftMx0=SpatialAveragePooling(5,5,3,3).inputs(logsoftmax_sftMx1)
       val conv_sap_sftMx0=SpatialConvolution(512,128,1,1).inputs(sap_sftMx0)
       val rlu_sap_sftMx0=ReLU().inputs(conv_sap_sftMx0)
       val view_sftMx0=View(128*4*4).inputs(rlu_sap_sftMx0)
@@ -585,26 +603,25 @@ object GoogLeNetModel {
       val rlu2_sftMx0 = ReLU().inputs(linear2_sftMx0)
       val logsoftmax_sftMx0 = LogSoftMax().inputs(rlu2_sftMx0)
       
-      val sap_sftMx1=SpatialAveragePooling(5,5,3,3)
-      val conv_sftMx1=SpatialConvolution(512,128,1,1)
-      val rlu1_sftMx1=ReLU()   
-      val view_sftMx1=View(128*4*4)
-      val linear1_sftMx1=Linear(128*4*4,1024)
-      val rlu2_sftMx1=ReLU()
-      val drpout_sftMx1=Dropout(0.7)
-      val sftMx1=Linear(1024,classNum)
-      val linear2_sftMx1=ReLU()
-      val logsoftmax_sftMx1=LogSoftMax()
-
-      val sap_sftMx2=SpatialAveragePooling(7,7,1,1)
-      val view_sftMx2=View(1024)
-      val drpout_sftMx2=Dropout(0.4)
-      val linear_sftMx2=Linear(1024,classNum)
-      val rlu_sftMx2=ReLU()
-      val logsoftmax_sftMx2=LogSoftMax()
+      val connector_split1=Concat(2).inputs(inc1_2,sap_sftMx1)
+      
+      val connector_split0=Concat(2).inputs(inc1_1,sap_sftMx0)
+      
+      Graph(szp, connector_split0)
       
     }
-    
+    /*
+     *	     +-------+      +-------+        +-------+
+  					 | main0 +--+---> main1 +----+---> main2 +----+
+  					 +-------+ |   +-------+    |   +-------+    |
+            	   	     |                |                |
+        	    	       | +----------+   | +----------+   | +----------+
+        		  	      +-> softMax0 +-+ +-> softMax1 +-+ +-> softMax2 +-+
+        		             +----------+ |   +----------+ |   +----------+ |
+            		                      |                |                |   +-------+
+            		                      +----------------v----------------v--->  out  |
+             			                                                          +-------+
+     */
     
     
 }
