@@ -181,5 +181,6 @@ object AlexNetModel {
   val thresh2=Threshold(0,1e-6).inputs(linear2)
   val linear3=Linear(4096,classNum).inputs(thresh2)
   val logsoft=LogSoftMax().inputs(linear3)
+  Graph(padding1,logsoft)
   }
 }
