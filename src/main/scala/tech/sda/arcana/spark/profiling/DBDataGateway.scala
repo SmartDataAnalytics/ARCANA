@@ -207,11 +207,8 @@ object AppDBM {
        WordNet.getSynsets(t._1,path).foreach(x=>DBRows += Row(x,t._2,rlID))
        WordNet.getSynsets(t._2,path).foreach(x=>DBRows += Row(t._1,x,rlID))
     }
-
-          //DBRows += Row
-      //DBRows.foreach(println)
-      val dbRdd = sc.makeRDD(DBRows)
-
+ 
+    val dbRdd = sc.makeRDD(DBRows)
     val df = dbRdd.map {
       case Row(s0, s1, s2) => Expression(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[Int])
     }.toDF()
@@ -244,25 +241,25 @@ object AppDBM {
       val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(DF.toDF(), x)
       val sentiPosScore = getSentiScores(x,sentiDF)        
       for (y <- myUriList) {
-        DBRows += Row(y.Uri, AppDBM.getExpFromSubject(y.Uri), x,sentiPosScore(0),sentiPosScore(1),sentiPosScore(2),sentiPosScore(3), sentiPosScore(4), "", "")
+        DBRows += Row(y.Uri, AppDBM.getExpFromSubject(y.Uri), x,sentiPosScore(0).toDouble,sentiPosScore(1).toDouble,sentiPosScore(2).toDouble,sentiPosScore(3).toDouble, sentiPosScore(4).toDouble, "", 0.0)
         try {
           val synonyms = modelvec.findSynonyms(y.Uri, 1000)
-          val synResult = synonyms.filter("similarity>=0.4").as[Synonym].collect
+          val synResult = synonyms.filter("similarity>=0.3").as[Synonym].collect
           for (synonym <- synResult) {
             val synSentiPosScore = getSentiScores(AppDBM.getExpFromSubject(synonym.word),sentiDF)
-            DBRows += Row(synonym.word, AppDBM.getExpFromSubject(synonym.word), x,synSentiPosScore(0),synSentiPosScore(1),synSentiPosScore(2),synSentiPosScore(3),synSentiPosScore(4),y.Uri, synonym.similarity)
+            DBRows += Row(synonym.word, AppDBM.getExpFromSubject(synonym.word), x,synSentiPosScore(0).toDouble,synSentiPosScore(1).toDouble,synSentiPosScore(2).toDouble,synSentiPosScore(3).toDouble,synSentiPosScore(4).toDouble,y.Uri, synonym.similarity)
           }
         } catch {         
               case e: Exception => println("didn't find synonyms for: "+y.Uri)
           }
-
-        val dbRdd = sc.makeRDD(DBRows)
-        val df = dbRdd.map {
-        case Row(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9) => DBRecord(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[Double], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[Double],s7.asInstanceOf[Double],s8.asInstanceOf[String],s9.asInstanceOf[Double])
-        }.toDF()
-        MongoSpark.save(df.write.option("collection", AppConf.firstPhaseCollection).mode("append"))
-        }
-      }
+       }
+    }
+    val dbRdd = sc.makeRDD(DBRows)
+    val df = dbRdd.map {
+    case Row(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9) => DBRecord(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[Double], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[Double],s7.asInstanceOf[Double],s8.asInstanceOf[String],s9.asInstanceOf[Double])
+    }.toDF()
+    MongoSpark.save(df.write.option("collection", AppConf.firstPhaseCollection).mode("overwrite"))
+    println("~Categories Collection is created~")
   }
 
   def buildCategoriesDB(DS: Dataset[Triple],path:String){
@@ -273,6 +270,7 @@ object AppDBM {
   }
   
   def main(args: Array[String]) = {
+    
     //> showConfigMap()
 
     //>expressionsDB()

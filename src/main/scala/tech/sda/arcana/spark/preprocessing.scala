@@ -15,7 +15,7 @@ object ExecuteOperations {
     val spark = SparkSession.builder()
       .config(AppConf.inputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
       .config(AppConf.outputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
-      .appName("ProfilingApp")
+      .appName("ProfilingPreprocessing")
       .master("local[*]")
       .getOrCreate()
   def main(args: Array[String]) = {
@@ -38,16 +38,14 @@ object ExecuteOperations {
     
     //| Create the SentiWord Data
     SentiWord.writeProcessedSentiWord(path)
+
+    //| Build URI Data
+    AppDBM.buildCategoriesDB(RDFDs,path)
     
     //| Set up Expression Collection
     AppDBM.buildExpressionsDB(path)
 
-    //| Build URI Data
-    //AppDBM.buildCategoriesDB(RDFDs,path)
-    
-    //| Process Questions
-    //XX
-    
+    println("~Preprocessing is done~")
     spark.stop()
   }
 }

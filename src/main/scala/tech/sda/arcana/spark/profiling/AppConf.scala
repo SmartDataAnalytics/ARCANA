@@ -10,7 +10,7 @@ object AppConf {
   // MONGODB
   val host = "mongodb://127.0.0.1/"
   val dbName = "ArcanaDB"
-  val firstPhaseCollection = "ArcanaTest"
+  val firstPhaseCollection = "ArcanaCAT"
   val secondPhaseCollection = "ArcanaPOS"
   val inputUri = "spark.mongodb.input.uri"
   val outputUri = "spark.mongodb.output.uri"
