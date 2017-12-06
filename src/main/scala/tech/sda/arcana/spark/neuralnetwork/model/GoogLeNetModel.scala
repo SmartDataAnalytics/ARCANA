@@ -518,38 +518,39 @@ object GoogLeNetModel {
   }
     
     def graph(Height:Int,Width:Int,classNum: Int)={
+      var ch:Int=0
       
       def inc(input_size:Int,config:Table,pre:Graph.ModuleNode[Float])={
-        
-      val conv1_1=SpatialConvolution(input_size,config[Table](1)(1),1,1).inputs(pre)
-      val rlu1_1=ReLU(true).inputs(conv1_1)
+      ch+=1
+      var chi=ch.toString()
+      val conv1_1=SpatialConvolution(input_size,config[Table](1)(1),1,1).setName("conv1_1_inc"+"_"+chi).inputs(pre)
+      val rlu1_1=ReLU(true).setName("rlu1_1"+"_"+chi).inputs(conv1_1)
       
-      val conv1_3=SpatialConvolution(input_size,config[Table](2)(1),1,1).inputs(pre)
-      val rlu1_3=ReLU(true).inputs(conv1_3)
-      val conv2_3=SpatialConvolution(config[Table](2)(1),config[Table](2)(2),3,3,1,1,1,1).inputs(rlu1_3)
-      val rlu2_3=ReLU(true).inputs(conv2_3)
+      val conv1_3=SpatialConvolution(input_size,config[Table](2)(1),1,1).setName("conv1_3"+"_"+chi).inputs(pre)
+      val rlu1_3=ReLU(true).setName("rlu1_3"+"_"+chi).inputs(conv1_3)
+      val conv2_3=SpatialConvolution(config[Table](2)(1),config[Table](2)(2),3,3,1,1,1,1).setName("conv2_3"+"_"+chi).inputs(rlu1_3)
+      val rlu2_3=ReLU(true).setName("rlu2_3"+"_"+chi).inputs(conv2_3)
       
-      val conv1_5=SpatialConvolution(input_size,config[Table](3)(1),1,1).inputs(pre)
-      val rlu1_5=ReLU(true).inputs(conv1_5)
-      val conv2_5=SpatialConvolution(config[Table](3)(1),config[Table](3)(2),5,5,1,1,2,2).inputs(rlu1_5)
-      val rlu2_5=ReLU(true).inputs(conv2_5)
+      val conv1_5=SpatialConvolution(input_size,config[Table](3)(1),1,1).setName("rlu2_3"+"_"+chi).inputs(pre)
+      val rlu1_5=ReLU(true).setName("rlu1_5"+"_"+chi).inputs(conv1_5)
+      val conv2_5=SpatialConvolution(config[Table](3)(1),config[Table](3)(2),5,5,1,1,2,2).setName("conv2_5"+"_"+chi).inputs(rlu1_5)
+      val rlu2_5=ReLU(true).setName("rlu2_5"+"_"+chi).inputs(conv2_5)
       
-      val sptmxpool=SpatialMaxPooling(config[Table](4)(1),config[Table](4)(1),1,1,1,1).inputs(pre)
-      val conv_pool=SpatialConvolution(input_size,config[Table](4)(2),1,1).inputs(sptmxpool)
-      val rlu_pool=ReLU(true).inputs(conv_pool)
+      val sptmxpool=SpatialMaxPooling(config[Table](4)(1),config[Table](4)(1),1,1,1,1).setName("sptmxpool"+"_"+chi).inputs(pre)
+      val conv_pool=SpatialConvolution(input_size,config[Table](4)(2),1,1).setName("sptmxpool"+"_"+chi).inputs(sptmxpool)
+      val rlu_pool=ReLU(true).setName("rlu_pool"+"_"+chi).inputs(conv_pool)
       
-      val depthcat=Concat(2).inputs(conv1_1,conv1_3,conv1_5,sptmxpool)
-      depthcat
+      JoinTable(2, 0).setName(chi).inputs(rlu1_1,rlu2_3,rlu2_5,rlu_pool)
       }
       
       def fac(pre:Graph.ModuleNode[Float]):Graph.ModuleNode[Float]={
-      val cnt= Contiguous().inputs(pre)
-      val view=View(-1,1,224,224).inputs(cnt)
-      val conv1_fac=SpatialConvolution(1,8,7,7,2,2,3,3).inputs(view)
-      val depthwisconv=ParallelTable().inputs(cnt)
-      val rlu1_fac=ReLU(true).inputs(depthwisconv)
-      val conv2_fac=SpatialConvolution(24,64,1,1).inputs(rlu1_fac)
-      val rlu2_fac=ReLU(true).inputs(conv2_fac)
+      val cnt= Contiguous().setName("cnt_fac").inputs(pre)
+      val view=View(-1,1,224,224).setName("view_fac").inputs(cnt)
+      val conv1_fac=SpatialConvolution(1,8,7,7,2,2,3,3).setName("conv1_fac").inputs(view)
+      val depthwisconv=ParallelTable().setName("depthwisconv_fac").inputs(cnt)
+      val rlu1_fac=ReLU(true).setName("rlu1_fac").inputs(depthwisconv)
+      val conv2_fac=SpatialConvolution(24,64,1,1).setName("conv2_fac").inputs(rlu1_fac)
+      val rlu2_fac=ReLU(true).setName("rlu2_fac").inputs(conv2_fac)
       cnt
       }
       
@@ -603,11 +604,9 @@ object GoogLeNetModel {
       val rlu2_sftMx0 = ReLU().inputs(linear2_sftMx0)
       val logsoftmax_sftMx0 = LogSoftMax().inputs(rlu2_sftMx0)
       
-      val connector_split1=Concat(2).inputs(inc1_2,sap_sftMx1)
-      
-      val connector_split0=Concat(2).inputs(inc1_1,sap_sftMx0)
-      
-      Graph(szp, connector_split0)
+
+      val split2 = JoinTable(2, 0).inputs(logsoftmax_sftMx2, logsoftmax_sftMx1, sap_sftMx0)
+      Graph(szp, split2)
       
     }
     /*
