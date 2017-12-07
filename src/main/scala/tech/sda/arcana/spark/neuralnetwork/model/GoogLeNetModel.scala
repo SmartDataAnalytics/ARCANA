@@ -518,29 +518,29 @@ object GoogLeNetModel {
   }
     
     def graph(Height:Int,Width:Int,classNum: Int)={
-      var ch:Int=0
+
       
       def inc(input_size:Int,config:Table,pre:Graph.ModuleNode[Float])={
-      ch+=1
-      var chi=ch.toString()
-      val conv1_1=SpatialConvolution(input_size,config[Table](1)(1),1,1).setName("conv1_1_inc"+"_"+chi).inputs(pre)
-      val rlu1_1=ReLU(true).setName("rlu1_1"+"_"+chi).inputs(conv1_1)
+
+
+      val conv1_1=SpatialConvolution(input_size,config[Table](1)(1),1,1).inputs(pre)
+      val rlu1_1=ReLU(true).inputs(conv1_1)
       
-      val conv1_3=SpatialConvolution(input_size,config[Table](2)(1),1,1).setName("conv1_3"+"_"+chi).inputs(pre)
-      val rlu1_3=ReLU(true).setName("rlu1_3"+"_"+chi).inputs(conv1_3)
-      val conv2_3=SpatialConvolution(config[Table](2)(1),config[Table](2)(2),3,3,1,1,1,1).setName("conv2_3"+"_"+chi).inputs(rlu1_3)
-      val rlu2_3=ReLU(true).setName("rlu2_3"+"_"+chi).inputs(conv2_3)
+      val conv1_3=SpatialConvolution(input_size,config[Table](2)(1),1,1).inputs(pre)
+      val rlu1_3=ReLU(true).inputs(conv1_3)
+      val conv2_3=SpatialConvolution(config[Table](2)(1),config[Table](2)(2),3,3,1,1,1,1).inputs(rlu1_3)
+      val rlu2_3=ReLU(true).inputs(conv2_3)
       
-      val conv1_5=SpatialConvolution(input_size,config[Table](3)(1),1,1).setName("rlu2_3"+"_"+chi).inputs(pre)
-      val rlu1_5=ReLU(true).setName("rlu1_5"+"_"+chi).inputs(conv1_5)
-      val conv2_5=SpatialConvolution(config[Table](3)(1),config[Table](3)(2),5,5,1,1,2,2).setName("conv2_5"+"_"+chi).inputs(rlu1_5)
-      val rlu2_5=ReLU(true).setName("rlu2_5"+"_"+chi).inputs(conv2_5)
+      val conv1_5=SpatialConvolution(input_size,config[Table](3)(1),1,1).inputs(pre)
+      val rlu1_5=ReLU(true).inputs(conv1_5)
+      val conv2_5=SpatialConvolution(config[Table](3)(1),config[Table](3)(2),5,5,1,1,2,2).inputs(rlu1_5)
+      val rlu2_5=ReLU(true).inputs(conv2_5)
       
-      val sptmxpool=SpatialMaxPooling(config[Table](4)(1),config[Table](4)(1),1,1,1,1).setName("sptmxpool"+"_"+chi).inputs(pre)
-      val conv_pool=SpatialConvolution(input_size,config[Table](4)(2),1,1).setName("sptmxpool"+"_"+chi).inputs(sptmxpool)
-      val rlu_pool=ReLU(true).setName("rlu_pool"+"_"+chi).inputs(conv_pool)
+      val sptmxpool=SpatialMaxPooling(config[Table](4)(1),config[Table](4)(1),1,1,1,1).inputs(pre)
+      val conv_pool=SpatialConvolution(input_size,config[Table](4)(2),1,1).inputs(sptmxpool)
+      val rlu_pool=ReLU(true).inputs(conv_pool)
       
-      JoinTable(2, 0).setName(chi).inputs(rlu1_1,rlu2_3,rlu2_5,rlu_pool)
+      JoinTable(2, 0).inputs(rlu1_1,rlu2_3,rlu2_5,rlu_pool)
       }
       
       def fac(pre:Graph.ModuleNode[Float]):Graph.ModuleNode[Float]={
@@ -551,7 +551,7 @@ object GoogLeNetModel {
       val rlu1_fac=ReLU(true).setName("rlu1_fac").inputs(depthwisconv)
       val conv2_fac=SpatialConvolution(24,64,1,1).setName("conv2_fac").inputs(rlu1_fac)
       val rlu2_fac=ReLU(true).setName("rlu2_fac").inputs(conv2_fac)
-      cnt
+      rlu2_fac
       }
       
       val szp=SpatialZeroPadding(0, 224-Width, 0, 224-Height).inputs()
@@ -564,7 +564,8 @@ object GoogLeNetModel {
       val smp2=SpatialMaxPooling(3,3,2,2).inputs(rlu2)
       val inc1_0=inc(192,T(T(64),T( 96,128),T(16, 32),T(3, 32)),smp2)
       val inc2_0=inc(512,T(T(128),T(128, 256),T(24, 64),T(3, 64)),inc1_0)
-      val inc3_0=inc(152,T(T(112),T(144, 288),T(32, 64),T(3, 64)),inc2_0)   
+      val sap_0=SpatialAveragePooling(3,3,2,2).inputs(inc2_0)
+      val inc3_0=inc(152,T(T(112),T(144, 288),T(32, 64),T(3, 64)),sap_0)   
       
       val inc1_1=inc(512,T(T(160),T(112, 224),T(24, 64),T(3, 64)),inc3_0)
       val inc2_1=inc(512,T(T(128),T(128, 256),T(24, 64),T(3, 64)),inc1_1)
@@ -582,7 +583,7 @@ object GoogLeNetModel {
       val rlu_sftMx2=ReLU().inputs(linear_sftMx2)
       val logsoftmax_sftMx2=LogSoftMax().inputs(rlu_sftMx2)
       
-      val sap_sftMx1=SpatialAveragePooling(5,5,3,3).inputs(logsoftmax_sftMx2)
+      val sap_sftMx1=SpatialAveragePooling(5,5,3,3).inputs(inc3_1)
       val conv_sftMx1=SpatialConvolution(512,128,1,1).inputs(sap_sftMx1)
       val rlu1_sftMx1=ReLU().inputs(conv_sftMx1)   
       val view_sftMx1=View(128*4*4).inputs(rlu1_sftMx1)
@@ -593,7 +594,7 @@ object GoogLeNetModel {
       val rlu3_sftMx1=ReLU().inputs(linear2_sftMx1)
       val logsoftmax_sftMx1=LogSoftMax().inputs(rlu3_sftMx1)
 
-      val sap_sftMx0=SpatialAveragePooling(5,5,3,3).inputs(logsoftmax_sftMx1)
+      val sap_sftMx0=SpatialAveragePooling(5,5,3,3).inputs(inc3_0)
       val conv_sap_sftMx0=SpatialConvolution(512,128,1,1).inputs(sap_sftMx0)
       val rlu_sap_sftMx0=ReLU().inputs(conv_sap_sftMx0)
       val view_sftMx0=View(128*4*4).inputs(rlu_sap_sftMx0)
@@ -605,8 +606,8 @@ object GoogLeNetModel {
       val logsoftmax_sftMx0 = LogSoftMax().inputs(rlu2_sftMx0)
       
 
-      val split2 = JoinTable(2, 0).inputs(logsoftmax_sftMx2, logsoftmax_sftMx1, sap_sftMx0)
-      Graph(szp, split2)
+      val output = JoinTable(2, 0).inputs(logsoftmax_sftMx2, logsoftmax_sftMx1, logsoftmax_sftMx0)
+      Graph(szp, output)
       
     }
     /*
@@ -615,7 +616,7 @@ object GoogLeNetModel {
   					 +-------+ |   +-------+    |   +-------+    |
             	   	     |                |                |
         	    	       | +----------+   | +----------+   | +----------+
-        		  	      +-> softMax0 +-+ +-> softMax1 +-+ +-> softMax2 +-+
+        		  	      +-> softMax0 +-+  +-> softMax1 +-+ +-> softMax2 +-+
         		             +----------+ |   +----------+ |   +----------+ |
             		                      |                |                |   +-------+
             		                      +----------------v----------------v--->  out  |
