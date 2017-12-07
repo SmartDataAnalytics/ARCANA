@@ -140,11 +140,11 @@ object AlexNetModel {
   //FB first branch
   //SB second branch
    
-  val padding1=SpatialZeroPadding(0, 224-Width, 0, 224-Height).inputs()
-  val conv1FB = SpatialConvolution(1,48,11,11,4,4,2,2).inputs(padding1)
+  val padding1=SpatialZeroPadding(0, 224-Width, 0, 224-Height).setName("Padding").inputs()
+  val conv1FB = SpatialConvolution(1,48,11,11,4,4,2,2).setName("conv(11,11)").inputs(padding1)
   val recLinUn1FB = ReLU().inputs(conv1FB)
-  val pool1FB = SpatialMaxPooling(kW=3,kH=3,dW=2,dH=2).inputs(recLinUn1FB)
-  val conv2FB = SpatialConvolution(48,128,5,5,1,1,2,2).inputs(pool1FB)
+  val pool1FB = SpatialMaxPooling(kW=3,kH=3,dW=2,dH=2).setName("SpatialMaxPooling").inputs(recLinUn1FB)
+  val conv2FB = SpatialConvolution(48,128,5,5,1,1,2,2).setName("conv(5,5)").inputs(pool1FB)
   val recLinUn2FB = ReLU().inputs(conv2FB)
   val pool2FB = SpatialMaxPooling(3,3,2,2).inputs(recLinUn2FB)
   val conv3FB = SpatialConvolution(128,192,3,3,1,1,1,1).inputs(pool2FB)
@@ -155,7 +155,7 @@ object AlexNetModel {
   val recLinUn5FB=ReLU().inputs(conv5FB)
   val pool3FB = SpatialMaxPooling(3,3,2,2).inputs(recLinUn5FB)
   
-  val padding2=SpatialZeroPadding(0, 224-Width, 0, 224-Height).inputs()
+  val padding2=padding1
   val conv1SB = SpatialConvolution(1,48,11,11,4,4,2,2).inputs(padding2)
   val recLinUn1SB =ReLU().inputs(conv1SB)
   val pool1SB = SpatialMaxPooling(kW=3,kH=3,dW=2,dH=2).inputs(recLinUn1SB)

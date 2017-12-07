@@ -20,6 +20,7 @@ import tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model
 import tech.sda.arcana.spark.neuralnetwork.model.DyLeNet5Model
 import tech.sda.arcana.spark.neuralnetwork.model.AlexNetModel
 import tech.sda.arcana.spark.neuralnetwork.model.GoogLeNetModel
+import tech.sda.arcana.spark.neuralnetwork.model.GoogleNetFromBigDl
 import com.intel.analytics.bigdl.nn.Reshape
 import com.intel.analytics.bigdl.nn.Module
 import com.intel.analytics.bigdl.visualization._
@@ -114,17 +115,33 @@ object sentenceToTensor {
           val s=new Core("model","train","label","test")
           val sc=s.initialize()
           
-          
+          /*
           println("-------------------first------------------------")
-          println(DyLeNet5Model.build(20,20,5).evaluate())
+          val first=DyLeNet5Model
+          //println(first.build(20,20,5).evaluate())
+          first.graph(20,20,5).saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/first")
+          println("done first")
           println("-------------------second------------------------")
-          println(LeNet5Model.build(5).evaluate())
+          val second=LeNet5Model
+          //println(second.build(5).evaluate())
+          second.graph(5).saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/second")
+          println("done second")
           println("-------------------fourth-------------------------")
-          println(AlexNetModel.build(10,10,5).evaluate())
+          val fourth=AlexNetModel
+          //println(fourth.build(10,10,5).evaluate())
+          fourth.graph(10,10,5).saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/fourth")
+          println("done fourth")
+          
+          
           println("--------------------fifth------------------------")
-          println(GoogLeNetModel.build(10,10,5).evaluate())
-          println("--------------------------------------------")
-              
+          val fifth=GoogLeNetModel
+          //println(fifth.build(10,10,5).evaluate())
+          fifth.graph(10,10,5).saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/fifth")
+          println("done fifth")
+          println("--------------------------------------------")*/
+              //.saveGraphTopology("/home/mhd/Desktop/bigdl_summaries")
+          
+          GoogleNetFromBigDl
       //new
       /*
           
