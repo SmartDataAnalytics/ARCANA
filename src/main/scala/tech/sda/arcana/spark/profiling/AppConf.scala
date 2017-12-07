@@ -32,7 +32,8 @@ object AppConf {
   val SentiWordFilefeedback = "SentiWordNet/SentiWordNetFeedback.txt"
   // Questions
   val Questions = "Questions"
-  
+  // StopWords
+  val StopWords = "Stopwords/stopwords.txt"
   // Malicious categories that we don't wish to answer
   var categories = List("Tr","military", "nuclear", "terrorism", "weapon", "technology", "security", "harm", "suicide", "war")
   // Malicious expression that we don't wish to answer
