@@ -24,8 +24,7 @@ object ExecuteOperations {
     val path = "/home/elievex/Repository/resources/"
 
     //| Read Data & Clean and transform it   
-    val RDFDs=RDFApp.importingData(path+AppConf.dbpedia) 
-    println("~RDF data are created~")
+    val RDFDs=RDFApp.importingData(path) 
     
     //| 1 for category, 2 for dataset
     val Word2VecDataType = 1 

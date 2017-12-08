@@ -128,10 +128,21 @@ object RDFApp {
     //triples.select("Object").show()
     //println(triples.count())
   ////////////////////////////////////////////////////////////////////////////////
-
+  def writeProcessedData(DF:DataFrame,path:String){
+    val sc = spark.sqlContext
+    DF.write.format("com.databricks.spark.csv").mode("overwrite").option("header", "true").save(path+AppConf.processedDBpedia)
+    println("~Processed RDF data is created~")
+  }
+  def readProcessedData(path:String):DataFrame={
+      val sc = spark.sqlContext
+      sc.read.format("com.databricks.spark.csv").option("header", "true").option("inferSchema", "true").load(path+AppConf.processedDBpedia)
+  }
   // Function that is meant to be invoked from outside and which perform the tasks on the data 
   def importingData(filename: String) = {
-    dataToDataset(filename)
+    val DF=dataToDataset(filename+AppConf.dbpedia)
+    writeProcessedData(DF.toDF(),filename)
+    println("~RDF data are created~")
+    DF
   }
   
   def main(args: Array[String]) = {

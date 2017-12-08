@@ -19,7 +19,8 @@ object AppConf {
   val MinCount=0
   
   // dbpedia
-  val dbpedia = "DBpedia/*"
+  val dbpedia = "DBpedia/Data/*"
+  val processedDBpedia = "DBpedia/processedData"
   // Word2Vec
   val CategoryData = "Word2Vec/Data/CategoryData"
   val DatasetData = "Word2Vec/Data/DatasetData"
@@ -28,7 +29,7 @@ object AppConf {
   val WordNetDict = "WordNet/3.0/dict"
   // SentiWord File
   val SentiWordFile = "SentiWordNet/SentiWordNet.txt"
-  val ProcessedSentiWordFile = "SentiWordNet/processed/file.csv"
+  val ProcessedSentiWordFile = "SentiWordNet/processed"
   val SentiWordFilefeedback = "SentiWordNet/SentiWordNetFeedback.txt"
   // Questions
   val Questions = "Questions"
