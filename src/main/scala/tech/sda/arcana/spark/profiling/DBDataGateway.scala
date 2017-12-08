@@ -31,66 +31,6 @@ object AppDBM {
 
   val sc = spark.sparkContext
 
-  def writeChunkToMongoDB(collection: String) {
-    val docs = """
-      {"name": "Bilbo Baggins", "age": 50}
-      {"name": "Gandalf", "age": 1000}
-      {"name": "Thorin", "age": 195}
-      {"name": "Balin", "age": 178}
-      {"name": "Kíli", "age": 77}
-      {"name": "Dwalin", "age": 169}
-      {"name": "Óin", "age": 167}
-      {"name": "Glóin", "age": 158}
-      {"name": "Fíli", "age": 82}
-      {"name": "Bombur"}"""
-    //.trim.stripMargin.split("[\\r\\n]+").toSeq
-    //println(docs)
-
-    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
-    val events = sc.parallelize(docs :: Nil)
-
-    // read it
-    val df = sqlContext.read.json(events)
-
-    //df.show
-
-    import sqlContext.implicits._
-
-    MongoSpark.save(df.write.option("collection", "DFClub").mode("append"))
-    /*val json: JsValue = Json.parse(docs)
-
-
-      val rdd = sc.parallelize(jsonStr::Nil);
-      var df = sqlContext.read.json(rdd);
-      df.printSchema()
-
-
-    val df = spark.read.format("json").json(docs)
-    df.show()
-    */
-
-    val j = sc.parallelize(docs)
-
-    //val documents = sc.parallelize(docs.map(Document.parse))
-    //val X2 = documents.toDF()
-
-    //val t =  docs.toDF()
-    //val df = spark.read.format("json").json()
-    //t.show()
-    //val X = j.toDF()
-    //MongoSpark.save(X.write.option("collection", "DFClub").mode("append"))
-    //documents.toJavaRDD()
-    //MongoSpark.save(documents)
-    //MongoSpark.save(centenarians.write.option("collection", "hundredClub").mode("overwrite"))
-
-    //sc.parallelize(docs.map(Document.parse)).saveToMongoDB()
-
-    //  sc.parallelize(docs.map(Document.parse))saveToMongoDB(WriteConfig(Map("uri" -> s"mongodb://127.0.0.1/myDBN.$collection")))
-
-    //documents.saveToMongoDB(WriteConfig(Map("uri" -> "mongodb://example.com/database.collection")))
-
-  }
-
   //| Check your session Configurations
   def showConfigMap() {
     val configMap: Map[String, String] = spark.conf.getAll
@@ -218,7 +158,7 @@ object AppDBM {
     println("~Expressions Collection is created~")
   }
   
-     // get Sentiment analysis for the word as N, V, R, A and if non was fetched then grab the Uclassify score too
+   // get Sentiment analysis for the word as N, V, R, A and if non was fetched then grab the Uclassify score too
    def getSentiScores(word:String,sentiDF:DataFrame):Array[String]={
         var resultneg="-9"
         val sentiPosScore= SentiWord.getSentiScoreForAllPOS(word,sentiDF)  // 5 vals

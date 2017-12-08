@@ -139,7 +139,7 @@ object SentiWord {
       val sentiDF=SentiWord.prepareSentiFile(path+AppConf.SentiWordFile)
       val sc = spark.sqlContext
       sentiDF.write.format("com.databricks.spark.csv").mode("overwrite").option("header", "true").save(path+AppConf.ProcessedSentiWordFile)
-      println("Processed SentiWord files are created")
+      println("~Processed SentiWord files are created~")
     }
     def readProcessedSentiWord(path:String):DataFrame={
       val sc = spark.sqlContext

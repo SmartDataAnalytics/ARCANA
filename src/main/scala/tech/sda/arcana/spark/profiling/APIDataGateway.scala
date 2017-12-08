@@ -41,9 +41,7 @@ import scala.collection.mutable
  */
 
 object APIData {
-      case class noun(syn: List[String],ant: List[String])
-    case class verb(syn: List[String],ant: List[String])
-    case class Obj(noun:noun,verb:verb)
+
   // 1st way to do it
   @throws(classOf[java.io.IOException])
   def fetch(url: String) = scala.io.Source.fromURL(url).mkString

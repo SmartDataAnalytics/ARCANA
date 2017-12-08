@@ -4,14 +4,13 @@ import java.io.File
 import java.nio.charset.Charset
 import java.util.Properties
 import org.apache.spark.sql.DataFrame
-
-
+import org.apache.spark.rdd.RDD
 import scala.collection.JavaConverters._
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.concat_ws
 import org.apache.spark.sql.functions._
-
+ import scala.io.Source
 import com.google.common.io.Files
 import edu.stanford.nlp.process.CoreLabelTokenFactory
 import edu.stanford.nlp.ling.CoreAnnotations.{PartOfSpeechAnnotation, SentencesAnnotation, TextAnnotation, TokensAnnotation}
@@ -130,26 +129,6 @@ object ProcessQuestion {
       .foreach(println)
  }
 
- def queryQuestionOnDbpedia(){
-      val sc = spark.sparkContext
-      import spark.implicits._
-      val lines = sc.textFile("/home/elievex/Repository/ExtResources/sentences")
-      val DF=lines.toDF()
-      DF.createOrReplaceTempView("triples")
-      val word="Achtung"
-      val REG = raw"(?i)(?<![a-zA-Z])$word(?![a-zA-Z])".r
-      val Res = spark.sql(s"SELECT * from triples where value RLIKE '$REG' ")
-      Res.show()
- }
- 
- def consultDbpediaSpotlight(){
-     import dbpediaSpotlight.spotlight
-     import org.json.simple.{JSONArray,JSONObject}
-
-      val DBpEquivalent: JSONArray = spotlight.getDBLookup("germany", "0.0")
-      val obj2: JSONObject = DBpEquivalent.get(0).asInstanceOf[JSONObject]
-      println(obj2.get("uri").toString)
- }
 
  // SentiWord of entire sentence
  def sentiment (sentence: String):Int= { 
@@ -184,45 +163,7 @@ object ProcessQuestion {
     val sentence = T.replace(',', ' ')
     
     sentence
-  }
-  // Process question and fill it as an object//:List[Token]=
-  def ProcessSentence(text:String):(List[Token],String)={
-        val extractNumber = raw"(\d+)".r
-        var tokens = new ListBuffer[Token]()
-        var posTagString = ""
-       
-        // create blank annotator
-        val document: Annotation = new Annotation(text)
-    
-        // run all Annotator - Tokenizer on this text
-        pipeline.annotate(document)
-    
-        val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
-    
-      val Tokens=  (for {
-          sentence: CoreMap <- sentences
-          token: CoreLabel <- sentence.get(classOf[TokensAnnotation]).asScala.toList
-          word: String = token.get(classOf[TextAnnotation])
-          pos: String = token.get(classOf[PartOfSpeechAnnotation])
-          lemma: String = token.get(classOf[LemmaAnnotation])
-    
-        } yield (token, word, pos, lemma)) 
-        Tokens.foreach{t => 
-            tokens+=new Token(extractNumber.findFirstIn(t._1.toString()).getOrElse("0"),t._2.toLowerCase(),t._3,t._4.toLowerCase(),0)
-            var temp=""
-            if(t._3.toString()=="NN"||t._3.toString()=="NNS"||t._3.toString()=="NNP"||t._3.toString()=="NNPS"){
-              posTagString+="N"+" "
-            }else if(t._3.toString()=="VBZ"||t._3.toString()=="VB"||t._3.toString()=="VBD"||t._3.toString()=="VBG"||t._3.toString()=="VBN"||t._3.toString()=="VBP"){
-              posTagString+="V"+" "
-            } else {
-              posTagString+=t._3.toString()+" "
-            }
-          }
-       
-        //tokens.toList
-      (tokens.toList, posTagString)
-  }
-   
+  }   
   def expressionCheck(questionObj:QuestionObj):Int={
     val extractCase = raw"V\s(.+)?N\s?".r
     //println(questionObj.PosSentence)
@@ -270,7 +211,7 @@ object ProcessQuestion {
      }
      //nouns.foreach(t=>println(t.word+" "+t.relationID))
 
-     //| Cross the results and see if verb and nount are from the same relationship if yes its bad \\ ofcourse there is a place to improve this for example by checking if there is a CC (or / and) between the verb and noun
+     //| Cross the results and see if verb and noun are from the same relationship if yes its bad \\ ofcourse there is a place to improve this for example by checking if there is a CC (or / and) between the verb and noun
      if(flag==2){
        verbs.foreach{
         t=>nouns.foreach{u=>
@@ -284,24 +225,104 @@ object ProcessQuestion {
     }
       flag
   }
- 
-  def processQuestion(input:String): QuestionObj = {
+   def consultDbpediaSpotlight(word:String):ListBuffer[String]={
+     import dbpediaSpotlight.spotlight
+     import org.json.simple.{JSONArray,JSONObject}
+
+     var result = new ListBuffer[String]()
+     val DBpEquivalent: JSONArray = spotlight.getDBLookup(word, "0.0")
+      if(DBpEquivalent.size()>0){
+        for (i <- 0 to DBpEquivalent.size()-1) {
+            val obj2: JSONObject = DBpEquivalent.get(i).asInstanceOf[JSONObject]
+            result+=obj2.get("uri").toString
+        }
+      }
+      result
+ }
+  def fetchTokenUris(word:String,path:String):Set[String]={
+    val listBuff=consultDbpediaSpotlight(word)
+    
+    val myDF=RDFApp.readProcessedData(path)
+    val T1=Dataset2Vec.fetchAllOfWordAsOubject(myDF,word)
+    val T2=Dataset2Vec.fetchAllOfWordAsSubject(myDF,word)
+    var s : Set[String] = Set()
+    T1.foreach(f=>s+=f.Uri)
+    T2.foreach(f=>s+=f.Uri)
+    listBuff.foreach(f=>s+=f)
+    s
+  }
+   // Process question and fill it as an object//:List[Token]=
+  def ProcessSentence(text:String,path:String):(List[Token],String)={
+        val extractNumber = raw"(\d+)".r
+        var tokens = new ListBuffer[Token]()
+        var posTagString = ""
+       
+        // create blank annotator
+        val document: Annotation = new Annotation(text)
+    
+        // run all Annotator - Tokenizer on this text
+        pipeline.annotate(document)
+    
+        val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
+    
+    val listOfLines = Source.fromFile(path+AppConf.StopWords).getLines.toList
+        
+      val Tokens=  (for {
+          sentence: CoreMap <- sentences
+          token: CoreLabel <- sentence.get(classOf[TokensAnnotation]).asScala.toList
+          word: String = token.get(classOf[TextAnnotation])
+          pos: String = token.get(classOf[PartOfSpeechAnnotation])
+          lemma: String = token.get(classOf[LemmaAnnotation])
+    
+        } yield (token, word, pos, lemma)) 
+        Tokens.foreach{t => 
+          if(!listOfLines.contains(t._2)){
+            tokens+=new Token(extractNumber.findFirstIn(t._1.toString()).getOrElse("0"),t._2.toLowerCase(),t._3,t._4.toLowerCase(),0,fetchTokenUris(t._2,path),0.0)
+          }
+          //var temp=""
+            if(t._3.toString()=="NN"||t._3.toString()=="NNS"||t._3.toString()=="NNP"||t._3.toString()=="NNPS"){
+              posTagString+="N"+" "
+            }else if(t._3.toString()=="VBZ"||t._3.toString()=="VB"||t._3.toString()=="VBD"||t._3.toString()=="VBG"||t._3.toString()=="VBN"||t._3.toString()=="VBP"){
+              posTagString+="V"+" "
+            } else {
+              posTagString+=t._3.toString()+" "
+            }
+          }
+        //tokens.toList
+      (tokens.toList, posTagString)
+  }
+  def processQuestion(input:String,path:String): QuestionObj = {
     //QuestionObj(sentence:String,sentenceWoSW:String,SentimentExtraction:Int,tokens:List[Token],PosSentence:String,var phaseTwoScore:Int)
     //Token(index:String,word:String,posTag:String,lemma:String,var relationID:Int)
-      
+ 
     val question = input.toLowerCase()
-    val questionInfo = ProcessSentence(question)
+    val questionInfo = ProcessSentence(question,path)
     val questionObj = new QuestionObj(question,removeStopWords(stringToDF(question)),sentiment(question),questionInfo._1,questionInfo._2,0)
     questionObj.phaseTwoScore=expressionCheck(questionObj)
-    
+ 
     questionObj
+  }
+  def readQuestions(path:String):RDD[String]={
+    val sc = spark.sparkContext
+    val textFile = sc.textFile(path)
+    val noEmptyRDD = textFile.filter(x => (x != null) && (x.length > 0))
+    println("~Reading Questions is done~")
+    noEmptyRDD
   }
 
   def main(args: Array[String]) = {
+    
+    val path = "/home/elievex/Repository/resources/"
 
-    //| Old Way
-    //> tokenizeQuestionWithRegex("Hi There How are you? There was a car walking by a dog nearby the horse?")
-    println("STOPPING")
+    // Read the Questions
+    val noEmptyRDD=ProcessQuestion.readQuestions(path+AppConf.Questions)
+    
+    // Process Questions
+    val ds= noEmptyRDD.map(t=>ProcessQuestion.processQuestion(t,"/home/elievex/Repository/resources/")).toDS().cache()
+    println("~Processing Questions is done~")
+    ds.show(false)
+    
+    //consultDbpediaSpotlight()
     spark.stop()
   }
   
