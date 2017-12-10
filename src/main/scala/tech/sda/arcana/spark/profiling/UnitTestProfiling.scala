@@ -21,18 +21,50 @@ object UnitTestProfiling {
     import spark.implicits._
    def main(args: Array[String]) = {
 
-    //val textFile = sc.textFile("/home/elievex/Repository/resources/"+AppConf.Questions)
-    //val noEmptyRDD = textFile.filter(x => (x != null) && (x.length > 0))
-    //noEmptyRDD.foreach(println)
-    
-   // val ds= noEmptyRDD.map(basicMapperRDF).toDS().cache()
-    //ds.show(false)
+
+      /* experimenting phase 2 
+    val path= "/home/elievex/Repository/resources/"
+    val input="How to kill a rabit then a person?"
+    val question = input.toLowerCase()
+    val questionInfo = ProcessQuestion.ProcessSentence(question,path)
+    val questionObj = new QuestionObj(question,ProcessQuestion.removeStopWords(ProcessQuestion.stringToDF(question)),ProcessQuestion.sentiment(question),questionInfo._1,questionInfo._2,0)
+    questionObj.phaseTwoScore=ProcessQuestion.expressionCheck(questionObj)
+ 
+      println(questionObj)
+      */
+      
+      
 
 
     //val RDFDs=RDFApp.importingData("/home/elievex/Repository/resources/")
     //val myDF=RDFApp.readProcessedData("/home/elievex/Repository/resources/")
     
  
+    val URIs = ProcessQuestion.fetchTokenUris("tr","/home/elievex/Repository/resources/")
+   // URIs.foreach(println)
+      
+    val DF=AppDBM.readDBCollection(AppConf.firstPhaseCollection)
+    DF.createOrReplaceTempView("DB")
+
+    URIs.foreach{t=>
+      val res2 = spark.sql(s"SELECT  * FROM DB where uri = '$t'  ")
+      //val res = spark.sql(s"SELECT  category,max(cosine_similary),expression,senti_a,senti_n,senti_r,senti_v,uri FROM DB where uri = '$t' group by(uri) ")
+      val res = spark.sql(s"SELECT * FROM DB WHERE (uri,cosine_similary) IN ( SELECT  uri,max(cosine_similary) FROM DB where uri = '$t' group by(uri))")
+      res.show(false)
+      println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+      res2.show(false)
+    }
+  
+//(uri: String, expression: String, category: String, senti_n: Double, senti_v: Double, senti_a: Double, senti_r: Double, senti_uclassify: Double, relatedTo: String, cosine_similary: Double)
+ 
+    
+    /*
+    val word = "nuclearbomb"
+    val res = spark.sql(s"SELECT rsc FROM DB where word = '$word' ")
+    res.show
+    res.collect().foreach(println)
+    
+    */
     println("YA")
     spark.stop()
    }

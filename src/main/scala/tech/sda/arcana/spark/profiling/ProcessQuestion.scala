@@ -172,7 +172,7 @@ object ProcessQuestion {
     if(extractCase.findFirstIn(questionObj.PosSentence).getOrElse("0")!="0"){
       var verbs = new ListBuffer[Token]()
       var nouns = new ListBuffer[Token]()
-     
+      
       //| Add only V and N tokens to buffers
       for(token<-questionObj.tokens){
         //print(token.posTag+"-")
@@ -277,7 +277,8 @@ object ProcessQuestion {
         } yield (token, word, pos, lemma)) 
         Tokens.foreach{t => 
           if(!listOfLines.contains(t._2)){
-            tokens+=new Token(extractNumber.findFirstIn(t._1.toString()).getOrElse("0"),t._2.toLowerCase(),t._3,t._4.toLowerCase(),0,fetchTokenUris(t._2,path),0.0)
+            val list = fetchTokenUris(t._2,path)
+            tokens+=new Token(extractNumber.findFirstIn(t._1.toString()).getOrElse("0"),t._2.toLowerCase(),t._3,t._4.toLowerCase(),0,List(),0.0)
           }
           //var temp=""
             if(t._3.toString()=="NN"||t._3.toString()=="NNS"||t._3.toString()=="NNP"||t._3.toString()=="NNPS"){
