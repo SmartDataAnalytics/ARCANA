@@ -21,7 +21,7 @@ import com.intel.analytics.bigdl.nn.Reshape
 import com.intel.analytics.bigdl.nn.Module
 import tech.sda.arcana.spark.neuralnetwork.model.AlexNetModel
 import tech.sda.arcana.spark.neuralnetwork.model.GoogLeNetModel
-// import com.intel.analytics.bigdl.utils
+import com.intel.analytics.bigdl.nn._
 
 object Referance {
   //---------------------------------------------------------
@@ -273,5 +273,13 @@ object Referance {
    println("--------------------GoogLeNetModel------------------------")
    GoogLeNetModel.build(100,100,5).forward(Tensor[Float](1,100,100).rand())
   //---------------------------------------------------------
+   
+   //---------------------------------------------------------
+   //contiguity (it did nothing !!!!!)
+    val testCon = Tensor(5).range(1, 5, 1)
+    println("-----Contiguous().forward--------")
+    println(testCon)
+    println(Contiguous().forward(testCon) )
+    //---------------------------------------------------------
 
 }
