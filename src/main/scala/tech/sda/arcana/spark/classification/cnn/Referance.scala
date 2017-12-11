@@ -19,6 +19,8 @@ import tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model
 import tech.sda.arcana.spark.neuralnetwork.model.DyLeNet5Model
 import com.intel.analytics.bigdl.nn.Reshape
 import com.intel.analytics.bigdl.nn.Module
+import tech.sda.arcana.spark.neuralnetwork.model.AlexNetModel
+import tech.sda.arcana.spark.neuralnetwork.model.GoogLeNetModel
 // import com.intel.analytics.bigdl.utils
 
 object Referance {
@@ -234,5 +236,32 @@ object Referance {
   //val conf:Tabel={{1},{2},{4}}
   val config:Array[Array[Int]]=Array(Array(64, 0),Array(96, 128),Array(16, 32),Array(3, 32))
   //---------------------------------------------------------
+  
+  //---------------------------------------------------------
+  //Save the topologies of the neural modesl and the structure for each one
+  println("-------------------DyLeNet5Model------------------------")
+  val first=DyLeNet5Model
+  println(first.build(20,20,5).evaluate())
+  first.graph(20,20,5).saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/first")
+  println("done DyLeNet5Model")
+  println("-------------------LeNet5Model------------------------")
+  val second=LeNet5Model
+  println(second.build(5).evaluate())
+  second.graph(5).saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/second")
+  println("done LeNet5Model")
+  println("-------------------AlexNetModel-------------------------")
+  val fourth=AlexNetModel
+  println(fourth.build(10,10,5).evaluate())
+  fourth.graph(10,10,5).saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/fourth")
+  println("done AlexNetModel")
+  println("--------------------GoogLeNetModel------------------------")
+  val fifth=GoogLeNetModel
+  println(fifth.build(10,10,5).evaluate())
+  fifth.graph(10,10,5).saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/fifth")
+  println("done GoogLeNetModel")
+  println("--------------------------------------------")
+  //---------------------------------------------------------
+  
+
 
 }
