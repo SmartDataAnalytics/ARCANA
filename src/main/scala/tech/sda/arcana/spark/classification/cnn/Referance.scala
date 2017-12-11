@@ -262,6 +262,16 @@ object Referance {
   println("--------------------------------------------")
   //---------------------------------------------------------
   
-
+  //---------------------------------------------------------
+  //Save the topologies of the neural models and the structure for each one
+   println("-------------------DyLeNet5Model------------------------")
+   DyLeNet5Model.build(20,20,5).forward(Tensor[Float](1,20,20).rand())
+   println("-------------------LeNet5Model------------------------")
+   LeNet5Model.build(5).forward(Tensor[Float](1,32,32).rand())
+   println("-------------------AlexNetModel-------------------------")
+   AlexNetModel.build(100,100,5).forward(Tensor[Float](1,100,100).rand())
+   println("--------------------GoogLeNetModel------------------------")
+   GoogLeNetModel.build(100,100,5).forward(Tensor[Float](1,100,100).rand())
+  //---------------------------------------------------------
 
 }
