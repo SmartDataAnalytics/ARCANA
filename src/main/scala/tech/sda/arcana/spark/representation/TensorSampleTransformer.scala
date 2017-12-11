@@ -18,7 +18,7 @@ class TensorSampleTransformer(sparkContext: SparkContext) extends Serializable {
      *  @return clean question
      */
     def initializePositiveSample(tensor:Tensor[Float])={
-            val label=Tensor[Float](T(1f))
+            val label=Tensor[Float](T(T(1f),T(0f)))
             val sample=Sample(tensor,label)
             (sample)
     }
@@ -28,7 +28,7 @@ class TensorSampleTransformer(sparkContext: SparkContext) extends Serializable {
      *  @return clean question
      */
     def initializeNegativeSample(tensor:Tensor[Float])={
-            val label=Tensor[Float](T(-1f))
+            val label=Tensor[Float](T(T(0f),T(1f)))
             val sample=Sample(tensor,label)
             (sample)
     }
