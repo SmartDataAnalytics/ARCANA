@@ -24,7 +24,8 @@ object processing {
     val noEmptyRDD=ProcessQuestion.readQuestions(path+AppConf.Questions)
     
     // Process Questions
-    val ds= noEmptyRDD.map(t=>ProcessQuestion.processQuestion(t,path)).toDS().cache()
+    val collectionDF=AppDBM.readDBCollection(AppConf.firstPhaseCollection)
+    val ds= noEmptyRDD.map(t=>ProcessQuestion.processQuestion(t,path,collectionDF)).toDS().cache()
     println("~Processing Questions is done~")
     ds.show(false)
     

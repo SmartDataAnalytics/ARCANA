@@ -10,7 +10,7 @@ import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.concat_ws
 import org.apache.spark.sql.functions._
- import scala.io.Source
+import scala.io.Source
 import com.google.common.io.Files
 import edu.stanford.nlp.process.CoreLabelTokenFactory
 import edu.stanford.nlp.ling.CoreAnnotations.{PartOfSpeechAnnotation, SentencesAnnotation, TextAnnotation, TokensAnnotation}
@@ -18,7 +18,7 @@ import edu.stanford.nlp.ling.CoreLabel
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import edu.stanford.nlp.util.CoreMap
 import edu.stanford.nlp.ling.CoreAnnotations.{LemmaAnnotation, PartOfSpeechAnnotation, SentencesAnnotation, TextAnnotation, TokensAnnotation}
-
+import util.control.Breaks._
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations.SentimentClass
 import edu.stanford.nlp.coref.CorefCoreAnnotations
 import edu.stanford.nlp.ling.CoreAnnotations
@@ -251,12 +251,101 @@ object ProcessQuestion {
     listBuff.foreach(f=>s+=f)
     s
   }
+    def stanfordPOS2sentiPos(postestcase:String):String={
+      var dbPOS=""
+      //a for adjective files
+      //r for adverb files
+      if(postestcase=="NN"||postestcase=="NNS"||postestcase=="NNP"||postestcase=="NNPS"){
+        dbPOS="senti_n"
+      }else if(postestcase=="VBZ"||postestcase=="VB"||postestcase=="VBD"||postestcase=="VBG"||postestcase=="VBN"||postestcase=="VBP"){
+        dbPOS="senti_v"
+      }else if(postestcase=="RB"||postestcase=="RBR"||postestcase=="RBS"){
+        dbPOS="senti_r"
+      }else if(postestcase=="JJ"||postestcase=="JJR"||postestcase=="JJS"){
+        dbPOS="senti_a"
+      }
+      dbPOS
+    }
+   def isScoreNine(obj:DBRecord,pos:String):Boolean={
+     var flag = false
+     pos match {
+      case "senti_v"  => if(obj.senti_v.toDouble==(-9.0)){flag = true}
+      case "senti_n"  => if(obj.senti_n.toDouble==(-9.0)){flag = true}
+      case "senti_r"  => if(obj.senti_r.toDouble==(-9.0)){flag = true}
+      case "senti_a"  => if(obj.senti_a.toDouble==(-9.0)){flag = true}
+      case "senti_uclassify"  => if(obj.senti_uclassify.toDouble==(-9.0)){flag = true}
+      }
+     flag
+   }
+   def mapIndicator(obj:DBRecord,indicator:String):Double={
+     var score = 0.0
+     //println(indicator)
+     //println(obj.senti_uclassify)
+      indicator match {
+        case "senti_v"  => score = obj.senti_v
+        case "senti_n"  => score = obj.senti_n
+        case "senti_r"  => score = obj.senti_r
+        case "senti_a"  => score = obj.senti_a
+        case "senti_uclassify"  => score = obj.senti_uclassify
+        }
+     score
+   }
+   def extractMostExactSenti(uriString:String,posString:String,DF:DataFrame){
+     
+    var resultList : List[(String,Double)] = List()
+    DF.createOrReplaceTempView("DB")
+    var myVoteScore = new ListBuffer[(DBRecord,String)]()
+    val dbPOS=stanfordPOS2sentiPos(posString)
+    val sentiArray = Array("senti_n","senti_v","senti_r","senti_a","senti_uclassify")
+    //| I did this because if I searched for the sentiment analysis of a POS and it wasn't found I will need to query the DB again to fetch an alternative 
+    //| by doing this if I didn't find the score I want I can get it from the other without querying the data again 
+    var sentiScore=new DBRecord("","","",0.0,0.0,0.0,0.0,0.0,"",0.0)
+    var sentiIndicator=""
+    val allDB = spark.sql(s"SELECT  * FROM DB where uri = '$uriString'  ") 
+    if(allDB.count()>0){
+      //allDB.show()
+      allDB.createOrReplaceTempView("QuestionURI")
+      val specDB = spark.sql(s"SELECT * FROM DB WHERE (uri,$dbPOS) IN ( SELECT  uri,max($dbPOS) FROM QuestionURI where uri = '$uriString' group by(uri))")
+      if(specDB.count()>0){
+        //specDB.show()
+        val result = specDB.as[DBRecord].collect()
+        if(isScoreNine(result(0),dbPOS)){
+            sentiArray.foreach{x=>
+              if(x!=dbPOS){
+                 val sentiDB = spark.sql(s"SELECT * FROM DB WHERE (uri,$x) IN ( SELECT  uri,max($x) FROM QuestionURI where uri = '$uriString' group by(uri))")
+                 val sentiResult = sentiDB.as[DBRecord].collect()
+                 if(!isScoreNine(sentiResult(0),x)){
+                    myVoteScore+=((sentiResult(0),x)) 
+                 }
+              }
+            }
+        }else{
+          sentiScore=result(0)
+          sentiIndicator=dbPOS
+        }
+      }      
+    }
+    if(myVoteScore.size>0){
+      var Temp=myVoteScore(0)
+      myVoteScore.foreach{t=>
+        if(mapIndicator(t._1,t._2)>=mapIndicator(Temp._1,Temp._2)){
+          Temp=t
+        }
+      }
+      println("SCORE")
+      println(mapIndicator(Temp._1,Temp._2),Temp._2)
+    }
+    else{
+          println("SCORE")
+    println(mapIndicator(sentiScore,sentiIndicator),sentiIndicator)
+    }
+   }
    // Process question and fill it as an object//:List[Token]=
-  def ProcessSentence(text:String,path:String):(List[Token],String)={
+  def ProcessSentence(text:String,path:String,DF:DataFrame):(List[Token],String)={
         val extractNumber = raw"(\d+)".r
         var tokens = new ListBuffer[Token]()
         var posTagString = ""
-       
+        val collectionDF=DF
         // create blank annotator
         val document: Annotation = new Annotation(text)
     
@@ -278,7 +367,7 @@ object ProcessQuestion {
         Tokens.foreach{t => 
           if(!listOfLines.contains(t._2)){
             val list = fetchTokenUris(t._2,path)
-            tokens+=new Token(extractNumber.findFirstIn(t._1.toString()).getOrElse("0"),t._2.toLowerCase(),t._3,t._4.toLowerCase(),0,List(),0.0)
+            tokens+=new Token(extractNumber.findFirstIn(t._1.toString()).getOrElse("0"),t._2.toLowerCase(),t._3,t._4.toLowerCase(),0, List())
           }
           //var temp=""
             if(t._3.toString()=="NN"||t._3.toString()=="NNS"||t._3.toString()=="NNP"||t._3.toString()=="NNPS"){
@@ -292,12 +381,12 @@ object ProcessQuestion {
         //tokens.toList
       (tokens.toList, posTagString)
   }
-  def processQuestion(input:String,path:String): QuestionObj = {
+  def processQuestion(input:String,path:String,DF:DataFrame): QuestionObj = {
     //QuestionObj(sentence:String,sentenceWoSW:String,SentimentExtraction:Int,tokens:List[Token],PosSentence:String,var phaseTwoScore:Int)
     //Token(index:String,word:String,posTag:String,lemma:String,var relationID:Int)
  
     val question = input.toLowerCase()
-    val questionInfo = ProcessSentence(question,path)
+    val questionInfo = ProcessSentence(question,path,DF)
     val questionObj = new QuestionObj(question,removeStopWords(stringToDF(question)),sentiment(question),questionInfo._1,questionInfo._2,0)
     questionObj.phaseTwoScore=expressionCheck(questionObj)
  
@@ -319,7 +408,7 @@ object ProcessQuestion {
     val noEmptyRDD=ProcessQuestion.readQuestions(path+AppConf.Questions)
     
     // Process Questions
-    val ds= noEmptyRDD.map(t=>ProcessQuestion.processQuestion(t,"/home/elievex/Repository/resources/")).toDS().cache()
+    val ds= noEmptyRDD.map(t=>ProcessQuestion.processQuestion(t,"/home/elievex/Repository/resources/",AppDBM.readDBCollection(AppConf.firstPhaseCollection))).toDS().cache()
     println("~Processing Questions is done~")
     ds.show(false)
     
