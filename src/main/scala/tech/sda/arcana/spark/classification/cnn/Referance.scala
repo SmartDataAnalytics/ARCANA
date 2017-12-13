@@ -275,11 +275,23 @@ object Referance {
   //---------------------------------------------------------
    
    //---------------------------------------------------------
-   //contiguity (it did nothing !!!!!)
+   //contiguity (it did nothing !)
     val testCon = Tensor(5).range(1, 5, 1)
     println("-----Contiguous().forward--------")
     println(testCon)
     println(Contiguous().forward(testCon) )
     //---------------------------------------------------------
-
+    
+    //---------------------------------------------------------
+    //Paradox why logsoftmax works only after using View (put it in one dim)
+    val dd=Tensor[Float](T(T(1.0f),T(2.0f),T(3.0f),T(4.0f),T(1.0f),T(2.0f),T(3.0f)))
+    println(dd)
+    println(LogSoftMax().forward(View().forward(dd)))
+    println("-----------------------------------")
+    println(LogSoftMax().forward(Tensor[Float](T(T(1.0f),T(2.0f),T(3.0f),T(4.0f),T(1.0f),T(2.0f),T(3.0f)))))
+    println("***")
+    println(Tensor[Float](T(T(0f),T(1f))))
+    println(View().forward(Tensor[Float](T(T(0f),T(1f)))))
+    println("***")
+    //---------------------------------------------------------
 }
