@@ -20,7 +20,7 @@ import tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model
 import tech.sda.arcana.spark.neuralnetwork.model.DyLeNet5Model
 import tech.sda.arcana.spark.neuralnetwork.model.AlexNetModel
 import tech.sda.arcana.spark.neuralnetwork.model.GoogLeNetModel
-import tech.sda.arcana.spark.neuralnetwork.model.GoogleNetFromBigDl
+//import tech.sda.arcana.spark.neuralnetwork.model.GoogleNetFromBigDl
 import com.intel.analytics.bigdl.nn.Reshape
 import com.intel.analytics.bigdl.nn.Module
 import com.intel.analytics.bigdl.visualization._
@@ -141,7 +141,7 @@ object sentenceToTensor {
           println("--------------------------------------------")*/
               //.saveGraphTopology("/home/mhd/Desktop/bigdl_summaries")
           
-          GoogleNetFromBigDl
+          //GoogleNetFromBigDl
       //new
       /*
           
