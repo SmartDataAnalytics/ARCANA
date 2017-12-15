@@ -1,5 +1,8 @@
 package tech.sda.arcana.spark.profiling
+import util.control.Breaks._
 import org.apache.spark.sql.SparkSession
+import scala.collection.mutable.ListBuffer
+
 import org.apache.spark.sql.DataFrame
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
@@ -45,6 +48,53 @@ object UnitTestProfiling {
       }
      flag
    }
+   def mapIndicator(obj:DBRecord,indicator:String):Double={
+     var score = 0.0
+     //println(indicator)
+     //println(obj.senti_uclassify)
+      indicator match {
+        case "senti_v"  => score = obj.senti_v
+        case "senti_n"  => score = obj.senti_n
+        case "senti_r"  => score = obj.senti_r
+        case "senti_a"  => score = obj.senti_a
+        case "senti_uclassify"  => score = obj.senti_uclassify
+        }
+     score
+   }
+   def calcFinalScore(tokenList:List[Token]){
+     
+     var totalScoreUris=0
+     var totalFoundUris=0
+     val tokenNum = tokenList.size
+     var TokenSentiScore=0.0d
+     var TotalTokenSentiScore=0.0d
+     println("Number of Tokens: "+tokenNum)
+     //if(tokenNum>0){
+       tokenList.foreach{t=>       
+         var counter = 0 
+         var sum = 0.0
+         if(t.uriTuple.size>0){
+           t.uriTuple.foreach{f=>
+              if(f._2!= -99){
+                sum+=f._2
+                counter+=1
+                totalFoundUris+=1
+                totalScoreUris+=1
+              }else if(f._2== -99){
+                totalFoundUris+=1
+                counter+=1
+              }
+           }
+           println("Sum and Counter: "+sum,counter.toDouble)
+           t.tokenUrisSentiScore += (if ((sum/counter.toDouble).isNaN) 0.0 else (sum/counter.toDouble) )
+         TotalTokenSentiScore+=t.tokenUrisSentiScore
+         println("Token and Total Score: "+t.tokenUrisSentiScore,TotalTokenSentiScore)
+         }
+       }
+     //}
+     println("We found a total of "+totalFoundUris+ " Uris related to this question, "+totalScoreUris+" of them are present in the DB, with a total Sentiment score of "+(if ((TotalTokenSentiScore/tokenNum.toDouble.toDouble).isNaN) 0.0 else (TotalTokenSentiScore/tokenNum.toDouble) ))
+     //println("Found in DB "+totalScoreUris+" from a total number of Uris: "+totalFoundUris)
+   }
    def main(args: Array[String]) = {
 
 
@@ -58,45 +108,104 @@ object UnitTestProfiling {
  
       println(questionObj)
       */
-
-
-    val URIs = ProcessQuestion.fetchTokenUris("tr","/home/elievex/Repository/resources/")
-   // URIs.foreach(println)
-      
+ 
+/*
     val DF=AppDBM.readDBCollection(AppConf.firstPhaseCollection)
-    DF.createOrReplaceTempView("DB")
-    val testcase = "<http://commons.dbpedia.org/resource/User:TR2F>"
-    val postestcase = "VBZ"
+    val word2 = List("<http://dbpedia.org/resource/Terrorism>")
+   
+
+    var scoredUrisList=ProcessQuestion.getTokenUrisSentiScore(word2.toList,"NN").toList
+    */
+     println(0.0/0.0)
+     val token1 = new Token("3","kill","VB","kill",0,List(("<http://commons.dbpedia.org/resource/User:TR4A>",-99d),("<http://commons.dbpedia.org/resource/User:TR4A>",0.3d),("<http://commons.dbpedia.org/resource/User:TR4A>",0.5d),("<http://commons.dbpedia.org/resource/User:TR3D>",0.2d),("<http://commons.dbpedia.org/resource/User:NA451>",0.6d)),0.0)
+     val token2 = new Token("4","run","NN","kill",2,List(),0.0)
+     val token3 = new Token("1","fly","AR","kill",3,List(("<http://commons.dbpedia.org/resource/User:TR4A>",-99d)),0.0)
+     val token4 = new Token("5","beg","RR","kill",0,List(("<http://commons.dbpedia.org/resource/User:TR4A>",-99d),("<http://commons.dbpedia.org/resource/User:TR4A>",0.3d)),0.0)
+     
+     val x = List[Token](token1,token2,token3,token4)
+     x.foreach(println)
+     calcFinalScore(x)
+    //println(ProcessQuestion.extractMostExactSenti("<http://commons.dbpedia.org/resource/User:TR2F>", "VBZ",DF))
+     /*
+    val word1 = List(("<http://commons.dbpedia.org/resource/User:TR4A>",-99d),("<http://commons.dbpedia.org/resource/User:TR4A>",0.3d),("<http://commons.dbpedia.org/resource/User:TR4A>",0.5d),("<http://commons.dbpedia.org/resource/User:TR3D>",0.2d),("<http://commons.dbpedia.org/resource/User:NA451>",0.6d))
+    val word2 = List(("<http://commons.dbpedia.org/resource/User:TR9A>",-99d),("<http://commons.dbpedia.org/resource/User:TR4A>",-99d),("<http://commons.dbpedia.org/resource/User:TR4A>",0.2d),("<http://commons.dbpedia.org/resource/User:TR3D>",0.6d),("<http://commons.dbpedia.org/resource/User:NA451>",0.3d))
+   
+    var counter = 0 
+    var sum = 0.0
+    if(word1.size>0){
+    word1.foreach{f=>
+      if(f._2!= -99){
+        sum+=f._2
+        counter+=1
+      }
+    }
+    println(sum)
+    println(sum/counter)
+    println(word1.size)
+    }*/
     
+    //ProcessQuestion.getTokenUrisSentiScore(list,"VBZ",DF)
+
+
+    /*
+     * 
+    var foundFlag=false
+    DF.createOrReplaceTempView("DB")
+    val testcase = "<http://commons.dbpediax.org/resource/User:TR2F>"
+    val postestcase = "VBZ"
+    var myVoteScore = new ListBuffer[(DBRecord,String)]()
     val dbPOS=stanfordPOS2sentiPos(postestcase)
-    val sentiArray = Array("senti_n","senti_v","senti_r","senti_a")
+    val sentiArray = Array("senti_n","senti_v","senti_r","senti_a","senti_uclassify")
     //| I did this because if I searched for the sentiment analysis of a POS and it wasn't found I will need to query the DB again to fetch an alternative 
     //| by doing this if I didn't find the score I want I can get it from the other without querying the data again 
+    var sentiScore=new DBRecord("","","",0.0,0.0,0.0,0.0,0.0,"",0.0)
+    var sentiIndicator=""
     val allDB = spark.sql(s"SELECT  * FROM DB where uri = '$testcase'  ") 
     if(allDB.count()>0){
-      //allDB.show()
+      allDB.show()
       allDB.createOrReplaceTempView("QuestionURI")
       val specDB = spark.sql(s"SELECT * FROM DB WHERE (uri,$dbPOS) IN ( SELECT  uri,max($dbPOS) FROM QuestionURI where uri = '$testcase' group by(uri))")
       if(specDB.count()>0){
-        specDB.show()
+        //specDB.show()
         val result = specDB.as[DBRecord].collect()
         if(isScoreNine(result(0),dbPOS)){
-          val uclassifyDB = spark.sql(s"SELECT * FROM DB WHERE (uri,senti_uclassify) IN ( SELECT  uri,max(senti_uclassify) FROM QuestionURI where uri = '$testcase' group by(uri))")
-          val uclassifyResult = uclassifyDB.as[DBRecord].collect()
-          println(uclassifyResult(0).senti_uclassify)
-          if(isScoreNine(uclassifyResult(0),"senti_uclassify")){
             sentiArray.foreach{x=>
               if(x!=dbPOS){
                  val sentiDB = spark.sql(s"SELECT * FROM DB WHERE (uri,$x) IN ( SELECT  uri,max($x) FROM QuestionURI where uri = '$testcase' group by(uri))")
                  val sentiResult = sentiDB.as[DBRecord].collect()
+                 if(!isScoreNine(sentiResult(0),x)){
+                   myVoteScore+=((sentiResult(0),x))              
+                 }
               }
             }
-
-          }
-         
+        }else{
+          foundFlag=true
+          sentiScore=result(0)
+          sentiIndicator=dbPOS
         }
       }      
     }
+
+
+    if(myVoteScore.size>0){
+      var Temp=myVoteScore(0)
+      myVoteScore.foreach{t=>
+        if(mapIndicator(t._1,t._2)>=mapIndicator(Temp._1,Temp._2)){
+          Temp=t
+        }
+      }
+      println("SCORE")
+      println(mapIndicator(Temp._1,Temp._2),Temp._2)
+    }
+    else{
+      if(foundFlag){
+          println("SCORE")
+          println(mapIndicator(sentiScore,sentiIndicator),sentiIndicator)}
+    }
+    
+    
+    */
+    
       //res.show(false)
       //println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
       //res2.show(false)
@@ -132,9 +241,79 @@ object UnitTestProfiling {
   */
 //(uri: String, expression: String, category: String, senti_n: Double, senti_v: Double, senti_a: Double, senti_r: Double, senti_uclassify: Double, relatedTo: String, cosine_similary: Double)
  
+/*
+    def extractMostExactSenti(uriString:String,posString:String,DF:DataFrame):Double={
+    println("I AM DYING HERE0")
+     DF.show()
+     println("I AM DYING HERE")
+     
+    var resultList : List[(String,Double)] = List()
+    var finalResult = -99d
+    var foundFlag=false
+    DF.createOrReplaceTempView("DB")
+    var myVoteScore = new ListBuffer[(DBRecord,String)]()
+    val dbPOS=stanfordPOS2sentiPos(posString)
+    val sentiArray = Array("senti_n","senti_v","senti_r","senti_a","senti_uclassify")
+    //| I did this because if I searched for the sentiment analysis of a POS and it wasn't found I will need to query the DB again to fetch an alternative 
+    //| by doing this if I didn't find the score I want I can get it from the other without querying the data again 
+    var sentiScore=new DBRecord("","","",0.0,0.0,0.0,0.0,0.0,"",0.0)
+    var sentiIndicator=""
+    val allDB = spark.sql(s"SELECT  * FROM DB where uri = '$uriString'  ") 
+    if(allDB.count()>0){
+      allDB.show(false)
+      allDB.createOrReplaceTempView("QuestionURI")
+      val specDB = spark.sql(s"SELECT * FROM DB WHERE (uri,$dbPOS) IN ( SELECT  uri,max($dbPOS) FROM QuestionURI where uri = '$uriString' group by(uri))")
+      if(specDB.count()>0){
+        //specDB.show()
+        val result = specDB.as[DBRecord].collect()
+        if(isScoreNine(result(0),dbPOS)){
+            sentiArray.foreach{x=>
+              if(x!=dbPOS){
+                 val sentiDB = spark.sql(s"SELECT * FROM DB WHERE (uri,$x) IN ( SELECT  uri,max($x) FROM QuestionURI where uri = '$uriString' group by(uri))")
+                 val sentiResult = sentiDB.as[DBRecord].collect()
+                 if(!isScoreNine(sentiResult(0),x)){
+                    myVoteScore+=((sentiResult(0),x)) 
+                 }
+              }
+            }
+        }else{
+          foundFlag=true
+          sentiScore=result(0)
+          sentiIndicator=dbPOS
+        }
+      }      
+    }
+    if(myVoteScore.size>0){
+      var Temp=myVoteScore(0)
+      myVoteScore.foreach{t=>
+        if(mapIndicator(t._1,t._2)>=mapIndicator(Temp._1,Temp._2)){
+          Temp=t
+        }
+      }
+      finalResult = mapIndicator(Temp._1,Temp._2)
+    }
+    else{
+      if(foundFlag){
+        finalResult = mapIndicator(sentiScore,sentiIndicator)
+      }
+    }
+    finalResult
+   }
+  def getTokenUrisSentiScore(list:List[String],posString:String,DF:DataFrame):ListBuffer[(String,Double)]={
+    
+    var UrisScore = new ListBuffer[(String,Double)]()
+    if(list.size>0){
+      list.foreach{
+        t=>
+        UrisScore+=((t,extractMostExactSenti(t,posString,DF)))
+      }
+    }
+    //UrisScore.foreach(println)
+    UrisScore
+  }
+ */
 
-
-    println("YA")
+    println("-------")
     spark.stop()
    }
 }
