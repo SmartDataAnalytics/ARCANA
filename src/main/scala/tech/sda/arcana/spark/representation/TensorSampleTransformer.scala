@@ -29,6 +29,10 @@ class TensorSampleTransformer(sparkContext: SparkContext) extends Serializable {
      */
     def initializeNegativeSample(tensor:Tensor[Float])={
             val label=Tensor[Float](T(T(0f),T(1f)))
+            //try it like this View().forward(Tensor[Float](T(T(0f),T(1f))))
+            //and see if there are differences
+            //and try nother is a 1-element tensor representing its category
+            //it stated in the documentation
             val sample=Sample(tensor,label)
             (sample)
     }
