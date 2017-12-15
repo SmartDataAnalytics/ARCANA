@@ -20,8 +20,6 @@ object RDFApp {
 
   val spark = SparkSession.builder()
       .master("local")
-      //.config(AppConf.inputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
-      //.config(AppConf.outputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
       .appName("RDFApp")
       .master("local[*]")
       .getOrCreate()
@@ -150,13 +148,6 @@ object RDFApp {
     println("============================")
     println("|        RDF Gateway       |")
     println("============================")
-    val input1 = "src/main/resources/rdf.nt" //Single File
-    //val input2 = "src/main/resources/ntTest/*" //Set of safe Files
-    //val input3 = "../ExtResources/ntTest2/*" //Set of problamatic Files
-    //val input4 = "../ExtResources/problemData.nt" //Single File
-    //val input5 = "../ExtResources/ntFiles/*" //dbpedia
-   
-    val input = if (args.length > 0) args(0) else input1;
 
     println("~Ending Session~")
     spark.stop()

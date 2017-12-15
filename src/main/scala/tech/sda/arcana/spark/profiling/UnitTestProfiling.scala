@@ -22,84 +22,12 @@ object UnitTestProfiling {
   
   
     import spark.implicits._
-   def stanfordPOS2sentiPos(postestcase:String):String={
-      var dbPOS=""
-      //a for adjective files
-      //r for adverb files
-      if(postestcase=="NN"||postestcase=="NNS"||postestcase=="NNP"||postestcase=="NNPS"){
-        dbPOS="senti_n"
-      }else if(postestcase=="VBZ"||postestcase=="VB"||postestcase=="VBD"||postestcase=="VBG"||postestcase=="VBN"||postestcase=="VBP"){
-        dbPOS="senti_v"
-      }else if(postestcase=="RB"||postestcase=="RBR"||postestcase=="RBS"){
-        dbPOS="senti_r"
-      }else if(postestcase=="JJ"||postestcase=="JJR"||postestcase=="JJS"){
-        dbPOS="senti_a"
-      }
-      dbPOS
-    }
-   def isScoreNine(obj:DBRecord,pos:String):Boolean={
-     var flag = false
-     pos match {
-      case "senti_v"  => if(obj.senti_v.toDouble==(-9.0)){flag = true}
-      case "senti_n"  => if(obj.senti_n.toDouble==(-9.0)){flag = true}
-      case "senti_r"  => if(obj.senti_r.toDouble==(-9.0)){flag = true}
-      case "senti_a"  => if(obj.senti_a.toDouble==(-9.0)){flag = true}
-      case "senti_uclassify"  => if(obj.senti_uclassify.toDouble==(-9.0)){flag = true}
-      }
-     flag
-   }
-   def mapIndicator(obj:DBRecord,indicator:String):Double={
-     var score = 0.0
-     //println(indicator)
-     //println(obj.senti_uclassify)
-      indicator match {
-        case "senti_v"  => score = obj.senti_v
-        case "senti_n"  => score = obj.senti_n
-        case "senti_r"  => score = obj.senti_r
-        case "senti_a"  => score = obj.senti_a
-        case "senti_uclassify"  => score = obj.senti_uclassify
-        }
-     score
-   }
-   def calcFinalScore(tokenList:List[Token]){
-     
-     var totalScoreUris=0
-     var totalFoundUris=0
-     val tokenNum = tokenList.size
-     var TokenSentiScore=0.0d
-     var TotalTokenSentiScore=0.0d
-     println("Number of Tokens: "+tokenNum)
-     //if(tokenNum>0){
-       tokenList.foreach{t=>       
-         var counter = 0 
-         var sum = 0.0
-         if(t.uriTuple.size>0){
-           t.uriTuple.foreach{f=>
-              if(f._2!= -99){
-                sum+=f._2
-                counter+=1
-                totalFoundUris+=1
-                totalScoreUris+=1
-              }else if(f._2== -99){
-                totalFoundUris+=1
-                counter+=1
-              }
-           }
-           println("Sum and Counter: "+sum,counter.toDouble)
-           t.tokenUrisSentiScore += (if ((sum/counter.toDouble).isNaN) 0.0 else (sum/counter.toDouble) )
-         TotalTokenSentiScore+=t.tokenUrisSentiScore
-         println("Token and Total Score: "+t.tokenUrisSentiScore,TotalTokenSentiScore)
-         }
-       }
-     //}
-     println("We found a total of "+totalFoundUris+ " Uris related to this question, "+totalScoreUris+" of them are present in the DB, with a total Sentiment score of "+(if ((TotalTokenSentiScore/tokenNum.toDouble.toDouble).isNaN) 0.0 else (TotalTokenSentiScore/tokenNum.toDouble) ))
-     //println("Found in DB "+totalScoreUris+" from a total number of Uris: "+totalFoundUris)
-   }
+
    def main(args: Array[String]) = {
 
 
       /* experimenting phase 2 
-    val path= "/home/elievex/Repository/resources/"
+   
     val input="How to kill a rabit then a person?"
     val question = input.toLowerCase()
     val questionInfo = ProcessQuestion.ProcessSentence(question,path)
@@ -109,22 +37,7 @@ object UnitTestProfiling {
       println(questionObj)
       */
  
-/*
-    val DF=AppDBM.readDBCollection(AppConf.firstPhaseCollection)
-    val word2 = List("<http://dbpedia.org/resource/Terrorism>")
-   
-
-    var scoredUrisList=ProcessQuestion.getTokenUrisSentiScore(word2.toList,"NN").toList
-    */
-     println(0.0/0.0)
-     val token1 = new Token("3","kill","VB","kill",0,List(("<http://commons.dbpedia.org/resource/User:TR4A>",-99d),("<http://commons.dbpedia.org/resource/User:TR4A>",0.3d),("<http://commons.dbpedia.org/resource/User:TR4A>",0.5d),("<http://commons.dbpedia.org/resource/User:TR3D>",0.2d),("<http://commons.dbpedia.org/resource/User:NA451>",0.6d)),0.0)
-     val token2 = new Token("4","run","NN","kill",2,List(),0.0)
-     val token3 = new Token("1","fly","AR","kill",3,List(("<http://commons.dbpedia.org/resource/User:TR4A>",-99d)),0.0)
-     val token4 = new Token("5","beg","RR","kill",0,List(("<http://commons.dbpedia.org/resource/User:TR4A>",-99d),("<http://commons.dbpedia.org/resource/User:TR4A>",0.3d)),0.0)
-     
-     val x = List[Token](token1,token2,token3,token4)
-     x.foreach(println)
-     calcFinalScore(x)
+ 
     //println(ProcessQuestion.extractMostExactSenti("<http://commons.dbpedia.org/resource/User:TR2F>", "VBZ",DF))
      /*
     val word1 = List(("<http://commons.dbpedia.org/resource/User:TR4A>",-99d),("<http://commons.dbpedia.org/resource/User:TR4A>",0.3d),("<http://commons.dbpedia.org/resource/User:TR4A>",0.5d),("<http://commons.dbpedia.org/resource/User:TR3D>",0.2d),("<http://commons.dbpedia.org/resource/User:NA451>",0.6d))

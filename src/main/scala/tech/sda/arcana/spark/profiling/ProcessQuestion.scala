@@ -239,6 +239,8 @@ object ProcessQuestion {
       }
       result
  }
+  /** Fetch the tokens of a uri 
+    */
   def fetchTokenUris(word:String,path:String):Set[String]={
     val listBuff=consultDbpediaSpotlight(word)
     
@@ -251,6 +253,8 @@ object ProcessQuestion {
     listBuff.foreach(f=>s+=f)
     s
   }
+   /** Map between stanford and sentword notations 
+    */
     def stanfordPOS2sentiPos(postestcase:String):String={
       var dbPOS=""
       //a for adjective files
@@ -266,6 +270,8 @@ object ProcessQuestion {
       }
       dbPOS
     }
+   /** a function that tries to find other scores if the one required  is -9
+    */
    def isScoreNine(obj:DBRecord,pos:String):Boolean={
      var flag = false
      pos match {
@@ -277,6 +283,8 @@ object ProcessQuestion {
       }
      flag
    }
+   /** Simple mapping of the object properties and an inidcator
+    */
    def mapIndicator(obj:DBRecord,indicator:String):Double={
      var score = 0.0
      //println(indicator)
@@ -290,12 +298,16 @@ object ProcessQuestion {
         }
      score
    }
+   /** Process the Uris' of a token
+    *   @param list of Uris, Pos tag of word 
+    *   @return Uri and its general score 
+    */
    def getTokenUrisSentiScore(myList:List[String],posString:String):ListBuffer[(String,Double)]={
      var UrisScore = new ListBuffer[(String,Double)]()
-     println("LET ME GO 0")
+     //println("LET ME GO 0")
      val DF = AppDBM.readDBCollection(AppConf.firstPhaseCollection)
      DF.createOrReplaceTempView("DB")
-     println("LET ME GO IN")
+     //println("LET ME GO IN")
      myList.foreach{uriString=>
        
        var resultList : List[(String,Double)] = List()
@@ -354,6 +366,10 @@ object ProcessQuestion {
      UrisScore
    }
  
+ /** Calculate the sentiment score of the complete question 
+  *   @param token of question 
+  *   @return summary of findings
+  */
   def calcFinalScore(tokenList:List[Token]):String={
      
      var totalScoreUris=0
@@ -361,7 +377,7 @@ object ProcessQuestion {
      val tokenNum = tokenList.size
      var TokenSentiScore=0.0d
      var TotalTokenSentiScore=0.0d
-     println("Number of Tokens: "+tokenNum)
+    // println("Number of Tokens: "+tokenNum)
      //if(tokenNum>0){
        tokenList.foreach{t=>       
          var counter = 0 
@@ -378,10 +394,10 @@ object ProcessQuestion {
                 counter+=1
               }
            }
-           println("Sum and Counter: "+sum,counter.toDouble)
+           //println("Sum and Counter: "+sum,counter.toDouble)
            t.tokenUrisSentiScore += (if ((sum/counter.toDouble).isNaN) 0.0 else (sum/counter.toDouble) )
          TotalTokenSentiScore+=t.tokenUrisSentiScore
-         println("Token and Total Score: "+t.tokenUrisSentiScore,TotalTokenSentiScore)
+         //println("Token and Total Score: "+t.tokenUrisSentiScore,TotalTokenSentiScore)
          }
        }
      //}
@@ -390,7 +406,11 @@ object ProcessQuestion {
      summary
    }
    
-   // Process question and fill it as an object//:List[Token]=
+   
+ /** Process the question on the token level
+  *   @param Question, path to resources 
+  *   @return list of token and posTagString
+  */
   def ProcessSentence(text:String,path:String):(List[Token],String)={
         val extractNumber = raw"(\d+)".r
         var tokens = new ListBuffer[Token]()
@@ -441,6 +461,10 @@ object ProcessQuestion {
         //tokens.toList
       (tokens.toList, posTagString)
   }
+ /** process the question by fetching different infromation after applying different routines on it 
+  *   @param Question, path to resources 
+  *   @return Processed Question Object 
+  */
   def processQuestion(input:String,path:String): QuestionObj = {
     //QuestionObj(sentence:String,sentenceWoSW:String,SentimentExtraction:Int,tokens:List[Token],PosSentence:String,var phaseTwoScore:Int)
     //Token(index:String,word:String,posTag:String,lemma:String,var relationID:Int)
@@ -453,6 +477,10 @@ object ProcessQuestion {
  
     questionObj
   }
+ /** Read the file that has the questions 
+  *   @param path to the file
+  *   @return Question as an RDD
+  */
   def readQuestions(path:String):RDD[String]={
     val sc = spark.sparkContext
     val textFile = sc.textFile(path)
@@ -462,18 +490,7 @@ object ProcessQuestion {
   }
 
   def main(args: Array[String]) = {
-    
-    val path = "/home/elievex/Repository/resources/"
-
-    // Read the Questions
-    val noEmptyRDD=ProcessQuestion.readQuestions(path+AppConf.Questions)
-    
-    // Process Questions
-    val ds= noEmptyRDD.map(t=>ProcessQuestion.processQuestion(t,"/home/elievex/Repository/resources/")).toDS().cache()
-    println("~Processing Questions is done~")
-    ds.show(false)
-    
-    //consultDbpediaSpotlight()
+ 
     spark.stop()
   }
   
