@@ -15,12 +15,11 @@ import com.intel.analytics.bigdl.nn.ClassNLLCriterion
 import com.intel.analytics.bigdl.nn.MSECriterion
 import com.intel.analytics.bigdl.utils.T
 import shapeless._0
-import tech.sda.arcana.spark.classification.cnn.Core
+import com.intel.analytics.bigdl.utils.Engine
 import tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model
 import tech.sda.arcana.spark.neuralnetwork.model.DyLeNet5Model
 import tech.sda.arcana.spark.neuralnetwork.model.AlexNetModel
 import tech.sda.arcana.spark.neuralnetwork.model.GoogLeNetModel
-//import tech.sda.arcana.spark.neuralnetwork.model.GoogleNetFromBigDl
 import com.intel.analytics.bigdl.nn.Reshape
 import com.intel.analytics.bigdl.nn.Module
 import com.intel.analytics.bigdl.visualization._
@@ -100,6 +99,17 @@ object sentenceToTensor {
             (sample)
         }
 
+                  
+          def Core(model:String):SparkContext={
+         //initiate spark using the engine
+         val conf = Engine.createSparkConf()
+           .setAppName(model)
+           .set("spark.task.maxFailures", "1")
+           .setMaster("local[3]")
+         val sc = new SparkContext(conf)
+         Engine.init
+         return sc
+          }
   
     def main(args:Array[String]){
       
@@ -112,38 +122,9 @@ object sentenceToTensor {
           
           // Create a SparkContext using every core of the local machine
           // val sc = new SparkContext("local[*]", "MinTemperatures")
-          val s=new Core("model","train","label","test")
-          val sc=s.initialize()
+          val sc=Core("model")
           
-          /*
-          println("-------------------first------------------------")
-          val first=DyLeNet5Model
-          //println(first.build(20,20,5).evaluate())
-          first.graph(20,20,5).saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/first")
-          println("done first")
-          println("-------------------second------------------------")
-          val second=LeNet5Model
-          //println(second.build(5).evaluate())
-          second.graph(5).saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/second")
-          println("done second")
-          println("-------------------fourth-------------------------")
-          val fourth=AlexNetModel
-          //println(fourth.build(10,10,5).evaluate())
-          fourth.graph(10,10,5).saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/fourth")
-          println("done fourth")
-          
-          
-          println("--------------------fifth------------------------")
-          val fifth=GoogLeNetModel
-          //println(fifth.build(10,10,5).evaluate())
-          fifth.graph(10,10,5).saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/fifth")
-          println("done fifth")
-          println("--------------------------------------------")*/
-              //.saveGraphTopology("/home/mhd/Desktop/bigdl_summaries")
-          
-          //GoogleNetFromBigDl
-      //new
-      /*
+         
           
           // Read each line of input data
           val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
@@ -200,7 +181,7 @@ object sentenceToTensor {
             .setEndWhen(Trigger.maxEpoch(param.maxEpoch))
             .optimize()
             */
-            
+            /*
             val nowModel = LeNet5Model.graph(5)
             nowModel.saveGraphTopology("/home/mhd/Desktop/bigdl_summaries")
             
@@ -211,18 +192,16 @@ object sentenceToTensor {
             optimizer.setTrainSummary(trainSummary)
             optimizer.setValidationSummary(validationSummary)
             optimizer.setValidation(Trigger.everyEpoch ,sddf, Array(new Top1Accuracy),3)
-            
+            */
             val trained_model=optimizer.optimize()
-            val evaluateResult=trained_model.evaluate(sddf, Array(new Top1Accuracy), None)
+            //val evaluateResult=trained_model.evaluate(sddf, Array(new Top1Accuracy), None)
             //val evaluateResult = trained_model.evaluate(testSet, Array(new Top1Accuracy), None)
-            evaluateResult.foreach(println)  
+            //evaluateResult.foreach(println)  
             
             
             
             val re=trained_model.predict(sddf).collect()
             re.foreach(println)
-            * 
-            * 
-            */
+    
     }        
 }
