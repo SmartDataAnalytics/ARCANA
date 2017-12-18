@@ -193,8 +193,8 @@ object GoogLeNetModel {
       //Building the blocks
       val hasDropout=false
       val feature1 = Sequential()
-      //feature1.add(SpatialZeroPadding(0, 224-Width, 0, 224-Height))
-      //feature1.add(Padding(1,-2,3,value=0.0,nIndex=1))
+        feature1.add(SpatialZeroPadding(0, 224-Width, 0, 224-Height))
+        feature1.add(Padding(1,-2,3,value=0.0,nIndex=1))
         feature1.add(SpatialConvolution(3, 64, 7, 7, 2, 2, 3, 3, 1, false)
           .setInitMethod(weightInitMethod = Xavier, Zeros)
           .setName("conv1/7x7_s2"))
