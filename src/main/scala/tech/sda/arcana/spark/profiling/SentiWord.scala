@@ -114,7 +114,7 @@ object SentiWord {
          var Score=0.0
          var Sum=0.0
           for( x <- resul){
-             Score += (x.PosScore.toDouble-x.NegScore.toDouble)/(x.TermRank.toDouble) // decide whether to keep the positive part or delete it 
+             Score += (-x.NegScore.toDouble)/(x.TermRank.toDouble) // decide whether to keep the positive part or delete it 
              Sum+=(1/(x.TermRank.toDouble))
            }
          Score /= Sum
@@ -153,13 +153,7 @@ object SentiWord {
       df.show()
       println(df.count())
       */
-    
-      val DF=prepareSentiFile("/home/elievex/Repository/resources/"+AppConf.SentiWordFile)
-      val result = getSentiScoreForAllPOS("bad",DF)
-      result.foreach(tuple => println(tuple))// println(result(0)._1,result(0)._2)
-			println("==========================")
-      val result2 = getSentiScoreForAllPOS("bad",readProcessedSentiWord("/home/elievex/Repository/resources/"))
-      result2.foreach(tuple => println(tuple))// println(result(0)._1,result(0)._2)
+
       //score += setScore.getValue() / (double) setScore.getKey();
 			//sum += 1.0 / (double) setScore.getKey();
 			// Score= 1/2*first + 1/3*second + 1/4*third ..... etc.

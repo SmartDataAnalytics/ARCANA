@@ -34,22 +34,20 @@ object WordNet {
         println(ITR.next().asInstanceOf[IWord].getLemma)
       }
   }
- // THIS USES JAWS
+    /** Get the Synsets (Synonyms) of a word from wordnet using JAWS
+    *   @param The word, The path to the resources file
+    *   @return Set of synsets
+    */
   def getSynsets(word:String,path:String):scala.collection.mutable.Set[String]={
      var set = scala.collection.mutable.Set[String]()
      System.setProperty("wordnet.database.dir", path+AppConf.WordNetDict)
-     
      val database: WordNetDatabase = WordNetDatabase.getFileInstance
      val synsets: Array[Synset] = database.getSynsets(word)
-     
      for (i <- 0 until synsets.length) {
-        //println("")
         val wordForms: Array[String] = synsets(i).getWordForms
         for (j <- 0 until wordForms.length) {
-          //System.out.print((if (j > 0) ", " else "") + wordForms(j))
           set.add(wordForms(j))
         }
-        //println(": " + synsets(i).getDefinition)
       }
      set
    }

@@ -335,11 +335,3 @@ object Dataset2Vec {
 }
 
 
-      //output to one file
-      //finalRDD.coalesce(1, true).saveAsTextFile("testMie")
-      //finalRDD.saveAsTextFile("out\\int\\tezt")
- 
-      //finalRDD.map(_.toString).toDF.write.mode("append").text("testMie")
-
-
-
