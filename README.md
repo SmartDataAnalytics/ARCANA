@@ -9,9 +9,6 @@ Furthermore, we are going to build an intelligent algorithm to decide if a natur
 
 Usage
 ----------
-If you wish to change something in the project, be sure to use Scala-2.11. 
-For example (Using Scala IDE):
-Project >> Properties >> Scala Compiler >> Scala Installation : Latest 2.11 bundle (dynamic) 
 
 ```
 git clone https://github.com/SmartDataAnalytics/ARCANA.git
@@ -19,3 +16,7 @@ cd SANSA-Template-Maven-Spark
 
 mvn clean package
 ````
+
+If you wish to change something in the project, be sure to use Scala-2.11. 
+For example (Using Scala IDE):
+###### Project >> Properties >> Scala Compiler >> Scala Installation : Latest 2.11 bundle (dynamic) 
