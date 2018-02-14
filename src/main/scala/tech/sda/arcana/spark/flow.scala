@@ -11,7 +11,6 @@ import com.intel.analytics.bigdl.nn.ClassNLLCriterion
 import com.intel.analytics.bigdl.nn.MSECriterion
 import com.intel.analytics.bigdl.utils.T
 import shapeless._0
-import tech.sda.arcana.spark.classification.cnn.Core
 import tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model
 import tech.sda.arcana.spark.classification.cnn._
 import tech.sda.arcana.spark.representation._

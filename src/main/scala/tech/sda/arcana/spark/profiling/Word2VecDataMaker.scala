@@ -115,7 +115,8 @@ object Dataset2Vec {
   
   def fetchObjectsOfSubject(DF: DataFrame, word: String):List[RDFURI]={
       DF.createOrReplaceTempView("triples")
-      val Res = spark.sql(s"SELECT Object from triples where Subject = '$word'") 
+
+      val Res = spark.sql(s"""SELECT Object from triples where Subject = "$word"""") 
       val UriList=Res.select("Object").rdd.map(r => r(0)).collect()
       UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
   }
@@ -123,7 +124,7 @@ object Dataset2Vec {
   def fetchAllOfWordAsSubject(DF: DataFrame, word: String):List[RDFURI]={
       DF.createOrReplaceTempView("triples")
       val REG = raw"(?i)(?<![a-zA-Z])$word(?![a-zA-Z])".r
-      val Res = spark.sql(s"SELECT * from triples where Subject RLIKE '$REG' ")
+      val Res = spark.sql(s"""SELECT * from triples where Subject RLIKE "$REG" """)
       //val Res = spark.sql(s"SELECT * from triples where Subject like '%$word%'") 
       val UriList=Res.select("Subject").rdd.map(r => r(0)).collect()
       UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
@@ -259,9 +260,9 @@ object Dataset2Vec {
      //newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
   }
  // This function reads the data and make the word2vecready data while working on subjects related to categories only
-  def ceatingWord2VecCategoryData(DS: Dataset[Triple],path:String){
-      val R=DS //"src/main/resources/rdf2.nt"
-      
+  def ceatingWord2VecCategoryData(path:String){
+      //val R=DS //"src/main/resources/rdf2.nt"
+      val R=RDFApp.readProcessedData(path+AppConf.processedDBpedia)
       //| Fetch Categories
       var Categories = AppConf.categories
      
@@ -288,9 +289,9 @@ object Dataset2Vec {
   }
   
   // This function reads the data and make the word2vec ready data while working on each subject of the dataset
-  def ceatingWord2VecDatasetData(DS: Dataset[Triple],path:String){
-      val R=DS
- 
+  def ceatingWord2VecDatasetData(path:String){
+      //val R=DS
+      val R=RDFApp.readProcessedData(path+AppConf.processedDBpedia)
       var subjectsList = R.select("Subject").rdd.map(r => r(0).asInstanceOf[String]).collect()
       var CategoriesNT=subjectsList.toList.distinct
       
@@ -314,14 +315,14 @@ object Dataset2Vec {
       myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save(path+AppConf.DatasetData)
   }
   
-    def MakeWord2VecData(DS: Dataset[Triple],path:String,choice:Int){
+    def MakeWord2VecData(path:String,choice:Int){
       if(choice==1){
         //| Creates Word2Vec Data from Categories
-        ceatingWord2VecCategoryData(DS,path)
+        ceatingWord2VecCategoryData(path)
       }
       if(choice==2){
         //| Creates Word2Vec Data from Dataset
-        ceatingWord2VecDatasetData(DS,path)
+        ceatingWord2VecDatasetData(path)
       }
       println("~Word2Vec data are created~")
   }

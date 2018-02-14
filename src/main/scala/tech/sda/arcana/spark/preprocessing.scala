@@ -30,7 +30,7 @@ object ExecuteOperations {
     val Word2VecDataType = 1 
     
     //| Prepare Data for the Word2Vec Model  
-    Dataset2Vec.MakeWord2VecData(RDFDs,path,Word2VecDataType)
+    Dataset2Vec.MakeWord2VecData(path,Word2VecDataType)
     
     //| Create the Word2Vec Model
     Word2VecModelMaker.MakeWord2VecModel(path,Word2VecDataType)
@@ -48,3 +48,10 @@ object ExecuteOperations {
     spark.stop()
   }
 }
+
+/* Measure Time:
+ *  val t1 = System.nanoTime
+    // Task
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("Duration of Task-processing is:"+duration)
+ */
