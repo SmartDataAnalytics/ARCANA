@@ -133,7 +133,7 @@ object RDFApp {
   }
   def readProcessedData(path:String):DataFrame={
       val sc = spark.sqlContext
-      sc.read.format("com.databricks.spark.csv").option("header", "true").option("inferSchema", "true").load(path+AppConf.processedDBpedia)
+      sc.read.format("com.databricks.spark.csv").option("header", "true").option("inferSchema", "true").load(path)
   }
   // Function that is meant to be invoked from outside and which perform the tasks on the data 
   def importingData(filename: String) = {
