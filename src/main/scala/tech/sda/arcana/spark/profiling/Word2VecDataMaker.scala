@@ -115,6 +115,7 @@ object Dataset2Vec {
   
   def fetchObjectsOfSubject(DF: DataFrame, word: String):List[RDFURI]={
       DF.createOrReplaceTempView("triples")
+
       val Res = spark.sql(s"""SELECT Object from triples where Subject = "$word"""") 
       val UriList=Res.select("Object").rdd.map(r => r(0)).collect()
       UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
