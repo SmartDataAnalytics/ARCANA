@@ -227,6 +227,42 @@ object Dataset2Vec {
          }
     }
   }
+  def prepareOneCategory(instance:Category){
+    //| Loop Categories
+    //for (instance <- data){
+
+      instance.FormedURI=instance.Category+" "+instance.uri.map(_.Uri).mkString(" ")
+
+       for (line <- instance.uri){
+        instance.FormedURI+=" "+line.URIslist.map(_.Uri).mkString(" ")
+       }
+
+         for(r<-instance.uri){
+            for (z <- r.URIslist){
+             instance.FormedURI +=" "+z.URIslist.map(_.Uri).mkString(" ")
+             }
+         }
+
+         for(r<-instance.uri){
+            for (z <- r.URIslist){
+             for (q <- z.URIslist){
+               instance.FormedURI +=" "+q.URIslist.map(_.Uri).mkString(" ")
+              }
+            }
+         }
+     
+         //This condition is to remove single URIs 
+         if(instance.FormedURI.count(_ == '>')>1){
+           // replace double spaces with single spaces
+           instance.FormedURI=instance.FormedURI.replaceAll(" +"," ")
+           // remove trailing spaces
+           instance.FormedURI=instance.FormedURI.replaceAll("""(?m)\s+$""", "")
+         }
+         else{
+           instance.FormedURI=""
+         }
+   // }
+  }
   // Fill the Category data into an RDD that is ready to be written 
   def prepareCategoryDataToRDD(thirdTR: List[Category]):RDD[String]={
       val sc = spark.sparkContext
@@ -249,6 +285,17 @@ object Dataset2Vec {
       }
       myRDD.filter(_.nonEmpty)
   }  
+  //prepare one category
+  def prepareOneCategoryDataToRDD(x: Category):RDD[String]={
+      val sc = spark.sparkContext
+      var myRDD=sc.emptyRDD[String]
+      //for(x<-thirdTR){
+        for(y<-x.uri){
+          myRDD++=sc.parallelize(Seq(y.FormedURI))
+        }
+      //}
+      myRDD.filter(_.nonEmpty)
+  }
   // Append data to the RDD when desired 
   def appendToRDD(data: String) {
      val sc = spark.sparkContext
@@ -259,6 +306,23 @@ object Dataset2Vec {
      newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("append").save("Word2VecData")
      //newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
   }
+  
+ // Another way to create the structure but by mapping each category alone then appending the results together 
+  def structOneCategory(path:String){
+    val R=RDFApp.readProcessedData(path+AppConf.processedDBpedia)
+    var Categories = AppConf.categories
+    var categoryOBJs=Categories.map(x => saveStructOneCategory(R,x,path))
+  }
+  def saveStructOneCategory(DF: DataFrame, word: String,path:String){
+    var categoryOBJ = new Category(word,fetchAllOfWordAsSubject(DF.toDF(),word))
+    var firstItr=firstTraverse(categoryOBJ,DF)
+    var secondItr=secondTraverse(firstItr,DF)
+    var thirdItr=thirdTraverse(secondItr,DF)
+    prepareOneCategory(thirdItr)
+    var myRDD=prepareOneCategoryDataToRDD(thirdItr)
+    myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("append").save(path+AppConf.CategoryData) // 'overwrite', 'append', 'ignore', 'error'.
+  }
+  
  // This function reads the data and make the word2vecready data while working on subjects related to categories only
   def ceatingWord2VecCategoryData(path:String){
       //val R=DS //"src/main/resources/rdf2.nt"
@@ -319,6 +383,7 @@ object Dataset2Vec {
       if(choice==1){
         //| Creates Word2Vec Data from Categories
         ceatingWord2VecCategoryData(path)
+        //structOneCategory(path)
       }
       if(choice==2){
         //| Creates Word2Vec Data from Dataset
