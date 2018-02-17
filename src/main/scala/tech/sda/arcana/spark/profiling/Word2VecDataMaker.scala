@@ -240,7 +240,8 @@ object Dataset2Vec {
          }
     }
   }
-    def prepareOneCategory(instance:Category){
+
+  def prepareOneCategory(instance:Category){
     //| Loop Categories
     //for (instance <- data){
 
@@ -310,7 +311,7 @@ object Dataset2Vec {
       //}
       myRDD.filter(_.nonEmpty)
   }  
- 
+
   // Append data to the RDD when desired 
   def appendToRDD(data: String) {
      val sc = spark.sparkContext
@@ -321,8 +322,8 @@ object Dataset2Vec {
      newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("append").save("Word2VecData")
      //newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
   }
-  
-  // Another way to create the structure but by mapping each category alone then appending the results together 
+
+ // Another way to create the structure but by mapping each category alone then appending the results together 
   def structOneCategory(path:String){
     val R=RDFApp.readProcessedData(path+AppConf.processedDBpedia)
     var Categories = AppConf.categories
@@ -337,6 +338,7 @@ object Dataset2Vec {
     var myRDD=prepareOneCategoryDataToRDD(thirdItr)
     myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("append").save(path+AppConf.CategoryData) // 'overwrite', 'append', 'ignore', 'error'.
   }
+
  // This function reads the data and make the word2vecready data while working on subjects related to categories only
   def ceatingWord2VecCategoryData(path:String){
       //val R=DS //"src/main/resources/rdf2.nt"
@@ -368,7 +370,7 @@ object Dataset2Vec {
       // Thread.sleep(5000)
       var myRDD=prepareCategoryDataToRDD(thirdTR)
       //myRDD.map(_.toString).toDF.show(false)     
- 		
+    
       myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save(path+AppConf.CategoryData) // 'overwrite', 'append', 'ignore', 'error'.
   }
   
@@ -395,7 +397,7 @@ object Dataset2Vec {
 
       var myRDD=prepareDatasetDataToRDD(thirdTR)
       // myRDD.map(_.toString).toDF.show(100,false)     
- 		
+    
       myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save(path+AppConf.DatasetData)
   }
   
@@ -419,5 +421,3 @@ object Dataset2Vec {
     spark.stop()
   }
 }
-
-

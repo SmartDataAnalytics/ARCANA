@@ -167,6 +167,14 @@ object sentenceToTensor {
             )
             println("reach here")
             
+            val FModel = LeNet5Model.graph(5)
+            FModel.saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/LeNetModel")
+            
+            val SModel = AlexNetModel.graph(5,244,244)
+            SModel.saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/AlexNetModel")
+            
+            val TModel = GoogLeNetModel.graph(5,244,244)
+            TModel.saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/GooGleNetModel")
             
             //optimizer.setValidation(trigger, dataset, vMethods)
             //optimizer.setOptimMethod(method)

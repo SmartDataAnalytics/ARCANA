@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.2.2" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
+  <class id="1" language="java" name="tech.sda.arcana.spark.representation.QuestionsInitializer" project="ARCANA" 
+    file="/ARCANA/src/main/scala/tech/sda/arcana/spark/representation/QuestionsInitializer.scala" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="202" y="296"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="tech.sda.arcana.spark.representation.QuestionTensorTransformer" project="ARCANA" 
+    file="/ARCANA/src/main/scala/tech/sda/arcana/spark/representation/QuestionTensorTransformer.scala" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="282" y="559"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="tech.sda.arcana.spark.representation.TensorSampleTransformer" project="ARCANA" 
+    file="/ARCANA/src/main/scala/tech/sda/arcana/spark/representation/TensorSampleTransformer.scala" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="812" y="559"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="tech.sda.arcana.spark.representation.VectorizationDelegator" project="ARCANA" 
+    file="/ARCANA/src/main/scala/tech/sda/arcana/spark/representation/VectorizationDelegator.scala" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="653" y="268"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="tech.sda.arcana.spark.neuralnetwork.model.AlexNetModel" project="ARCANA" 
+    file="/ARCANA/src/main/scala/tech/sda/arcana/spark/neuralnetwork/model/AlexNetModel.scala" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="862" y="743"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="tech.sda.arcana.spark.neuralnetwork.model.DyLeNet5Model" project="ARCANA" 
+    file="/ARCANA/src/main/scala/tech/sda/arcana/spark/neuralnetwork/model/DyLeNet5Model.scala" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="434" y="744"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="tech.sda.arcana.spark.neuralnetwork.model.GoogLeNetModel" project="ARCANA" 
+    file="/ARCANA/src/main/scala/tech/sda/arcana/spark/neuralnetwork/model/GoogLeNetModel.scala" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="205" y="752"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="tech.sda.arcana.spark.neuralnetwork.model.LeNet5Model" project="ARCANA" 
+    file="/ARCANA/src/main/scala/tech/sda/arcana/spark/neuralnetwork/model/LeNet5Model.scala" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="651" y="743"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="9" language="java" name="tech.sda.arcana.spark.classification.cnn.SparkBigDlInitializer" project="ARCANA" 
+    file="/ARCANA/src/main/scala/tech/sda/arcana/spark/classification/cnn/SparkBigDlInitializer.scala" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="445" y="64"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="10" language="java" name="tech.sda.arcana.spark.classification.cnn.Trainer" project="ARCANA" 
+    file="/ARCANA/src/main/scala/tech/sda/arcana/spark/classification/cnn/Trainer.scala" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="564" y="1131"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="11" language="java" name="tech.sda.arcana.spark.flow" project="ARCANA" 
+    file="/ARCANA/src/main/scala/tech/sda/arcana/spark/flow.scala" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="98" y="943"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    sort-features="false" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
