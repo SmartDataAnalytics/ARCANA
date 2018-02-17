@@ -116,17 +116,29 @@ object Dataset2Vec {
   def fetchObjectsOfSubject(DF: DataFrame, word: String):List[RDFURI]={
       DF.createOrReplaceTempView("triples")
 
-      val Res = spark.sql(s"""SELECT Object from triples where Subject = "$word"""") 
+      val Res = spark.sql(s"""SELECT Object from triples where Subject = "$word" """) 
       val UriList=Res.select("Object").rdd.map(r => r(0)).collect()
+      UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
+  }
+  
+    def fetchObjectsURIOfSubject(DF: DataFrame, word: String):List[RDFURI]={
+      DF.createOrReplaceTempView("triples")
+      //val REG1 = raw"(http://)".r
+      //val REG2 = raw"(XMLSchema#)".r
+      //and Object RLIKE  "$REG1" and Object NOT RLIKE  "$REG2"
+      val Res = spark.sql(s"""SELECT distinct Object from triples where Subject = "$word"  LIMIT 5  """) 
+      val UriList=Res.select("Object").rdd.map(r => r(0)).collect().take(5)
       UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
   }
   
   def fetchAllOfWordAsSubject(DF: DataFrame, word: String):List[RDFURI]={
       DF.createOrReplaceTempView("triples")
+      //println("Word is: "+word)
       val REG = raw"(?i)(?<![a-zA-Z])$word(?![a-zA-Z])".r
-      val Res = spark.sql(s"""SELECT * from triples where Subject RLIKE "$REG" """)
+      val Res = spark.sql(s"""SELECT distinct * from triples where Subject RLIKE "$REG" LIMIT 5 """)
       //val Res = spark.sql(s"SELECT * from triples where Subject like '%$word%'") 
       val UriList=Res.select("Subject").rdd.map(r => r(0)).collect()
+      //UriList.foreach(println)
       UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
   }
   def fetchAllOfWordAsOubject(DF: DataFrame, word: String):List[RDFURI]={
@@ -139,13 +151,13 @@ object Dataset2Vec {
   }
   // First Traverse of the RDF Graph
   def firstTraverse(x:Category,DF: DataFrame):Category={
-    x.uri.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri)))
+    x.uri.map(x=>(x.URIslist=fetchObjectsURIOfSubject(DF,x.Uri)))
     x
   }
   // Second Traverse of the RDF Graph
   def secondTraverse(xl: Category,DF: DataFrame):Category={
       for (fTR <- xl.uri){
-        fTR.URIslist.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri)))
+        fTR.URIslist.map(x=>(x.URIslist=fetchObjectsURIOfSubject(DF,x.Uri)))
       }
     xl
   }
@@ -153,7 +165,7 @@ object Dataset2Vec {
   def thirdTraverse(xl: Category,DF: DataFrame):Category={
       for (fTR <- xl.uri){
         for (sTR <- fTR.URIslist){
-           sTR.URIslist.map(x=>(x.URIslist=fetchObjectsOfSubject(DF,x.Uri))) 
+           sTR.URIslist.map(x=>(x.URIslist=fetchObjectsURIOfSubject(DF,x.Uri))) 
         }
       }
     xl
@@ -190,6 +202,7 @@ object Dataset2Vec {
        }
     }
   }
+  
     // Get the data into a form that word2vec would operate on while obtaining it from every subject
   def prepareDatasetData(data:List[Category]){
     //| Loop Categories
@@ -227,6 +240,7 @@ object Dataset2Vec {
          }
     }
   }
+
   def prepareOneCategory(instance:Category){
     //| Loop Categories
     //for (instance <- data){
@@ -273,8 +287,9 @@ object Dataset2Vec {
         }
       }
       myRDD.filter(_.nonEmpty)
-  }    
-    // Fill the Dataset data into an RDD that is ready to be written 
+  }   
+  
+  // Fill the Dataset data into an RDD that is ready to be written 
   def prepareDatasetDataToRDD(thirdTR: List[Category]):RDD[String]={
       val sc = spark.sparkContext
       var myRDD=sc.emptyRDD[String]
@@ -284,7 +299,7 @@ object Dataset2Vec {
 
       }
       myRDD.filter(_.nonEmpty)
-  }  
+  } 
   //prepare one category
   def prepareOneCategoryDataToRDD(x: Category):RDD[String]={
       val sc = spark.sparkContext
@@ -295,7 +310,8 @@ object Dataset2Vec {
         }
       //}
       myRDD.filter(_.nonEmpty)
-  }
+  }  
+
   // Append data to the RDD when desired 
   def appendToRDD(data: String) {
      val sc = spark.sparkContext
@@ -306,7 +322,7 @@ object Dataset2Vec {
      newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("append").save("Word2VecData")
      //newRdd.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save("Word2VecData")
   }
-  
+
  // Another way to create the structure but by mapping each category alone then appending the results together 
   def structOneCategory(path:String){
     val R=RDFApp.readProcessedData(path+AppConf.processedDBpedia)
@@ -322,19 +338,25 @@ object Dataset2Vec {
     var myRDD=prepareOneCategoryDataToRDD(thirdItr)
     myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("append").save(path+AppConf.CategoryData) // 'overwrite', 'append', 'ignore', 'error'.
   }
-  
+
  // This function reads the data and make the word2vecready data while working on subjects related to categories only
   def ceatingWord2VecCategoryData(path:String){
       //val R=DS //"src/main/resources/rdf2.nt"
       val R=RDFApp.readProcessedData(path+AppConf.processedDBpedia)
+
       //| Fetch Categories
       var Categories = AppConf.categories
-     
-      //  var Categories = List("war","nuclear","Hunebed", "Paddestoel", "Buswachten")
-      
+
       //| Converting each category to a Category Object with the list of URIs belonging to it
       var categoryOBJs=Categories.map(x => new Category(x,fetchAllOfWordAsSubject(R.toDF(),x)))
       
+      /*
+      for(x<-categoryOBJs){
+        for(y<-x.uri){
+          println(y.Uri)
+        }
+      }
+      */
       //| Fetch the objects related to the URIs of each category
       var firstTR=categoryOBJs.map(x => firstTraverse(x,R.toDF()))
 
@@ -348,7 +370,7 @@ object Dataset2Vec {
       // Thread.sleep(5000)
       var myRDD=prepareCategoryDataToRDD(thirdTR)
       //myRDD.map(_.toString).toDF.show(false)     
- 		
+    
       myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save(path+AppConf.CategoryData) // 'overwrite', 'append', 'ignore', 'error'.
   }
   
@@ -375,7 +397,7 @@ object Dataset2Vec {
 
       var myRDD=prepareDatasetDataToRDD(thirdTR)
       // myRDD.map(_.toString).toDF.show(100,false)     
- 		
+    
       myRDD.map(_.toString).toDF.coalesce(1).write.format("text").mode("overwrite").save(path+AppConf.DatasetData)
   }
   
@@ -399,5 +421,3 @@ object Dataset2Vec {
     spark.stop()
   }
 }
-
-

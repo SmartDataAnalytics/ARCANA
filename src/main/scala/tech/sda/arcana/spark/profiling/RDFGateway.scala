@@ -26,29 +26,29 @@ object RDFApp {
     
    import spark.implicits._
    
-    // This method is basically for debugging, it reads a file and print its lines in a centralized fashion
+  // This method is basically for debugging, it reads a file and print its lines in a centralized fashion
   def readFile(filename: String) = {
     val line = Source.fromFile(filename).getLines
     //val fields = line.split("""[ ]+(?=([^"]*"[^"]*")*[^"]*$)""")
     
-   for (x <- line) {
-      print("0 -> ")
-      println(x)
-      val y=x.replaceAll("""\\""""", """\"""")
-      val y1=y.replaceAll("""\\\\"""", "\"")
-      val y2=y1.replaceAll("""\"\\"""", "\"")
-      val y3=y2.replaceAll("""\\"""", "")
-      print("0.b -> ")
-      println(y3)
-      val fields = y3.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
-      print("1 -> ")
-      if (fields(0) != null) println(fields(0)) else println("_")
-      print("2 -> ")
-      if (fields(1) != null) println(fields(1)) else println("_")
-      print("3 -> ")
-      if (fields(2) != null) println(fields(2)) else println("_")
-     
-    }
+     for (x <- line) {
+        print("0 -> ")
+        println(x)
+        val y=x.replaceAll("""\\""""", """\"""")
+        val y1=y.replaceAll("""\\\\"""", "\"")
+        val y2=y1.replaceAll("""\"\\"""", "\"")
+        val y3=y2.replaceAll("""\\"""", "")
+        print("0.b -> ")
+        println(y3)
+        val fields = y3.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
+        print("1 -> ")
+        if (fields(0) != null) println(fields(0)) else println("_")
+        print("2 -> ")
+        if (fields(1) != null) println(fields(1)) else println("_")
+        print("3 -> ")
+        if (fields(2) != null) println(fields(2)) else println("_")
+       
+      }
   }
   //Cleaning the URI (Subject & Predicate)
   def SP_Transform(entity:String): String={
@@ -90,14 +90,18 @@ object RDFApp {
 
   // A mapper that provides no data cleaning 
   def basicMapperRDF(line:String): Triple = {
-    
     //splitting a comma-separated string but ignoring commas in quotes
     val fields = line.split(""" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)""")
     //val fields = line.split("""[ ]+(?=([^"]*"[^"]*")*[^"]*$)""")
-
-    val triple:Triple = Triple(fields(0), fields(1), fields(2))
-    //println(fields(0), fields(1), fields(2))
-    return triple
+    val REG = raw"(?<!\^)<.+>".r
+      
+    if(REG.findFirstIn(fields(2))!=None){
+      val triple:Triple = Triple(fields(0), fields(1), fields(2))
+      return triple
+    }else{
+      val triple:Triple = Triple("-","-","-")
+      return triple
+    }
   }
   
   // To avoid the cases mentioned at the end of this object scala file
@@ -122,12 +126,12 @@ object RDFApp {
     
     noExtraQoutRDD.map(basicMapperRDF).toDS().cache()  
   }
-    //triples.select("Object").foreach(println(_))
-    //triples.select("Object").show()
-    //println(triples.count())
+
   ////////////////////////////////////////////////////////////////////////////////
-  def writeProcessedData(DF:DataFrame,path:String){
+  def writeProcessedData(DFO:DataFrame,path:String){
     val sc = spark.sqlContext
+    //val DFN=DF.filter("c2 not like 'MSL%' and c2 not like 'HCP%'").show
+    val DF=DFO.filter("Object not like '-'").toDF()
     DF.write.format("com.databricks.spark.csv").mode("overwrite").option("header", "true").save(path+AppConf.processedDBpedia)
     println("~Processed RDF data is created~")
   }
