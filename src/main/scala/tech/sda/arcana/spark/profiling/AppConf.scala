@@ -12,7 +12,7 @@ object AppConf {
   val inputUri = "spark.mongodb.input.uri"
   val outputUri = "spark.mongodb.output.uri"
   // Word2Vec
-  val VectorSize=10
+  val VectorSize=100
   val MinCount=0
   
   // dbpedia
@@ -33,7 +33,7 @@ object AppConf {
   // StopWords
   val StopWords = "Stopwords/stopwords.txt"
   // Malicious categories that we don't wish to answer
-  var categories = List("Tr","military", "nuclear", "terrorism", "weapon", "technology", "security", "harm", "suicide", "war")
+  var categories = List("military")
   // Malicious expression that we don't wish to answer
   var tuples = List(("kill", "person"),("bomb", "building"),("make","bomb"))
 }
