@@ -19,16 +19,35 @@ object flow {
   
  
   def main(args: Array[String]) = {
+      //The following are for .Jar
+      //Glove path
+      //val glovePath:String=args(0)
+      //Questions path
+      //val questionsPath:String=args(1)
+      //Mappings Path
+      //val mappingsPath:String=args(2)
+      //App name to store the results
+      //val appName:String=args(3)
+      //For optimization this could calculated separated
+      //longestWordsSeq:Int=args(4)
+      //Length of the word-vec used
+      //vectorLength:Int=args(5)
+      val accuracy:Boolean=true
+      
       //Path to the vectorial representation 
       val vectorialRepresentationPath="/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt"
       //Path to the questions
       val questionPath="/home/mhd/Desktop/Data Set/TestNow.txt"
+      //Path to the questions mappings 
+      val mappingsPath="/home/mhd/Desktop/Data Set/Mapping1.txt"
       //Initialize the class responsible of the connection between BigDl and Spark
       val sparkBigDlInitializer=new SparkBigDlInitializer()
       //Initialize the Sparkcontext using the BigDL engine with setting the Application name
       val sc=sparkBigDlInitializer.initialize(model="Test")
       //Initialize the class responsible of dealing with the questions
       val questionInitializer=new QuestionsInitializer(sparkContext=sc) 
+      //Read the questions real mappings
+      val mappings = sc.textFile(mappingsPath)
       //Parallelize the vectorial representation on the clusters
       val vectorialRepresentation = sc.textFile(vectorialRepresentationPath)
       //Parallelize the questions on the clusters
@@ -54,18 +73,32 @@ object flow {
       //val questionTensorTransformer=new QuestionTensorTransformer(sparkContext=sc,longestWordsSeq=questionInitializer.calculateLongestWordsSeq(questions),vectorLength=50)
       val questionTensorTransformer=new QuestionTensorTransformer(sparkContext=sc,longestWordsSeq=20,vectorLength=50)
       //Transform questions spark structure (RDD) to Tensors (matrices)
-      val Tensors=groupedpriTensorInfo.map(questionTensorTransformer.transform)
+      val tensors=groupedpriTensorInfo.map(questionTensorTransformer.transform)
       //Initialize the class responsible for building the training sample
       val sampler=new TensorSampleTransformer(sparkContext=sc)
-      //Build positive samples
-      val samples=Tensors.map(sampler.initializePositiveSample)
+      //Initialize the questions' mappings
+      val maps=mappings.map(sampler.mappingInit)
+      //Map each tensor with its label
+      val labeledTensors=maps.join(tensors)
+      //Build samples
+      val samples=labeledTensors.map(sampler.initializeAllSamples)
       //Initialize the class responsible for training the neural network models
-      val trainer=new Trainer(lossfun=2,model=3,height=20,width=50,classNum=5)
-      //To track the training on the tensorboard use the following line
+      val trainer=new Trainer(lossfun=2,model=3,height=20,width=50,classNum=5,validation=accuracy)
+      //Initialize the train samples 
+      val trainSamples=samples.filter(x=>x._1==1).map{case(a,b)=>b}
+      //Initialize the test samples to calculate the accuracy
+      if(accuracy){
+      val testSamples=samples.filter(x=>x._1==0).map{case(a,b)=>b}
+      //To track the training and testing on the tensorboard use the following line
       //If you don't want to visualise the training process comment the following line
-      trainer.visualise(logdir="/home/mhd/Desktop/bigdl_summaries",appName="testAppXXX",testData=samples,batchS=3)
+      trainer.visualiseAndValidate(logdir="/home/mhd/Desktop/bigdl_summaries",appName="testAppXXX",testData=testSamples,batchS=3)
+      }  
+      else{
+      //To track the training without testing on the tensorboard use the following line
+      trainer.visualise(logdir="/home/mhd/Desktop/bigdl_summaries",appName="testAppXXX",batchS=3)
+      }
       //build the Employee responsible for the training
-      val employee=trainer.build(samples=samples,batch=3)
+      val employee=trainer.build(samples=trainSamples,batch=3)
       //Train the neural network model
       employee.optimize()
       println("Done")
