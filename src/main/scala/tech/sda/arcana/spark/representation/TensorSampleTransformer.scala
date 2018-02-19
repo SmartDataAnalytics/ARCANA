@@ -80,7 +80,18 @@ class TensorSampleTransformer(sparkContext: SparkContext) extends Serializable {
           val merged=fData.union(sData)
           (merged)
     }
-                 
+    
+    /** Initialize the mappings structure needed to map the tenors
+     *  @param line the mappings line
+     *  @return the each question id and its real classification 
+     */ 
+     def mappingInit(line:String)={
+      val fields = line.replaceAll("\\s", "").split(",")
+      val id = fields(0).toLong
+      val label=fields(1).toInt
+      (id, label)
+    }
+    
     def initializeCustomSample()={
 
     }
