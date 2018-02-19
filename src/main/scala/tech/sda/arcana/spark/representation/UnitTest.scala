@@ -12,6 +12,7 @@ import com.intel.analytics.bigdl.dataset.Sample
 import com.intel.analytics.bigdl.dataset.MiniBatch
 import com.intel.analytics.bigdl.optim._
 import com.intel.analytics.bigdl.nn.ClassNLLCriterion
+import com.intel.analytics.bigdl.nn.L1Cost
 import com.intel.analytics.bigdl.nn.MSECriterion
 import com.intel.analytics.bigdl.utils.T
 import shapeless._0
@@ -23,37 +24,53 @@ import tech.sda.arcana.spark.neuralnetwork.model.GoogLeNetModel
 import com.intel.analytics.bigdl.nn.Reshape
 import com.intel.analytics.bigdl.nn.Module
 import com.intel.analytics.bigdl.visualization._
+import com.intel.analytics.bigdl.optim._
+import com.intel.analytics.bigdl.example.loadmodel.AlexNet
 
 object sentenceToTensor {
   //Transfer one question one sentence to multi-represential tensorcom.intel.analytics.bigdl.visualization
   
    val vectorLength:Int=50
-  val sentenceWordCount:Int=20
-  
-      //return each line of the glov representation as follows:
-      // { String(word),Array[string](the vector representatiparsedQuestionson) }
+  val sentenceWordCount:Int=40
+
           def parseLine(line:String)={
-          //if(!line.isEmpty()){
                 val fields = line.split(" ")
                 val word = fields(0).toString()
                 val representation:Array[String]=new Array[String](vectorLength)
                   for(x<-0 to vectorLength-1){
                     representation(x)=fields(x+1)
                   }
-         // }
           (word, representation)
         }
+   
+             def labelTensors(line:String)={
+                val fields = line.replaceAll("\\s", "").split(",")
+                val id = fields(0).toLong
+                val label=fields(1).toInt
+          (id, label)
+        }
+             
+         def wow(x:(Long, (Int, Tensor[Float])))={
+          val in = "/home/mhd/Desktop/Investigate.txt"
+          val writer = new PrintWriter(new File(in))
+          
+          writer.write("Sentence id=" + x._1.toString())
+          writer.write("Class=" + x._2._1.toString())
+          
+            for(i <- 0 to 40){
+              for(j <- 0 to 50){
+                writer.write((x._2._2(i)(j)).toString()+",")
+              }
+              writer.write("\n")
+            } 
+          writer.close()
+          }
       
-      //return each question of the text file as an array of words with an mumber in the
-      //beginning to identify the order of this question
         def parseQuestion(line:String)={
           val words=line.toLowerCase().split(" ")
-          //build the return element which looks as follows:
-          //RDD[word it self inside the sentence,(number of the sentence,number of the element)]
           val orderedWords=words.drop(1).zipWithIndex.map{case(line,i) => (line,(words(0).toLong,i))}
           (orderedWords)
         }
-        //////////////////////////////************************************************
         def clean(sentence:String)={
           val cleanedSen=sentence.replaceAll("\\p{Punct}", " $0 ")
           (cleanedSen)
@@ -85,131 +102,128 @@ object sentenceToTensor {
                                 }
             vec=vec.init  
             }
-            (tensor)
-            //}
-        }
-        
-            def sasa(tenso:Tensor[Float])={
-          
-            val label=Tensor[Float](T(1f))
-            val sample=Sample(tenso,label)
-            
-        
+            (sentence._1,tensor)
 
-            (sample)
+        }
+       
+            def sasa(inin:(Long, (Int, Tensor[Float])))={
+            var kind:Int =0
+            var label:Tensor[Float] = Tensor[Float](T(-5f))
+            if(inin._2._1 == 1){
+              label=Tensor[Float](T(1f))
+              kind=1
+            }
+            if(inin._2._1 == 0){
+              label=Tensor[Float](T(2f))
+              kind=1
+            }
+            if(inin._2._1 == -1){
+              label=Tensor[Float](T(1f))
+              kind=0
+            }
+            if(inin._2._1 == -2){
+              label=Tensor[Float](T(2f))
+              kind=0
+            }
+            //println(label)
+             val sample=Sample(inin._2._2,label)            
+            (kind,sample)
         }
 
                   
           def Core(model:String):SparkContext={
-         //initiate spark using the engine
          val conf = Engine.createSparkConf()
            .setAppName(model)
            .set("spark.task.maxFailures", "1")
-           .setMaster("local[3]")
+           .setMaster("local[1]")
          val sc = new SparkContext(conf)
          Engine.init
          return sc
           }
-  
+
     def main(args:Array[String]){
-      
 
-      
-      
-      
-          // Set the log level to only print errorsval great=groupedResultTest.map(test)
           Logger.getLogger("org").setLevel(Level.ERROR)
-          
-          // Create a SparkContext using every core of the local machine
-          // val sc = new SparkContext("local[*]", "MinTemperatures")
-          val sc=Core("model")
-          
-         
-          
-          // Read each line of input data
-          val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
-          
-          // Read the questions
-          val questions = sc.textFile("/home/mhd/Desktop/Data Set/TestNowM.txt")
 
-          //Give each question an Id or an order
-          val orderedQuestions=questions.zipWithIndex().map{case(line,i) => i.toString+" "+line}
+          val sc=Core("testApp2")
+
+          val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
+
+          val questions = sc.textFile("/home/mhd/Desktop/Data Set/Testing.txt")
+
+          val questionInitializer=new QuestionsInitializer(sparkContext=sc) 
+
+          val orderedQuestionss=questions.zipWithIndex().map{case(line,i) => i.toString+" "+line}
+
+          val orderedQuestions = orderedQuestionss.map(questionInitializer.clean)
+          
           val parsedLines = lines.map(parseLine)
-          //Convert each question to array of words (the output Array[(String, (String, Int))])
-          //val parsedQuestions= orderedQuestions.map(parseQuestion)
-          //for the joining sake I used flat map to discard the array (the output (String, (String, Int)))
+
           val parsedQuestions=orderedQuestions.flatMap(parseQuestion)
-          //parsedQuestions.foreach{x=>printf("\nString= %s Line= %s Word= %s",x._1,x._2._1,x._2._2) }
-          //the result looks as follows:
-          // RDD[(String, ((String        , Int)     ,       Array[String]))]
-          // RDD[(word,   ((sentence order,word order,vector representation))]
-          //for(i<-result)
-          //      i._1,   ((i._2._1._1    ,i._2._1._2, i._2._2             ))
+
           val result= parsedQuestions.join(parsedLines)
           
-          // try to simplify the structure 
           val resultTest= result.map{case(a,b)=>b}
           
-          //(Long, Iterable[((Long, Int), Array[String])])
           val groupedResultTest=resultTest.groupBy(x=>x._1._1)
           
           val great=groupedResultTest.map(testte)
-          //great.collect().foreach(println)
-          //val answer=great.collect()    
+    
           
-          val sddf= great.map(sasa)
-     
+          val mappings = sc.textFile("/home/mhd/Desktop/Data Set/Mapping1.txt")
+
+          val maps=mappings.map(labelTensors)
+          
+          val alla=maps.join(great)
+          val oof=alla.collect()
+
+          
+          val sddf= alla.map(sasa)
+          val trainSamples=sddf.filter(x=>x._1==1).map{case(a,b)=>b}
+          val testSamples=sddf.filter(x=>x._1==0).map{case(a,b)=>b}
+          
+                    
+          /*2)
+          val optim = new Adam[Float](learningRate=1e-3, learningRateDecay=0.0, beta1=0.9, beta2=0.999, Epsilon=1e-8)
+          val optimMethod =new SGD[Float](learningRate= 1e-3,learningRateDecay=0.0,
+                      weightDecay=0.0,momentum=0.0,dampening=Double.MaxValue,
+                      nesterov=false,learningRates=null,weightDecays=null)
+              */        
+          val optimMethod1 = new SGD[Float](learningRate= 0.001,learningRateDecay=0.0002)
+                      
           val optimizer = Optimizer(
-              model = DyLeNet5Model.build(20,50,5),
-              sampleRDD = sddf,
+              model = DyLeNet5Model.build(40, 50, 2),
+              //model = AlexNetModel.build(40, 50, 2),
+              sampleRDD = trainSamples,
               criterion = ClassNLLCriterion[Float](),
-              batchSize = 3
+              batchSize = 8
             )
+            optimizer.setOptimMethod(optimMethod1)
             println("reach here")
             
-            val FModel = LeNet5Model.graph(5)
-            FModel.saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/LeNetModel")
-            
-            val SModel = AlexNetModel.graph(5,244,244)
-            SModel.saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/AlexNetModel")
-            
-            val TModel = GoogLeNetModel.graph(5,244,244)
-            TModel.saveGraphTopology("/home/mhd/Desktop/bigdl_summaries/GooGleNetModel")
-            
-            //optimizer.setValidation(trigger, dataset, vMethods)
-            //optimizer.setOptimMethod(method)
-            //optimizer.setEndWhen(endWhen)
-            /*
-            optimizer
-            .setValidation(
-              trigger = Trigger.everyEpoch,
-              dataset = validationSet,
-              vMethods = Array(new Top1Accuracy))
-            .setOptimMethod(new Adagrad(learningRate=0.01, learningRateDecay=0.0002))
-            .setEndWhen(Trigger.maxEpoch(param.maxEpoch))
-            .optimize()
-            */
-            /*
-            val nowModel = LeNet5Model.graph(5)
-            nowModel.saveGraphTopology("/home/mhd/Desktop/bigdl_summaries")
-            
+   
             val logdir = "/home/mhd/Desktop/bigdl_summaries"
-            val appName = "testApp"
+            val appName = "NieMapping"
             val trainSummary = TrainSummary(logdir, appName)
             val validationSummary = ValidationSummary(logdir, appName)
             optimizer.setTrainSummary(trainSummary)
             optimizer.setValidationSummary(validationSummary)
-            optimizer.setValidation(Trigger.everyEpoch ,sddf, Array(new Top1Accuracy),3)
-            */
+            optimizer.setValidation(Trigger.everyEpoch ,testSamples, Array(new Top1Accuracy),3)
+            //optimizer.setCheckpoint(logdir+"/"+appName, Trigger.everyEpoch)
+            //val trainLoss = trainSummary.readScalar("Loss")
+            //val validationLoss = validationSummary.readScalar("Loss")
             val trained_model=optimizer.optimize()
             //val evaluateResult=trained_model.evaluate(sddf, Array(new Top1Accuracy), None)
             //val evaluateResult = trained_model.evaluate(testSet, Array(new Top1Accuracy), None)
             //evaluateResult.foreach(println)  
-            
-            
-            
-            val re=trained_model.predict(sddf).collect()
+
+            println("--------------------------")
+            trained_model.predict(testSamples, 12, true).foreach(println)
+            println("--------------------------")
+            val re= trained_model.evaluate(testSamples, Array(new Top1Accuracy), None)
             re.foreach(println)
-    
-    }        
+      
+   
+
+    }
 }
