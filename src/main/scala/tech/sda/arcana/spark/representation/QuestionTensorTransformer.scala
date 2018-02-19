@@ -40,7 +40,7 @@ class QuestionTensorTransformer(sparkContext:SparkContext,longestWordsSeq: Int,v
       vec=vec.init
       
       }
-      (tensor)
+      (sentence._1,tensor)
       //}
   }
         
