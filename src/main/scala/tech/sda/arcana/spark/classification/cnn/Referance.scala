@@ -296,6 +296,38 @@ object Referance {
     //---------------------------------------------------------
     
     //---------------------------------------------------------
-    
+        
+    /*	  To check or enter the elements of the Tensorc
+     *    println(oof(0)._2._2(1)(1)(50))
+          println(oof(0)._2._2(1)(1)(2))
+          
+          println(oof(0)._2._2(1)(2)(1))
+          println(oof(0)._2._2(1)(2)(2))
+     * 
+     * 
+          println(oof(0)._2._2(0)(0))
+          println(oof(0)._2._2(2)(49))
+          println(oof(0)._2._2(3)(50))*/
+          /*
+          val in = "/home/mhd/Desktop/Investigate1.txt"
+          val writer = new PrintWriter(new File(in))
+          
+          oof.foreach{x=>
+          					var eawalla=x._2._2.storage()
+                    writer.write("\nSentence id=" + x._1.toString())
+                    writer.write("\nClass=" + x._2._1.toString())
+                    var counter=0:Int
+                    print(counter)
+                      for(i <- 0 to 39){
+                        print(counter)
+                        for(j <- 0 to 49){
+                          writer.write(eawalla(counter)+",")
+                          counter=counter+1
+                        }
+                        writer.write("\n")
+                      } 
+                }
+          writer.close()
+    */
     //---------------------------------------------------------
 }
