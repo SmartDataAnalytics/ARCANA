@@ -114,7 +114,7 @@ object SentiWord {
          var Score=0.0
          var Sum=0.0
           for( x <- resul){
-             Score += (-x.NegScore.toDouble)/(x.TermRank.toDouble) // decide whether to keep the positive part or delete it 
+             Score += (x.PosScore.toDouble-x.NegScore.toDouble)/(x.TermRank.toDouble) // decide whether to keep the positive part or delete it 
              Sum+=(1/(x.TermRank.toDouble))
            }
          Score /= Sum
@@ -147,6 +147,11 @@ object SentiWord {
     }
     def main(args: Array[String]) = {
       
+      
+      val path = "/home/elievex/Repository/resources/"
+      val sentiDF = SentiWord.readProcessedSentiWord(path)
+      val sentiPosScore= SentiWord.getSentiScoreForAllPOS("military ranks",sentiDF)
+      println(sentiPosScore(0),sentiPosScore(1),sentiPosScore(2),sentiPosScore(3))
       //FEEDBACK sentiword
       /*
       val df=convertSentiWordFeedbackIntoDF(AppConf.SentiWordFilefeedback)

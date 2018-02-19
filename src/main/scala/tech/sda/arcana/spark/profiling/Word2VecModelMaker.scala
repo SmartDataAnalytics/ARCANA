@@ -65,6 +65,7 @@ object Word2VecModelMaker {
       .setOutputCol("result")
       .setVectorSize(AppConf.VectorSize)
       .setMinCount(AppConf.MinCount)
+      
     word2Vec.fit(fileName)
   }
   

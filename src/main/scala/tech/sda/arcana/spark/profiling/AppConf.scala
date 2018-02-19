@@ -16,7 +16,7 @@ object AppConf {
   val MinCount=0
   
   // dbpedia
-  val dbpedia = "DBpedia/Data/*"
+  val dbpedia = "DBpedia/DATA/*"
   val processedDBpedia = "DBpedia/processedData"
   // Word2Vec
   val CategoryData = "Word2Vec/Data/CategoryData"
@@ -35,5 +35,5 @@ object AppConf {
   // Malicious categories that we don't wish to answer
   var categories = List("military")
   // Malicious expression that we don't wish to answer
-  var tuples = List(("kill", "person"),("bomb", "building"),("make","bomb"))
+  var tuples = List(("kill", "person"),("bomb", "building"),("make","bomb"),("assassinate", "president"))
 }

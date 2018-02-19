@@ -72,9 +72,16 @@ object APIData {
   }
   def getRankUclassify(expression:String):(String,String)={
     implicit val formats = net.liftweb.json.DefaultFormats
-    val TERE= "How+to+kill+a+person?"
-    val result3 = fetch("https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text="+expression)
-
+    //val TERE= "How+to+kill+a+person?"
+    //var test = "death kiss"
+    val query = s"https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text='$expression'"
+    //println(query)
+    def get(url: String) = scala.io.Source.fromURL(query.replaceAll(" ", "+")).mkString
+    //println(get(query))
+    //println("ye")
+    
+    //val result3 = fetch(query)
+    val result3 = get(query)
     var Negative =""
     var Positive =""
     val pattern = """negative\":(\d+\.\d+),\"positive\":(\d+\.\d+)""".r
@@ -87,8 +94,13 @@ object APIData {
   
   def main(args: Array[String]) = {
         
-        val result = getRankUclassify("bomb")
-        print("word: bomb, "+"Negative: "+result._1+", Positive: "+result._2)
+        val word = "bad"
+        val result = getRankUclassify(word)
+        
+        
+        print(s"word: $word, "+"Negative: "+result._1+", Positive: "+result._2)
+        println("RES")
+        println(result._2.toDouble -result._1.toDouble)
         /*
         getRankUclassify("kill")
         getRankUclassify("hunt")
