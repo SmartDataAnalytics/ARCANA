@@ -175,9 +175,9 @@ object sentenceToTensor {
 
           val sc=Core("testApp2")
 
-          val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
+          val lines = sc.textFile("/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt")
 
-          val questions = sc.textFile("/home/mhd/Desktop/Data_Set/TestNow.txt")
+          val questions = sc.textFile("/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt")
 
           val questionInitializer=new QuestionsInitializer(sparkContext=sc) 
 
@@ -198,7 +198,7 @@ object sentenceToTensor {
           val great=groupedResultTest.map(testte)
     
           
-          val mappings = sc.textFile("/home/mhd/Desktop/Data_Set/Mapping.txt")
+          val mappings = sc.textFile("/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt")
 
           val maps=mappings.map(labelTensors)
           
@@ -222,8 +222,8 @@ object sentenceToTensor {
 
           
           val optimizer = Optimizer(
-              model = DyLeNet5Model.build(40, 50, 2),
-              //model = AlexNetModel.build(40, 50, 2),
+              //model = DyLeNet5Model.build(40, 50, 2),
+              model = AlexNetModel.build(40, 50, 2),
               //model=GoogLeNetModel.build(40, 50, 2)
               sampleRDD = trainSamples,
               criterion = ClassNLLCriterion[Float](),
@@ -233,7 +233,7 @@ object sentenceToTensor {
             println("reach here")
             
    
-            val logdir = "/home/mhd/Desktop/bigdl_summaries"
+            val logdir = "/home/sony/Repository/Mohamad's_Dataset/Result"
             val appName = "NieMapping"
             val trainSummary = TrainSummary(logdir, appName)
             val validationSummary = ValidationSummary(logdir, appName)
