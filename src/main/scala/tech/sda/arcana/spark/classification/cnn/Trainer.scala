@@ -27,7 +27,7 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int,validation
   var appName:String=""
   var testData:RDD[Sample[Float]]=null
   var batchS=0
-  var visual:Boolean=false
+  var visual:Boolean=true
   /** Build a trainer which is going to train the a neural network model
    *  depending on a training set and a batch size
    *  @param samples 1 for L1Cost, 2 for ClassNLLCriterion

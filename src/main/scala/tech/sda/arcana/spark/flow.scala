@@ -37,9 +37,9 @@ object flow {
       //Path to the vectorial representation 
       val vectorialRepresentationPath="/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt"
       //Path to the questions
-      val questionPath="/home/mhd/Desktop/Data Set/TestNow.txt"
+      val questionPath="/home/mhd/Desktop/Data_Set/TestNow.txt"
       //Path to the questions mappings 
-      val mappingsPath="/home/mhd/Desktop/Data Set/Mapping1.txt"
+      val mappingsPath="/home/mhd/Desktop/Data_Set/Mapping.txt"
       //Initialize the class responsible of the connection between BigDl and Spark
       val sparkBigDlInitializer=new SparkBigDlInitializer()
       //Initialize the Sparkcontext using the BigDL engine with setting the Application name
@@ -71,7 +71,7 @@ object flow {
       //Initialize the class responsible of mapping questions, vectoral representation RDD to RDD tensors
       //If you want to extract the dimensions of the tensors dynamically uncomment the following line
       //val questionTensorTransformer=new QuestionTensorTransformer(sparkContext=sc,longestWordsSeq=questionInitializer.calculateLongestWordsSeq(questions),vectorLength=50)
-      val questionTensorTransformer=new QuestionTensorTransformer(sparkContext=sc,longestWordsSeq=20,vectorLength=50)
+      val questionTensorTransformer=new QuestionTensorTransformer(sparkContext=sc,longestWordsSeq=40,vectorLength=50)
       //Transform questions spark structure (RDD) to Tensors (matrices)
       val tensors=groupedpriTensorInfo.map(questionTensorTransformer.transform)
       //Initialize the class responsible for building the training sample
@@ -83,7 +83,7 @@ object flow {
       //Build samples
       val samples=labeledTensors.map(sampler.initializeAllSamples)
       //Initialize the class responsible for training the neural network models
-      val trainer=new Trainer(lossfun=2,model=3,height=20,width=50,classNum=5,validation=accuracy)
+      val trainer=new Trainer(lossfun=2,model=3,height=40,width=50,classNum=5,validation=accuracy)
       //Initialize the train samples 
       val trainSamples=samples.filter(x=>x._1==1).map{case(a,b)=>b}
       //Initialize the test samples to calculate the accuracy
@@ -95,10 +95,10 @@ object flow {
       }  
       else{
       //To track the training without testing on the tensorboard use the following line
-      trainer.visualise(logdir="/home/mhd/Desktop/bigdl_summaries",appName="testAppXXX",batchS=3)
+      trainer.visualise(logdir="/home/mhd/Desktop/bigdl_summaries",appName="testAppXXX",batchS=4)
       }
       //build the Employee responsible for the training
-      val employee=trainer.build(samples=trainSamples,batch=3)
+      val employee=trainer.build(samples=trainSamples,batch=4)
       //Train the neural network model
       employee.optimize()
       println("Done")

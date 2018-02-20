@@ -135,7 +135,7 @@ object sentenceToTensor {
          val conf = Engine.createSparkConf()
            .setAppName(model)
            .set("spark.task.maxFailures", "1")
-           .setMaster("local[1]")
+           .setMaster("local[2]")
          val sc = new SparkContext(conf)
          Engine.init
          return sc
@@ -143,13 +143,41 @@ object sentenceToTensor {
 
     def main(args:Array[String]){
 
+          val mappingGen:Boolean = false
+          
+          if(mappingGen){
+            
+            val logdir = "/home/mhd/Desktop/Data_Set/Mapping.txt"
+                    
+              
+             val writer = new PrintWriter(new File(logdir))
+        
+             for(i <- 0 to 299)
+               if(i<100){
+                 writer.write(i+",0 \n")
+               }
+               else{
+                 if(i<200)
+                   writer.write(i+",1 \n")
+                   else
+                     if((i<250))
+                      writer.write(i+",-1 \n")
+                      else
+                        writer.write(i+",-2 \n")
+               }
+              writer.close()
+            }       
+          
+          
+   
+    else{
           Logger.getLogger("org").setLevel(Level.ERROR)
 
           val sc=Core("testApp2")
 
           val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
 
-          val questions = sc.textFile("/home/mhd/Desktop/Data Set/Testing.txt")
+          val questions = sc.textFile("/home/mhd/Desktop/Data_Set/TestNow.txt")
 
           val questionInitializer=new QuestionsInitializer(sparkContext=sc) 
 
@@ -170,7 +198,7 @@ object sentenceToTensor {
           val great=groupedResultTest.map(testte)
     
           
-          val mappings = sc.textFile("/home/mhd/Desktop/Data Set/Mapping1.txt")
+          val mappings = sc.textFile("/home/mhd/Desktop/Data_Set/Mapping.txt")
 
           val maps=mappings.map(labelTensors)
           
@@ -190,10 +218,13 @@ object sentenceToTensor {
                       nesterov=false,learningRates=null,weightDecays=null)
               */        
           val optimMethod1 = new SGD[Float](learningRate= 0.001,learningRateDecay=0.0002)
-                      
+          
+
+          
           val optimizer = Optimizer(
               model = DyLeNet5Model.build(40, 50, 2),
               //model = AlexNetModel.build(40, 50, 2),
+              //model=GoogLeNetModel.build(40, 50, 2)
               sampleRDD = trainSamples,
               criterion = ClassNLLCriterion[Float](),
               batchSize = 8
@@ -222,8 +253,9 @@ object sentenceToTensor {
             println("--------------------------")
             val re= trained_model.evaluate(testSamples, Array(new Top1Accuracy), None)
             re.foreach(println)
-      
+      }
+
    
 
     }
-}
+  }
