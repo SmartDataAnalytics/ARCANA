@@ -91,7 +91,18 @@ object APIData {
     }
     (Negative,Positive)
   }
-  
+  import scala.sys.process._
+  def fetchDbpediaSpotlight(term:String):String={
+          
+      //var term="terrorism"
+      val cmd = Seq("curl",s"http://api.dbpedia-spotlight.org/en/annotate?text=$term.&confidence=0&support=0","-H", "Accept:application/json")
+      val res = cmd.!!
+      //println(res)
+      val UriReg = raw"""(?<=@URI\"\:\")(.*?)(\"\,\")""".r
+      val resulturi=UriReg.findFirstIn(res)
+      //println(resulturi.mkString.dropRight(3))
+      return resulturi.mkString.dropRight(3)
+  }
   def main(args: Array[String]) = {
         
         val word = "bad"
