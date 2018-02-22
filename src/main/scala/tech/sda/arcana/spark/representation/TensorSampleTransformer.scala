@@ -50,11 +50,11 @@ class TensorSampleTransformer(sparkContext: SparkContext) extends Serializable {
             var kind:Int =0
             var label:Tensor[Float] = Tensor[Float](T(-5f))
             if(inin._2._1 == 1){
-              label=Tensor[Float](T(1f))
+              label=Tensor[Float](T(2f))
               kind=1
             }
             if(inin._2._1 == 0){
-              label=Tensor[Float](T(2f))
+              label=Tensor[Float](T(1f))
               kind=1
             }
             if(inin._2._1 == -1){

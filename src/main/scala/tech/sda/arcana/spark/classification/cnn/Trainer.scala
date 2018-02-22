@@ -20,14 +20,18 @@ import com.intel.analytics.bigdl.visualization._
  * @param width the vectors representation length for each word
  * @param classNum the number of ouptut classes
  * @param validation to specify if we want to test the model using the test samples or not 
+ * @param learning rate to be used in back propagation 
  */
-class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int,validation:Boolean) extends Serializable  {
+class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int,validation:Boolean,learningrate:Float) extends Serializable  {
   val lossFunctions = Array(L1Cost[Float](),ClassNLLCriterion[Float]())
   var logdir:String=""
   var appName:String=""
   var testData:RDD[Sample[Float]]=null
   var batchS=0
-  var visual:Boolean=true
+  var visual:Boolean=false
+  var epochNum:Int=0
+  var accuValid:Float=0.0f
+  
   /** Build a trainer which is going to train the a neural network model
    *  depending on a training set and a batch size
    *  @param samples 1 for L1Cost, 2 for ClassNLLCriterion
@@ -101,9 +105,14 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int,validation
       val validationSummary = ValidationSummary(logdir, appName)
       optimizer.setValidationSummary(validationSummary)
       optimizer.setValidation(Trigger.everyEpoch ,testData, Array(new Top1Accuracy),batchS)
+      optimizer.setEndWhen(Trigger.minLoss(accuValid))
+      }
+      else{
+        optimizer.setEndWhen(Trigger.maxEpoch(epochNum))
       }
       //here to change the learning rate
-      val optimMethod = new SGD[Float](learningRate= 0.001,learningRateDecay=0.0002)
+      //0.001
+      val optimMethod = new SGD[Float](learningRate= learningrate,learningRateDecay=0.0002)
       optimizer.setOptimMethod(optimMethod)
   }
   
@@ -112,25 +121,27 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int,validation
    * @param appName the name responsible for this visualisation data
    * @param testData RDD used for testing 
    * @param batchS number of batches
+   * @param minloss the desired accuracy 
    */
-  def visualiseAndValidate(logdir:String,appName:String,testData:RDD[Sample[Float]],batchS:Int){
+  def visualiseAndValidate(logdir:String,appName:String,testData:RDD[Sample[Float]],batchS:Int,minloss:Float){
      visual=true
      this.logdir=logdir
      this.appName=appName
      this.testData=testData
      this.batchS=batchS
+     accuValid=minloss
    }
   
   /**Function that sets and enable the visualisation data used in tensorboard later on
    * @param logdir the directory path responsible for tensorboard data
    * @param appName the name responsible for this visualisation data
    * @param testData RDD used for testing 
-   * @param batchS number of batches
+   * @param maxEpochs number of maximum epochs
    */
-    def visualise(logdir:String,appName:String,batchS:Int){
+    def visualise(logdir:String,appName:String,maxEpochs:Int){
      visual=true
      this.logdir=logdir
      this.appName=appName
-     this.batchS=batchS
+     epochNum=maxEpochs
    }
 }
