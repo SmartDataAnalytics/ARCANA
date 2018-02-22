@@ -27,7 +27,8 @@ import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations.SentimentAnnotatedTree
 import org.apache.spark.ml.feature.StopWordsRemover
-
+import org.apache.spark.ml.feature.Word2Vec
+import org.apache.spark.ml.feature.Word2VecModel
 import scala.collection.mutable.ListBuffer
 import org.apache.spark.ml.feature.{RegexTokenizer, Tokenizer}
  
@@ -50,7 +51,17 @@ object ProcessQuestion {
     props.put("annotators", "tokenize, ssplit, pos, lemma, parse, sentiment")
     val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
     
-     
+  /** Read the file that has the questions 
+  *   @param path to the file
+  *   @return Question as an RDD
+  */
+  def readQuestions(path:String):RDD[String]={
+    val sc = spark.sparkContext
+    val textFile = sc.textFile(path)
+    val noEmptyRDD = textFile.filter(x => (x != null) && (x.length > 0))
+    println("~Reading Questions is done~")
+    noEmptyRDD
+  }
  // Simple Question Tokenizing
   def tokenizeQuestion(question: String){
     /*
@@ -171,16 +182,19 @@ object ProcessQuestion {
     //| check whether there is combination of V followed by N
     if(extractCase.findFirstIn(questionObj.PosSentence).getOrElse("0")!="0"){
       var verbs = new ListBuffer[Token]()
+      var verbsLiteral = new ListBuffer[String]()
       var nouns = new ListBuffer[Token]()
-      
+      var nounsLiteral = new ListBuffer[String]()
       //| Add only V and N tokens to buffers
       for(token<-questionObj.tokens){
         //print(token.posTag+"-")
         if(token.posTag=="NN" ||token.posTag=="NNS"||token.posTag=="NNP" ||token.posTag=="NNPS"){
           nouns += token
+          nounsLiteral +=token.lemma
         }
         if(token.posTag=="VBZ" ||token.posTag=="VB"||token.posTag=="VBD" ||token.posTag=="VBG"||token.posTag=="VBN" ||token.posTag=="VBP"){
           verbs += token
+          verbsLiteral+=token.lemma
         }
       }
       //| Get DB Info
@@ -191,37 +205,34 @@ object ProcessQuestion {
       verbs.foreach{
         t=>val word = t.lemma
         val res = spark.sql(s"SELECT distinct relationshipID FROM DB where verb = '$word' ")
+        // get relationID of the verb
         val rellist = res.select("relationshipID").rdd.map(r => r(0).asInstanceOf[Int]).collect()
         if(!rellist.isEmpty){
           flag=1
           t.relationID=rellist(0)
-        }
-      }
-     if(flag==1){
-       //| check if Noun is present in DB
-      nouns.foreach{
-        t=>val word = t.lemma
-        val res = spark.sql(s"SELECT distinct relationshipID FROM DB where noun = '$word' ")
-        val rellist = res.select("relationshipID").rdd.map(r => r(0).asInstanceOf[Int]).collect()
-        if(!rellist.isEmpty){
-          flag=2
-          t.relationID=rellist(0)
-        }
-      }
-     }
-     //nouns.foreach(t=>println(t.word+" "+t.relationID))
-
-     //| Cross the results and see if verb and noun are from the same relationship if yes its bad \\ ofcourse there is a place to improve this for example by checking if there is a CC (or / and) between the verb and noun
-     if(flag==2){
-       verbs.foreach{
-        t=>nouns.foreach{u=>
-          if(t.relationID==u.relationID)
-          {
-            flag=3 // malicious 
+          var relID=t.relationID
+          // Get all nouns
+          val resNoun = spark.sql(s"SELECT distinct noun FROM DB where relationshipID = '$relID' ")
+          val UriList=resNoun.select("noun").rdd.map(r => r(0).asInstanceOf[String]).collect()
+          // Are the nouns in the question found in the same relation?
+          nounsLiteral.foreach{
+            f => if(UriList.contains(f)){
+              flag=2
+            }
+          }
+          // are compound nouns found in the question?
+          if(flag==1 && flag!=2){
+            UriList.foreach{
+            f => 
+              if(questionObj.sentence contains f){
+              flag = 3
+              //println("FOUND EM OB")
+              break
+             }
+            }
           }
         }
       }
-     }
     }
       flag
   }
@@ -232,25 +243,36 @@ object ProcessQuestion {
      var result = new ListBuffer[String]()
      val DBpEquivalent: JSONArray = spotlight.getDBLookup(word, "0.0")
       if(DBpEquivalent.size()>0){
+        println("Nonempty")
         for (i <- 0 to DBpEquivalent.size()-1) {
             val obj2: JSONObject = DBpEquivalent.get(i).asInstanceOf[JSONObject]
             result+=obj2.get("uri").toString
         }
       }
+     println("empty")
       result
  }
   /** Fetch the tokens of a uri 
     */
-  def fetchTokenUris(word:String,path:String):Set[String]={
-    val listBuff=consultDbpediaSpotlight(word)
-    
-    val myDF=RDFApp.readProcessedData(path)
-    val T1=Dataset2Vec.fetchAllOfWordAsOubject(myDF,word)
-    val T2=Dataset2Vec.fetchAllOfWordAsSubject(myDF,word)
+  def fetchTokenUris(word:String,DFpedia:DataFrame,modelvec: Word2VecModel):Set[String]={
+    println(word)
+
+    //val URI=APIData.fetchDbpediaSpotlight(word)
+    val T1=Dataset2Vec.fetchAllOfWordAsSubject(DFpedia,word)
+    //val T2=Dataset2Vec.fetchAllOfWordAsSubject(DFpedia,word)
+
     var s : Set[String] = Set()
     T1.foreach(f=>s+=f.Uri)
-    T2.foreach(f=>s+=f.Uri)
-    listBuff.foreach(f=>s+=f)
+    val synonyms = modelvec.findSynonyms(word, 1000)
+    val synResult = synonyms.filter("similarity>=0.3").as[Synonym].collect
+    if(synResult.size>0){
+      synResult.foreach{
+        f=>s+=f.word
+      }
+    }
+    //s+=URI
+    //T2.foreach(f=>s+=f.Uri)
+    //listBuff.foreach(f=>s+=f)
     s
   }
    /** Map between stanford and sentword notations 
@@ -320,19 +342,22 @@ object ProcessQuestion {
        //| by doing this if I didn't find the score I want I can get it from the other without querying the data again  
        var sentiScore=new DBRecord("","","",0.0,0.0,0.0,0.0,0.0,"",0.0)
        var sentiIndicator=""
+       // Grabbing all info about URI
        val allDB = spark.sql(s"SELECT  * FROM DB where uri = '$uriString'  ") 
        if(allDB.count()>0){
          
-         allDB.show(false)
+         //allDB.show(false)
          allDB.createOrReplaceTempView("QuestionURI")
-         val specDB = spark.sql(s"SELECT * FROM DB WHERE (uri,$dbPOS) IN ( SELECT  uri,max($dbPOS) FROM QuestionURI where uri = '$uriString' group by(uri))")
+         // Grabbing the required POS 
+         val specDB = spark.sql(s"SELECT * FROM DB WHERE (uri,$dbPOS) IN ( SELECT  uri,min($dbPOS) FROM QuestionURI where uri = '$uriString' group by(uri))")
          if(specDB.count()>0){
            //specDB.show()
            val result = specDB.as[DBRecord].collect()
+           // IF IT IS -9 we find another
            if(isScoreNine(result(0),dbPOS)){
                sentiArray.foreach{x=>
                  if(x!=dbPOS){
-                    val sentiDB = spark.sql(s"SELECT * FROM DB WHERE (uri,$x) IN ( SELECT  uri,max($x) FROM QuestionURI where uri = '$uriString' group by(uri))")
+                    val sentiDB = spark.sql(s"SELECT * FROM DB WHERE (uri,$x) IN ( SELECT  uri,min($x) FROM QuestionURI where uri = '$uriString' group by(uri))")
                     val sentiResult = sentiDB.as[DBRecord].collect()
                     if(!isScoreNine(sentiResult(0),x)){
                        myVoteScore+=((sentiResult(0),x)) 
@@ -346,7 +371,7 @@ object ProcessQuestion {
            }
          }      
         }
-         if(myVoteScore.size>0){
+       if(myVoteScore.size>0){
           var Temp=myVoteScore(0)
           myVoteScore.foreach{t=>
             if(mapIndicator(t._1,t._2)>=mapIndicator(Temp._1,Temp._2)){
@@ -377,12 +402,14 @@ object ProcessQuestion {
      val tokenNum = tokenList.size
      var TokenSentiScore=0.0d
      var TotalTokenSentiScore=0.0d
-    // println("Number of Tokens: "+tokenNum)
-     //if(tokenNum>0){
+
+     // Loop the tokens
        tokenList.foreach{t=>       
          var counter = 0 
          var sum = 0.0
+         
          if(t.uriTuple.size>0){
+           // Loop the URIS
            t.uriTuple.foreach{f=>
               if(f._2!= -99){
                 sum+=f._2
@@ -394,10 +421,8 @@ object ProcessQuestion {
                 counter+=1
               }
            }
-           //println("Sum and Counter: "+sum,counter.toDouble)
            t.tokenUrisSentiScore += (if ((sum/counter.toDouble).isNaN) 0.0 else (sum/counter.toDouble) )
-         TotalTokenSentiScore+=t.tokenUrisSentiScore
-         //println("Token and Total Score: "+t.tokenUrisSentiScore,TotalTokenSentiScore)
+           TotalTokenSentiScore+=t.tokenUrisSentiScore
          }
        }
      //}
@@ -411,20 +436,18 @@ object ProcessQuestion {
   *   @param Question, path to resources 
   *   @return list of token and posTagString
   */
-  def ProcessSentence(text:String,path:String):(List[Token],String)={
-        val extractNumber = raw"(\d+)".r
-        var tokens = new ListBuffer[Token]()
-        var posTagString = ""
-        //val collectionDF=DF
-        // create blank annotator
-        val document: Annotation = new Annotation(text)
-    
-        // run all Annotator - Tokenizer on this text
-        pipeline.annotate(document)
-    
-        val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
-    
-    val listOfLines = Source.fromFile(path+AppConf.StopWords).getLines.toList
+  def ProcessSentence(text:String,path:String,DFpedia:DataFrame):(List[Token],String)={
+    val Word2VecModel = Word2VecModelMaker.loadWord2VecModel(path+AppConf.Word2VecModel)
+      val extractNumber = raw"(\d+)".r
+      var tokens = new ListBuffer[Token]()
+      var posTagString = ""
+      // create blank annotator
+      val document: Annotation = new Annotation(text)   
+      // run all Annotator - Tokenizer on this text
+      pipeline.annotate(document)
+  
+      val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
+      val listOfLines = Source.fromFile(path+AppConf.StopWords).getLines.toList
         
       val Tokens=  (for {
           sentence: CoreMap <- sentences
@@ -435,19 +458,18 @@ object ProcessQuestion {
     
         } yield (token, word, pos, lemma)) 
         Tokens.foreach{t => 
+          //Removing stop words before operating on a token
           if(!listOfLines.contains(t._2)){
-            val list = fetchTokenUris(t._2,path)
+            // fetching URIS of each token
+            val list = fetchTokenUris(t._2,DFpedia,Word2VecModel)
             var scoredUrisList=  List[(String,Double)]()
-              
+            // Sentiment Score
             if(list.size>0){
               scoredUrisList=getTokenUrisSentiScore(list.toList,t._3.toString()).toList
             }else{
               scoredUrisList=List()
             }
-             
-            //getTokenUrisSentiScore(list.toList,t._3.toString(),DF).toList
             tokens+=new Token(extractNumber.findFirstIn(t._1.toString()).getOrElse("0"),t._2.toLowerCase(),t._3,t._4.toLowerCase(),0, scoredUrisList,0.0)
-            
           }
           //var temp=""
             if(t._3.toString()=="NN"||t._3.toString()=="NNS"||t._3.toString()=="NNP"||t._3.toString()=="NNPS"){
@@ -465,34 +487,24 @@ object ProcessQuestion {
   *   @param Question, path to resources 
   *   @return Processed Question Object 
   */
-  def processQuestion(input:String,path:String): QuestionObj = {
-    //QuestionObj(sentence:String,sentenceWoSW:String,SentimentExtraction:Int,tokens:List[Token],PosSentence:String,var phaseTwoScore:Int)
-    //Token(index:String,word:String,posTag:String,lemma:String,var relationID:Int)
-    
+  def processQuestion(input:String,path:String,DF:DataFrame): QuestionObj = {
     val question = input.toLowerCase()
-    val questionInfo = ProcessSentence(question,path)
+    val questionInfo = ProcessSentence(question,path,DF)
     var summary = calcFinalScore(questionInfo._1)
     val questionObj = new QuestionObj(question,removeStopWords(stringToDF(question)),sentiment(question),questionInfo._1,questionInfo._2,0,summary)
     questionObj.phaseTwoScore=expressionCheck(questionObj)
  
     questionObj
   }
- /** Read the file that has the questions 
-  *   @param path to the file
-  *   @return Question as an RDD
-  */
-  def readQuestions(path:String):RDD[String]={
-    val sc = spark.sparkContext
-    val textFile = sc.textFile(path)
-    val noEmptyRDD = textFile.filter(x => (x != null) && (x.length > 0))
-    println("~Reading Questions is done~")
-    noEmptyRDD
-  }
 
   def main(args: Array[String]) = {
- 
-    spark.stop()
+
+    val myList = List("<http://simple.dbpedia.org/resource/Category:Armenian_military>","<http://simple.dbpedia.org/resource/Detachment_(military)>")
+    var list = getTokenUrisSentiScore(myList,"NN")
+    list.foreach(println)
   }
   
 }
-
+//QuestionObj(sentence:String,sentenceWoSW:String,SentimentExtraction:Int,tokens:List[Token],PosSentence:String,var phaseTwoScore:Int)
+//Token(index:String,word:String,posTag:String,lemma:String,var relationID:Int)
+    
