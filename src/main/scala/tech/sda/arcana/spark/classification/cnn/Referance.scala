@@ -364,4 +364,14 @@ object Referance {
             println(grad)
       //---------------------------------------------------------
     
+       
+       //For altering the learning method
+       //---------------------------------------------------------      
+          /*
+          val optim = new Adam[Float](learningRate=1e-3, learningRateDecay=0.0, beta1=0.9, beta2=0.999, Epsilon=1e-8)
+          val optimMethod =new SGD[Float](learningRate= 1e-3,learningRateDecay=0.0,
+                      weightDecay=0.0,momentum=0.0,dampening=Double.MaxValue,
+                      nesterov=false,learningRates=null,weightDecays=null)
+          */ 
+       //---------------------------------------------------------
 }
