@@ -33,7 +33,7 @@
 		<spark.version>2.0.0</spark.version>
 		<sansa.version>0.1.0</sansa.version>
 		<jena.version>3.1.0</jena.version>
-	    <BIGDL_VERSION>0.3.0</BIGDL_VERSION>
+	    <BIGDL_VERSION>0.4.0</BIGDL_VERSION>
 	</properties>
 
 	<dependencies>
