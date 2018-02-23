@@ -19,27 +19,6 @@ object flow {
   
  
   def main(args: Array[String]) = {
-      //The following are for .Jar
-      //Glove path
-      //val glovePath:String=args(0)
-      //Questions path
-      //val questionsPath:String=args(1)
-      //Mappings Path
-      //val mappingsPath:String=args(2)
-      //App name to store the results
-      //val appName:String=args(3)
-      //For optimization this could calculated separated
-      //longestWordsSeq:Int=args(4)
-      //Length of the word-vec used
-      //vectorLength:Int=args(5)
-      val accuracy:Boolean=true
-      
-      //Path to the vectorial representation 
-      val vectorialRepresentationPath="/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt"
-      //Path to the questions
-      val questionPath="/home/mhd/Desktop/Data_Set/TestNow.txt"
-      //Path to the questions mappings 
-      val mappingsPath="/home/mhd/Desktop/Data_Set/Mapping.txt"
       //Initialize the class responsible of the connection between BigDl and Spark
       val sparkBigDlInitializer=new SparkBigDlInitializer()
       //Initialize the Sparkcontext using the BigDL engine with setting the Application name
@@ -47,17 +26,17 @@ object flow {
       //Initialize the class responsible of dealing with the questions
       val questionInitializer=new QuestionsInitializer(sparkContext=sc) 
       //Read the questions real mappings
-      val mappings = sc.textFile(mappingsPath)
+      val mappings = sc.textFile(args(2))
       //Parallelize the vectorial representation on the clusters
-      val vectorialRepresentation = sc.textFile(vectorialRepresentationPath)
+      val vectorialRepresentation = sc.textFile(args(0))
       //Parallelize the questions on the clusters
-      val questionsWithoutCleaning=sc.textFile(questionPath)
+      val questionsWithoutCleaning=sc.textFile(args(1))
       //Cleaning the questions and add spaces between punctuations and other chars
       val questions = questionsWithoutCleaning.map(questionInitializer.clean)
       //Add order numbers to the questions 
       val orderedQuestions=questions.zipWithIndex().map{case(line,i) => i.toString+" "+line}
       //Initialize the class responsible of the vectorial representation
-      val vectorizationDelegator=new VectorizationDelegator(sparkContext=sc,vectorLength=50)
+      val vectorizationDelegator=new VectorizationDelegator(sparkContext=sc,vectorLength=args(5).toInt)
       //Build the spark structure (RDD) for the vectorial representing using Glov  
       val parsedVectorialRepresentation = vectorialRepresentation.map(vectorizationDelegator.ParseVecGlov)
       //Build the spark structure (RDD) pool of the questions' words with two ids on for the sentence and the other for each word inside each question
@@ -70,8 +49,8 @@ object flow {
       val groupedpriTensorInfo=priTensorInfo.groupBy(x=>x._1._1)
       //Initialize the class responsible of mapping questions, vectoral representation RDD to RDD tensors
       //If you want to extract the dimensions of the tensors dynamically uncomment the following line
-      //val questionTensorTransformer=new QuestionTensorTransformer(sparkContext=sc,longestWordsSeq=questionInitializer.calculateLongestWordsSeq(questions),vectorLength=50)
-      val questionTensorTransformer=new QuestionTensorTransformer(sparkContext=sc,longestWordsSeq=40,vectorLength=50)
+      //val questionTensorTransformer=new QuestionTensorTransformer(sparkContext=sc,longestWordsSeq=questionInitializer.calculateLongestWordsSeq(questions),vectorLength=args(5).toInt)
+      val questionTensorTransformer=new QuestionTensorTransformer(sparkContext=sc,longestWordsSeq=args(4).toInt ,vectorLength=args(5).toInt)
       //Transform questions spark structure (RDD) to Tensors (matrices)
       val tensors=groupedpriTensorInfo.map(questionTensorTransformer.transform)
       //Initialize the class responsible for building the training sample
@@ -82,25 +61,27 @@ object flow {
       val labeledTensors=maps.join(tensors)
       //Build samples
       val samples=labeledTensors.map(sampler.initializeAllSamples)
-      //Initialize the class responsible for training the neural network models
-      val trainer=new Trainer(lossfun=2,model=3,height=40,width=50,classNum=5,validation=accuracy)
+      //Initialize the class responsible for training the neural network models                                                           0.001f
+      val trainer=new Trainer(lossfun=2,model=args(11).toInt,height=args(4).toInt ,width=args(5).toInt,classNum=args(12).toInt,validation=args(6).toBoolean ,learningrate=args(7).toFloat)
       //Initialize the train samples 
       val trainSamples=samples.filter(x=>x._1==1).map{case(a,b)=>b}
       //Initialize the test samples to calculate the accuracy
-      if(accuracy){
       val testSamples=samples.filter(x=>x._1==0).map{case(a,b)=>b}
+      if(args(6).toBoolean){
       //To track the training and testing on the tensorboard use the following line
-      //If you don't want to visualise the training process comment the following line
-      trainer.visualiseAndValidate(logdir="/home/mhd/Desktop/bigdl_summaries",appName="testAppXXX",testData=testSamples,batchS=3)
+      //If you don't want to visualise the training process comment the following line                                               0.3f
+      trainer.visualiseAndValidate(logdir=args(13),appName=args(3),testData=testSamples,batchS=3,minloss=args(9).toFloat ,maxEpochs=args(8).toInt)
       }  
       else{
       //To track the training without testing on the tensorboard use the following line
-      trainer.visualise(logdir="/home/mhd/Desktop/bigdl_summaries",appName="testAppXXX",batchS=4)
+      trainer.visualise(logdir=args(13),appName=args(3),maxEpochs=args(8).toInt)
       }
       //build the Employee responsible for the training
-      val employee=trainer.build(samples=trainSamples,batch=4)
-      //Train the neural network model
-      employee.optimize()
-      println("Done")
+      val employee=trainer.build(samples=trainSamples,batch=args(10).toInt)
+      //Train the neural nvaletwork model
+      val trained_model=employee.optimize()
+        if(args(6).toBoolean){
+          (trained_model.evaluate(testSamples, Array(new Top1Accuracy), None)).foreach(println)
+        }
       }
 }
