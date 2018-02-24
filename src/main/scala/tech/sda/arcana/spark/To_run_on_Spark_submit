@@ -41,4 +41,29 @@ Test 1:
 "TestInsideUsingSpark" "30" "50" "true" "0.1" "20" "0" "8" "2" "2"
 "/home/mhd/Desktop/bigdl_summaries" "8"
 
+Accuracy:
+1)
+sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test1_LeN" "30" "50" "true" "0.1" "20" "0" "8" "3" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "8"
+2)
+sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test2_LeN" "30" "50" "true" "0.001" "20" "0" "8" "3" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "8"
+3)
+sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test3_LeN" "30" "50" "true" "0.1" "20" "0" "4" "3" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "4"
+4)
+sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test4_LeN" "30" "50" "true" "0.001" "20" "0" "4" "3" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "4"
+5)
+sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test5_Goo" "30" "50" "true" "0.1" "20" "0" "8" "2" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "8"
+6)
+sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test6_Goo" "30" "50" "true" "0.001" "20" "0" "8" "2" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "8"
+7)
+sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test7_Goo" "30" "50" "true" "0.1" "20" "0" "4" "2" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "4"
+8)
+sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test8_Goo" "30" "50" "true" "0.001" "20" "0" "4" "2" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "4"
+9)
+sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test9_Alex" "30" "50" "true" "0.1" "20" "0" "8" "1" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "8"
+10)
+sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test10_Alex" "30" "50" "true" "0.001" "20" "0" "8" "1" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "8"
+11)
+sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test11_Alex" "30" "50" "true" "0.1" "20" "0" "4" "1" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "4"
+12)
+sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test12_Alex" "30" "50" "true" "0.001" "20" "0" "4" "1" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "4"
 -------------------------------------------------------------------------------------------------------------------
