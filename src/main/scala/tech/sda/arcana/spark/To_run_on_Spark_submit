@@ -34,11 +34,11 @@ Example working on local machine:
 "/home/mhd/Desktop/bigdl_summaries" "8" --master local[2]
 
 Test 1:
-./spark-submit --driver-memory 10g --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar
+./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar
 "/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt"
 "/home/mhd/Desktop/WorkSpace/ARCANA/ARCANA Questions/Test_Data_Set/TestNow.txt"
 "/home/mhd/Desktop/WorkSpace/ARCANA/ARCANA Questions/Test_Data_Set/Mapping.txt"
-"TestInsideUsingSpark" "25" "50" "true" "0.1" "20" "0" "8" "2" "2"
-"/home/mhd/Desktop/bigdl_summaries" "8" --master local[2]
+"TestInsideUsingSpark" "30" "50" "true" "0.1" "20" "0" "8" "2" "2"
+"/home/mhd/Desktop/bigdl_summaries" "8"
 
 -------------------------------------------------------------------------------------------------------------------
