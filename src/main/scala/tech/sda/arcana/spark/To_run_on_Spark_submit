@@ -1,0 +1,36 @@
+To send java virtual machine arguments like memory using -Xms256m -Xmx512m -Djava to spark submit read this text:
+-------------------------------------------------------------------------------------------------------------------
+Note that it is illegal to set maximum heap size (-Xmx) settings with this option.
+Maximum heap size settings can be set with spark.driver.
+memory in the cluster mode and through the --driver-memory command line option in the client mode.
+Note: In client mode, this config must not be set through the SparkConf directly in your application,
+because the driver JVM has already started at that point.
+Instead, please set this through the --driver-java-options command line option or in your default properties file. 
+https://spark.apache.org/docs/latest/configuration.html
+-------------------------------------------------------------------------------------------------------------------
+To set -Xms in a client mode:
+./spark-submit --driver-memory 2g --class your.class.here app.jar
+This will start the JVM with 2G instead of the default 512M.
+http://apache-spark-user-list.1001560.n3.nabble.com/Setting-spark-executor-memory-problem-td11429.html
+(Our server)
+-------------------------------------------------------------------------------------------------------------------
+Standalone: Differences between client and cluster deploy modes:
+https://stackoverflow.com/questions/37027732/spark-standalone-differences-between-client-and-cluster-deploy-modes
+(Leipzig server)
+-------------------------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------------------------
+For Mohamad's Running:
+arguments:
+"Glove_Path" "Questions_Path" "Mappings_Path" "The App name for the result" "40 height" "50 width" "true Acc"
+"learning_Rate" "epochs" "minloss" "batch" "model" "class num" "/home/mhd/Desktop/bigdl_summaries" "batch for testing"
+
+Example working on local machine: 
+./spark-submit --driver-memory 3g --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar
+"/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt"
+"/home/mhd/Desktop/WorkSpace/ARCANA/ARCANA Questions/Test_Data_Set/TestNow.txt"
+"/home/mhd/Desktop/WorkSpace/ARCANA/ARCANA Questions/Test_Data_Set/Mapping.txt"
+"TestInsideUsingSpark" "40" "50" "true" "0.1" "0" "0.3" "8" "3" "2"
+"/home/mhd/Desktop/bigdl_summaries" "8" --master local[2]
+
+-------------------------------------------------------------------------------------------------------------------
