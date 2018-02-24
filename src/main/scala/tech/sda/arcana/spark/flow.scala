@@ -70,7 +70,7 @@ object flow {
       if(args(6).toBoolean){
       //To track the training and testing on the tensorboard use the following line
       //If you don't want to visualise the training process comment the following line                                               0.3f
-      trainer.visualiseAndValidate(logdir=args(13),appName=args(3),testData=testSamples,batchS=3,minloss=args(9).toFloat ,maxEpochs=args(8).toInt)
+      trainer.visualiseAndValidate(logdir=args(13),appName=args(3),testData=testSamples,batchS=args(14).toInt ,minloss=args(9).toFloat ,maxEpochs=args(8).toInt)
       }  
       else{
       //To track the training without testing on the tensorboard use the following line
