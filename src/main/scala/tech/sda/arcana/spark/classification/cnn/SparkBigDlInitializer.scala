@@ -25,7 +25,7 @@ class SparkBigDlInitializer(maxFailures: String = "1", master: String = "local[1
    val conf = Engine.createSparkConf()
      .setAppName(model)
      .set("spark.task.maxFailures", maxFailures)
-     .setMaster(master)
+     //.setMaster(master)
    val sc = new SparkContext(conf)
    Engine.init
    return sc
