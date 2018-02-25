@@ -130,7 +130,7 @@ object Dataset2Vec {
       val UriList=Res.select("Object").rdd.map(r => r(0)).collect().take(5)
       UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
   }
-  
+  //This
   def fetchAllOfWordAsSubject(DF: DataFrame, word: String):List[RDFURI]={
       DF.createOrReplaceTempView("triples")
       //println("Word is: "+word)
