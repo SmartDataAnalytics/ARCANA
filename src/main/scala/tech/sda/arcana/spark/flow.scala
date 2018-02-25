@@ -19,6 +19,8 @@ object flow {
   
  
   def main(args: Array[String]) = {
+      //Measure Time:
+      val t1 = System.nanoTime
       //Initialize the class responsible of the connection between BigDl and Spark
       val sparkBigDlInitializer=new SparkBigDlInitializer()
       //Initialize the Sparkcontext using the BigDL engine with setting the Application name
@@ -76,6 +78,8 @@ object flow {
       //To track the training without testing on the tensorboard use the following line
       trainer.visualise(logdir=args(13),appName=args(3),maxEpochs=args(8).toInt)
       }
+      //End time of data initializing 
+      val duration = (System.nanoTime - t1) / 1e9d
       //build the Employee responsible for the training
       val employee=trainer.build(samples=trainSamples,batch=args(10).toInt)
       //Train the neural nvaletwork model
@@ -83,5 +87,6 @@ object flow {
         if(args(6).toBoolean){
           (trained_model.evaluate(testSamples, Array(new Top1Accuracy), None)).foreach(println)
         }
+      println("Duration of Data-processing is:"+duration)
       }
 }
