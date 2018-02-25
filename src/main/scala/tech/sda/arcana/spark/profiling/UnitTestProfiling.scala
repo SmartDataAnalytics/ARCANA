@@ -10,6 +10,40 @@ import org.apache.spark.sql.Row
 import scala.collection.JavaConverters._
 import com.mongodb.spark._
 import com.mongodb.spark.config._
+import org.apache.commons.lang.StringEscapeUtils
+import java.io.File
+import java.nio.charset.Charset
+import java.util.Properties
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.rdd.RDD
+import scala.collection.JavaConverters._
+import org.apache.spark.sql.functions.udf
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions.concat_ws
+import org.apache.spark.sql.functions._
+import scala.io.Source
+import com.google.common.io.Files
+import edu.stanford.nlp.process.CoreLabelTokenFactory
+import edu.stanford.nlp.ling.CoreAnnotations.{PartOfSpeechAnnotation, SentencesAnnotation, TextAnnotation, TokensAnnotation}
+import edu.stanford.nlp.ling.CoreLabel
+import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
+import edu.stanford.nlp.util.CoreMap
+import edu.stanford.nlp.ling.CoreAnnotations.{LemmaAnnotation, PartOfSpeechAnnotation, SentencesAnnotation, TextAnnotation, TokensAnnotation}
+import util.control.Breaks._
+import edu.stanford.nlp.sentiment.SentimentCoreAnnotations.SentimentClass
+import edu.stanford.nlp.coref.CorefCoreAnnotations
+import edu.stanford.nlp.ling.CoreAnnotations
+import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations
+import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
+import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
+import edu.stanford.nlp.sentiment.SentimentCoreAnnotations.SentimentAnnotatedTree
+import org.apache.spark.ml.feature.StopWordsRemover
+import org.apache.spark.ml.feature.Word2Vec
+import org.apache.spark.ml.feature.Word2VecModel
+import scala.collection.mutable.ListBuffer
+import org.apache.spark.ml.feature.{RegexTokenizer, Tokenizer}
+import org.apache.spark.ml.feature.Word2Vec
+import org.apache.spark.ml.feature.Word2VecModel
 object UnitTestProfiling {
 
     val spark = SparkSession.builder
@@ -20,11 +54,265 @@ object UnitTestProfiling {
     .getOrCreate()
      val sc = spark.sparkContext
   
-  
+       
     import spark.implicits._
 
-   def main(args: Array[String]) = {
+    val props: Properties = new Properties()
+    props.put("annotators", "tokenize, ssplit, pos, lemma, parse, sentiment")
+    val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
+    
+    def questionProcess(Line:String):List[String]={
+      //DF.show()
+      var dm  = List[RDFURI]()
+      val Dbpedia = RDFApp.readProcessedData("/home/elievex/Repository/resources/"+AppConf.processedDBpedia)
+      //println(Line)
+      val text= Line
+      val path = "/home/elievex/Repository/resources/"
+      // create blank annotator
+      val document: Annotation = new Annotation(text)   
+      // run all Annotator - Tokenizer on this text
+      pipeline.annotate(document)
+  
+      val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
+      val listOfLines = Source.fromFile(path+AppConf.StopWords).getLines.toList
+        
+      val Tokens=  (for {
+          sentence: CoreMap <- sentences
+          token: CoreLabel <- sentence.get(classOf[TokensAnnotation]).asScala.toList
+          word: String = token.get(classOf[TextAnnotation])
+          pos: String = token.get(classOf[PartOfSpeechAnnotation])
+          lemma: String = token.get(classOf[LemmaAnnotation])
+    
+        } yield ( word, lemma))
+        Tokens.foreach{t =>
+          if(!listOfLines.contains(t._2))
+          {
+          //println(t)
+          dm = Dataset2Vec.fetchAllOfWordAsSubject(Dbpedia,t._2)
+          }
+        }
+      var DMC = new ListBuffer[String]()
 
+      dm.foreach{
+        
+        x=>
+          //println(x.Uri)
+          DMC+=x.Uri
+      }
+      DMC.toList
+    }
+    
+   def main(args: Array[String]) = {
+    val path = "/home/elievex/Repository/resources/"
+    val sc = spark.sparkContext
+    val textFile = sc.textFile("/home/elievex/Repository/resources/questionfake/*")
+    val noEmptyRDD = textFile.filter(x => (x != null) && (x.length > 0))
+    //noEmptyRDD.foreach(println)
+    val Dbpedia = RDFApp.readProcessedData("/home/elievex/Repository/resources/"+AppConf.processedDBpedia).cache().toDF()
+    val ds=noEmptyRDD.map(x=>questionProcess(x))
+    println("YES_1")
+    ds.collect()
+    /*
+    ds.foreach{
+      x => x.foreach{
+        y => println(y)
+      }
+    }
+    */
+    //var fruits = new ListBuffer[String]()
+    var TEXT : Set[String] = Set()
+    //var synSet : Set[String] = Set()
+    println("YES_2")
+
+    val dr= ds.flatMap(x => x)
+    val dt = dr.distinct()
+    
+    dt.saveAsTextFile("TESTME")
+
+    println("YES_3")
+    
+    //TEXT.foreach(println)      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      /*
+      val nounsLiteral = List("barack")
+      
+      var question ="dang barack obama"
+      //var dm  = List[String]()
+      
+      val DF = AppDBM.readDBCollection(AppConf.secondPhaseCollection)
+      DF.createOrReplaceTempView("DB")
+      var flag=0
+      var word = "dang"
+        val res = spark.sql(s"SELECT distinct relationshipID FROM DB where verb = '$word' ")
+        val rellist = res.select("relationshipID").rdd.map(r => r(0).asInstanceOf[Int]).collect()
+        if(!rellist.isEmpty){
+          println("ONE")
+          flag=1
+          //t.relationID=rellist(0)
+          var relID=rellist(0)
+          val resNoun = spark.sql(s"SELECT distinct noun FROM DB where relationshipID = '$relID' ")
+          val UriList=resNoun.select("noun").rdd.map(r => r(0).asInstanceOf[String]).collect()
+          
+          nounsLiteral.foreach{
+            f => if(UriList.contains(f)){
+              println("FOUND IT: "+word+" "+f)
+              flag=2
+              break
+            }
+          }
+          
+        if(flag==1 && flag!=2){
+        UriList.foreach{
+          f => 
+            if(question contains f){
+            flag = 3
+            println("FOUND EM OB")
+            break
+          }
+        }
+        
+        
+          }
+          
+        }
+      
+
+      */
+      
+     /*
+      var tdf= RDFApp.readProcessedData("/home/elievex/Repository/resources/DBpedia/processedDataprob")
+      tdf.createOrReplaceTempView("triples")
+      val REG = raw"(XMLSchema#float)".r
+      val Res = spark.sql(s"""SELECT Object from triples where Object NOT RLIKE "$REG"""")
+      val UriList=Res.select("Object").rdd.map(r => r(0)).collect()
+     // UriList.foreach(println)
+      println(UriList(1))
+      val word = UriList(1)
+      val Res2 = spark.sql(s"""SELECT Object from triples where Subject = ' $word ' """) 
+      */
+      /*
+      var tdf= RDFApp.readProcessedData("/home/elievex/Repository/resources/DBpedia/processedData")
+      
+      val word="terrorism"
+      tdf.createOrReplaceTempView("triples")
+      //println("Word is: "+word)
+      val REG = raw"(?i)(?<![a-zA-Z])$word(?![a-zA-Z])".r
+      val Res = spark.sql(s"""SELECT distinct * from triples where Subject RLIKE "$REG" LIMIT 5 """)
+      //val Res = spark.sql(s"SELECT * from triples where Subject like '%$word%'") 
+      val UriList=Res.select("Subject").rdd.map(r => r(0)).collect()
+      UriList:+APIData.fetchDbpediaSpotlight(word)
+      //UriList.foreach(println)
+      var XCV=UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
+      */
+      
+      /*
+      val T1=Dataset2Vec.fetchAllOfWordAsSubject(RDFApp.readProcessedData("/home/elievex/Repository/resources/"+AppConf.processedDatafake),"kill")
+      T1.foreach(println)
+      var s : Set[String] = Set()
+      T1.foreach(f=>s+=f.Uri)
+      
+       * //println(APIData.fetchDbpediaSpotlight("terrorism"))
+       */
+      //XCV.foreach(f=>println(f.Uri))
+      //val list = Dataset2Vec.fetchAllOfWordAsSubject(tdf.toDF(),"terrorism")
+      //list+=APIData.fetchDbpediaSpotlight("terrorism")
+      //
+    //  println(APIData.fetchDbpediaSpotlight("terrorism"))
+     
+      //curl "http://api.dbpedia-spotlight.org/en/annotate?text=War.&confidence=0.2&support=20" -H "Accept:application/json" 
+
+    //val query = s""""http://api.dbpedia-spotlight.org/en/annotate?text=War.&confidence=0.2&support=20" -H "Accept:application/json""""
+    //println(query)
+    //def get(url: String) = scala.io.Source.fromURL(query).mkString
+    //println(get(query))
+    //println("ye")
+    
+    //val result3 = fetch(query)
+    //val result3 = get(query)
+      //println(result3)
+        
+        
+      //var tdf= RDFApp.readProcessedData("/home/elievex/Repository/resources/DBpedia/processedDataprob")
+      //val DFN=tdf.filter("Object not like '-'").toDF()
+      //DFN.show()
+      /*
+      
+      val REG = raw"(?<!\^)<.+>".r
+      val String = """"^<http://www.w3.org/2001/XMLSchema#float>""""
+      val String2 = """<http://www.w3.org/2001/XMLSchema#float>"""
+      if(REG.findFirstIn(String)!=None){
+        println("NO HAT")
+      }else{
+        println("HAT DETECTED")
+      }*/
+      //val REG = raw"(http://)".r
+   //   val Res1 = spark.sql(s"""SELECT * from triples where Subject RLIKE "$REG" """)
+      //tdf.createOrReplaceTempView("triples")
+      //val word = "<http://commons.dbpedia.org/resource/User:nuclearA1>"
+      //val Res2 = spark.sql(s"""SELECT Object from triples where Subject = "$word" and Object RLIKE  "$REG" """)
+      
+      //val query =  """SELECT Object from triples where Subject = ""55.92722222222222"^^<http://www.w3.org/2001/XMLSchema#float>" and Object RLIKE  "(http://)" """
+      //val REG = raw"(http://)".r
+      //val Res2 = spark.sql(s"""SELECT * from triples where Object RLIKE  "$REG" """)
+      //val word ="SELECT Object from triples where Subject = ""55.92722222222222"^^<http://www.w3.org/2001/XMLSchema#float>" and Object RLIKE  "(http://)""
+      //val Res = spark.sql(s"""SELECT Object from triples where Subject = "$word"""")
+      //Res.show(false)
+      
+      // SELECT Object from triples where Subject = "$word" and Object RLIKE  "$REG" 
+     /*
+      val path = "/home/elievex/Repository/resources/"
+      println("TEST")
+      //val tdf =RDFApp.readProcessedData(path)
+      
+
+      
+      
+      
+      
+      val word ="<http://dbpedia.org/resource/Eighty_Years'_War>"
+      val word2= StringEscapeUtils.escapeSql(word);
+      println(s"""$word2""")
+      //println(s"SELECT Object from triples where Subject = '$word'")
+      tdf.createOrReplaceTempView("triples")
+      //println(s"SELECT Object from triples where Subject = '$word'")
+      val Res = spark.sql(s"""SELECT Object from triples where Subject = "$word2" """) 
+      val UriList=Res.select("Object").rdd.map(r => r(0)).collect()
+      UriList.foreach(println)
+      //UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
+      
+      */
+   
 
       /* experimenting phase 2 
    
@@ -211,7 +499,7 @@ object UnitTestProfiling {
       }
     }
     finalResult
-   }
+   }term
   def getTokenUrisSentiScore(list:List[String],posString:String,DF:DataFrame):ListBuffer[(String,Double)]={
     
     var UrisScore = new ListBuffer[(String,Double)]()
@@ -288,3 +576,66 @@ WRB Wh­adverb
 //<http://simple.dbpedia.org/resource/%5C> <http://www.w3.org/2000/01/rdf-schema#label> "\\"@en .
 //<http://simple.dbpedia.org/resource/%22beat-em_up%22> <http://www.w3.org/2000/01/rdf-schema#label> "\"beat-em up\""@en .
 //<http://simple.dbpedia.org/resource/%22Captain%22_Lou_Albano> <http://www.w3.org/2000/01/rdf-schema#label> "\"Captain\" Lou Albano"@en .
+
+
+
+/*
+ * Exception in thread "main" org.apache.spark.sql.catalyst.parser.ParseException: 
+extraneous input '_War' expecting {<EOF>, '.', '[', 'GROUP', 'ORDER', 'HAVING', 'LIMIT', 'OR', 'AND', 'IN', NOT, 'BETWEEN', 'LIKE', RLIKE, 'IS', 'WINDOW', 'UNION', 'EXCEPT', 'INTERSECT', EQ, '<=>', '<>', '!=', '<', LTE, '>', GTE, '+', '-', '*', '/', '%', 'DIV', '&', '|', '^', 'SORT', 'CLUSTER', 'DISTRIBUTE', STRING}(line 1, pos 86)
+
+== SQL ==
+SELECT Object from triples where Subject = '<http://dbpedia.org/resource/Eighty_Years'_War>'
+--------------------------------------------------------------------------------------^^^
+
+	at org.apache.spark.sql.catalyst.parser.ParseException.withCommand(ParseDriver.scala:197)
+	at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parse(ParseDriver.scala:99)
+	at org.apache.spark.sql.execution.SparkSqlParser.parse(SparkSqlParser.scala:46)
+	at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parsePlan(ParseDriver.scala:53)
+	at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:582)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$.fetchObjectsOfSubject(Word2VecDataMaker.scala:118)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$$anonfun$firstTraverse$1.apply(Word2VecDataMaker.scala:141)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$$anonfun$firstTraverse$1.apply(Word2VecDataMaker.scala:141)
+	at scala.collection.immutable.List.map(List.scala:288)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$.firstTraverse(Word2VecDataMaker.scala:141)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$$anonfun$6.apply(Word2VecDataMaker.scala:274)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$$anonfun$6.apply(Word2VecDataMaker.scala:274)
+	at scala.collection.immutable.List.map(List.scala:288)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$.ceatingWord2VecCategoryData(Word2VecDataMaker.scala:274)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$.MakeWord2VecData(Word2VecDataMaker.scala:320)
+	at tech.sda.arcana.spark.ExecuteOperations$.main(preprocessing.scala:34)
+	at tech.sda.arcana.spark.ExecuteOperations.main(preprocessing.scala)
+ */
+
+
+/*
+ * [Stage 329:====================================================>  (18 + 1) / 19]
+                                                                                
+Exception in thread "main" org.apache.spark.sql.catalyst.parser.ParseException: 
+extraneous input '55.92722222222222' expecting {<EOF>, '.', '[', 'GROUP', 'ORDER', 'HAVING', 'LIMIT', 'OR', 'AND', 'IN', NOT, 'BETWEEN', 'LIKE', RLIKE, 'IS', 'WINDOW', 'UNION', 'EXCEPT', 'INTERSECT', EQ, '<=>', '<>', '!=', '<', LTE, '>', GTE, '+', '-', '*', '/', '%', 'DIV', '&', '|', '^', 'SORT', 'CLUSTER', 'DISTRIBUTE', STRING}(line 1, pos 45)
+
+== SQL ==
+SELECT Object from triples where Subject = ""55.92722222222222"^^<http://www.w3.org/2001/XMLSchema#float>" and Object RLIKE  "(http://)" 
+---------------------------------------------^^^
+
+	at org.apache.spark.sql.catalyst.parser.ParseException.withCommand(ParseDriver.scala:197)
+	at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parse(ParseDriver.scala:99)
+	at org.apache.spark.sql.execution.SparkSqlParser.parse(SparkSqlParser.scala:46)
+	at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parsePlan(ParseDriver.scala:53)
+	at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:582)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$.fetchObjectsURIOfSubject(Word2VecDataMaker.scala:127)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$$anonfun$secondTraverse$1$$anonfun$apply$11.apply(Word2VecDataMaker.scala:156)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$$anonfun$secondTraverse$1$$anonfun$apply$11.apply(Word2VecDataMaker.scala:156)
+	at scala.collection.immutable.List.map(List.scala:288)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$$anonfun$secondTraverse$1.apply(Word2VecDataMaker.scala:156)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$$anonfun$secondTraverse$1.apply(Word2VecDataMaker.scala:155)
+	at scala.collection.immutable.List.foreach(List.scala:392)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$.secondTraverse(Word2VecDataMaker.scala:155)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$$anonfun$8.apply(Word2VecDataMaker.scala:285)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$$anonfun$8.apply(Word2VecDataMaker.scala:285)
+	at scala.collection.immutable.List.map(List.scala:284)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$.ceatingWord2VecCategoryData(Word2VecDataMaker.scala:285)
+	at tech.sda.arcana.spark.profiling.Dataset2Vec$.MakeWord2VecData(Word2VecDataMaker.scala:329)
+	at tech.sda.arcana.spark.ExecuteOperations$.main(preprocessing.scala:33)
+	at tech.sda.arcana.spark.ExecuteOperations.main(preprocessing.scala)
+ * 
+ */
