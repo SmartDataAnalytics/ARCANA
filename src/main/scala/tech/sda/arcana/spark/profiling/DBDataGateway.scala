@@ -132,6 +132,7 @@ object AppDBM {
   def getExpFromSubject(Subject: String): String = {
     var temp = (Subject.substring(Subject.lastIndexOf('/') + 1)).replaceAll(">", "")
     temp = if (temp contains ':') temp.substring(temp.lastIndexOf(':') + 1) else temp
+    temp = if (temp contains '_') temp.replaceAll("_", " ") else temp
     temp.toLowerCase
   }
 
@@ -141,8 +142,7 @@ object AppDBM {
     var DBRows = ArrayBuffer[Row]()
     var rlID = 0 
     for(t<-AppConf.tuples){
-             rlID += 1
-
+       rlID += 1
        DBRows += Row(t._1,t._2,rlID)
        WordNet.getSynsets(t._1,path).foreach(x=>DBRows += Row(x,t._2,rlID))
        WordNet.getSynsets(t._2,path).foreach(x=>DBRows += Row(t._1,x,rlID))
@@ -171,7 +171,7 @@ object AppDBM {
         sentiPosScore
    }
   // Build the Database with resources
-  def operateOnDB(DF: Dataset[Triple], modelvec: Word2VecModel,sentiDF:DataFrame,path:String) {
+  def operateOnDB(DF: DataFrame, modelvec: Word2VecModel,sentiDF:DataFrame,path:String) {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
     val categories = AppConf.categories
@@ -179,19 +179,16 @@ object AppDBM {
     
     for (x <- categories) {
       val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(DF.toDF(), x)
-      val sentiPosScore = getSentiScores(x,sentiDF)        
+      //val sentiPosScore = getSentiScores(x,sentiDF)        
       for (y <- myUriList) {
-        DBRows += Row(y.Uri, AppDBM.getExpFromSubject(y.Uri), x,sentiPosScore(0).toDouble,sentiPosScore(1).toDouble,sentiPosScore(2).toDouble,sentiPosScore(3).toDouble, sentiPosScore(4).toDouble, "", 0.0)
-        try {
-          val synonyms = modelvec.findSynonyms(y.Uri, 1000)
-          val synResult = synonyms.filter("similarity>=0.3").as[Synonym].collect
-          for (synonym <- synResult) {
-            val synSentiPosScore = getSentiScores(AppDBM.getExpFromSubject(synonym.word),sentiDF)
-            DBRows += Row(synonym.word, AppDBM.getExpFromSubject(synonym.word), x,synSentiPosScore(0).toDouble,synSentiPosScore(1).toDouble,synSentiPosScore(2).toDouble,synSentiPosScore(3).toDouble,synSentiPosScore(4).toDouble,y.Uri, synonym.similarity)
-          }
-        } catch {         
-              case e: Exception => println("didn't find synonyms for: "+y.Uri)
-          }
+        val uriSentiPosScore = getSentiScores(AppDBM.getExpFromSubject(y.Uri),sentiDF)
+        DBRows += Row(y.Uri, AppDBM.getExpFromSubject(y.Uri), x,uriSentiPosScore(0).toDouble,uriSentiPosScore(1).toDouble,uriSentiPosScore(2).toDouble,uriSentiPosScore(3).toDouble, uriSentiPosScore(4).toDouble, "", 0.0)
+        // Word2Vec Synonyms
+        var synSet=Word2VecModelMaker.getWord2VecSynonyms(modelvec,y.Uri)
+        synSet.foreach{syn=>
+          val synSentiPosScore = getSentiScores(AppDBM.getExpFromSubject(syn.word),sentiDF)
+          DBRows += Row(syn.word, AppDBM.getExpFromSubject(syn.word), x,synSentiPosScore(0).toDouble,synSentiPosScore(1).toDouble,synSentiPosScore(2).toDouble,synSentiPosScore(3).toDouble,synSentiPosScore(4).toDouble,y.Uri, syn.similarity)
+        }
        }
     }
     val dbRdd = sc.makeRDD(DBRows)
@@ -202,7 +199,7 @@ object AppDBM {
     println("~Categories Collection is created~")
   }
 
-  def buildCategoriesDB(DS: Dataset[Triple],path:String){
+  def buildCategoriesDB(DS: DataFrame,path:String){
     import spark.implicits._
     val Word2VecModel = Word2VecModelMaker.loadWord2VecModel(path+AppConf.Word2VecModel)
     val sentiDF = SentiWord.readProcessedSentiWord(path)
