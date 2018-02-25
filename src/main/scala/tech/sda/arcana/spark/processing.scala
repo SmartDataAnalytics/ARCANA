@@ -23,11 +23,13 @@ object processing {
     // Read the Questions
     val noEmptyRDD=ProcessQuestion.readQuestions(path+AppConf.Questions)
     
-    // Process Questions
-    val collectionDF=AppDBM.readDBCollection(AppConf.firstPhaseCollection)
-    
-    val ds= noEmptyRDD.map(t=>ProcessQuestion.processQuestion(t,path)).toDS().cache()
-    println("~Processing Questions is done~")
+    // val DF1 = AppDBM.readDBCollection(AppConf.firstPhaseCollection)
+    // val DF2 = AppDBM.readDBCollection(AppConf.secondPhaseCollection)
+    // RDFApp.readProcessedData(path+AppConf.processedDatafake)
+    // Mapping the questions for processing; Note that I have here functions <DBpedia & DBS> that pass Dataframes to the mapping process 
+    // val ds= noEmptyRDD.map(t=>ProcessQuestion.processQuestion(t,path)).toDS().cache()
+    val test = RDFApp.readProcessedData(path+AppConf.processedDatafake)
+    val ds= noEmptyRDD.map(t=>ProcessQuestion.processQuestion(t,path,test)).toDS().cache()
     ds.show(false)
     
     println("~Processing is done~")

@@ -18,6 +18,7 @@ object AppConf {
   // dbpedia
   val dbpedia = "DBpedia/DATA/*"
   val processedDBpedia = "DBpedia/processedData"
+  val processedDatafake = "DBpedia/processedDatafake"
   // Word2Vec
   val CategoryData = "Word2Vec/Data/CategoryData"
   val DatasetData = "Word2Vec/Data/DatasetData"
@@ -29,7 +30,7 @@ object AppConf {
   val ProcessedSentiWordFile = "SentiWordNet/processed"
   val SentiWordFilefeedback = "SentiWordNet/SentiWordNetFeedback.txt"
   // Questions
-  val Questions = "Questions"
+  val Questions = "Questions/*"
   // StopWords
   val StopWords = "Stopwords/stopwords.txt"
   // Malicious categories that we don't wish to answer
