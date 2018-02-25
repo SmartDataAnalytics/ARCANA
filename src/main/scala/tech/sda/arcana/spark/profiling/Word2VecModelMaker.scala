@@ -95,7 +95,23 @@ object Word2VecModelMaker {
   def loadWord2VecModel(fileName:String):Word2VecModel={
     Word2VecModel.load(fileName)
   }
- 
+ import spark.implicits._
+  // get Synonyms
+    def getWord2VecSynonyms(Word2VecModel:Word2VecModel,word:String):Set[Synonym]={
+    var synSet : Set[Synonym] = Set()
+    try{
+      val synonyms = Word2VecModel.findSynonyms(word, 1000)
+      val synResult = synonyms.filter("similarity>=0.3").as[Synonym].collect
+      synResult.foreach{
+        f=>synSet+=f
+      }
+     }
+    catch{
+      case e: Exception => //println(s"didn't find synonyms for: $word")
+    }
+    synSet
+  }
+  
   def MakeWord2VecModel(path:String,Word2VecDataType:Int){
     val sqlContext= new org.apache.spark.sql.SQLContext(spark.sparkContext)
     import sqlContext.implicits._
