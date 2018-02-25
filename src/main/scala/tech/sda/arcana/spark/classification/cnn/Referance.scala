@@ -330,4 +330,48 @@ object Referance {
           writer.close()
     */
     //---------------------------------------------------------
+    
+    
+      //To check the gradient in any model
+      //---------------------------------------------------------
+               val s= Tensor[Float](1,1,40,50).rand()
+           val mod1=GoogLeNetModel.build(40, 50, 2)
+           //val mod1=DyLeNet5Model.build(40, 50, 2)
+           //val mod1=GoogLeNetModel.build_no(40, 50, 2)
+            
+            val criterion = ClassNLLCriterion[Float]()
+                val input =mod1.forward(s)
+            
+            //val target = Tensor[Float](T(T(2f),T(2f),T(2f)))
+            //val target = Tensor[Float](T(2f,2f,2f))
+            val target = Tensor[Float](T(2f))
+            println("------Target squeeez---------")
+            println(target.squeeze().dim())
+            println(target.dim())
+            println("------Iput then Target---------")
+            println(input)
+            println(target)
+            val loss = criterion.forward(input, target)
+            val grad = criterion.backward(input, target)
+            /*println("***********Target Size***********")
+            val targetSize = target.size()
+            println(targetSize)
+            println(target.squeeze())
+            println(target.dim())
+            println("***********Target Size***********")*/
+            println("------Loss then Grad---------")
+            println(loss)
+            println(grad)
+      //---------------------------------------------------------
+    
+       
+       //For altering the learning method
+       //---------------------------------------------------------      
+          /*
+          val optim = new Adam[Float](learningRate=1e-3, learningRateDecay=0.0, beta1=0.9, beta2=0.999, Epsilon=1e-8)
+          val optimMethod =new SGD[Float](learningRate= 1e-3,learningRateDecay=0.0,
+                      weightDecay=0.0,momentum=0.0,dampening=Double.MaxValue,
+                      nesterov=false,learningRates=null,weightDecays=null)
+          */ 
+       //---------------------------------------------------------
 }

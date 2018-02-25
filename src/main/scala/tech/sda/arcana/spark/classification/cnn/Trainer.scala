@@ -105,7 +105,12 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int,validation
       val validationSummary = ValidationSummary(logdir, appName)
       optimizer.setValidationSummary(validationSummary)
       optimizer.setValidation(Trigger.everyEpoch ,testData, Array(new Top1Accuracy),batchS)
-      optimizer.setEndWhen(Trigger.minLoss(accuValid))
+        if(epochNum==0){
+            optimizer.setEndWhen(Trigger.minLoss(accuValid))
+        }
+        else{
+           optimizer.setEndWhen(Trigger.maxEpoch(epochNum))
+        }
       }
       else{
         optimizer.setEndWhen(Trigger.maxEpoch(epochNum))
@@ -122,14 +127,16 @@ class Trainer(lossfun:Int,model:Int,height:Int,width:Int,classNum:Int,validation
    * @param testData RDD used for testing 
    * @param batchS number of batches
    * @param minloss the desired accuracy 
+   * @param maxEpochs number of maximum epochs
    */
-  def visualiseAndValidate(logdir:String,appName:String,testData:RDD[Sample[Float]],batchS:Int,minloss:Float){
+  def visualiseAndValidate(logdir:String,appName:String,testData:RDD[Sample[Float]],batchS:Int,minloss:Float,maxEpochs:Int){
      visual=true
      this.logdir=logdir
      this.appName=appName
      this.testData=testData
      this.batchS=batchS
      accuValid=minloss
+     epochNum=maxEpochs
    }
   
   /**Function that sets and enable the visualisation data used in tensorboard later on

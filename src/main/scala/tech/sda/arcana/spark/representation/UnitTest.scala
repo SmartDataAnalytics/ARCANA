@@ -26,6 +26,16 @@ import com.intel.analytics.bigdl.nn.Module
 import com.intel.analytics.bigdl.visualization._
 import com.intel.analytics.bigdl.optim._
 import com.intel.analytics.bigdl.example.loadmodel.AlexNet
+/////////////
+import com.intel.analytics.bigdl.numeric.NumericFloat
+import com.intel.analytics.bigdl._
+import com.intel.analytics.bigdl.utils.{T, Table}
+import com.intel.analytics.bigdl.Module
+import com.intel.analytics.bigdl.nn.Graph.ModuleNode
+import com.intel.analytics.bigdl.nn.{Graph, _}
+import com.intel.analytics.bigdl._
+import com.intel.analytics.bigdl.nn.abstractnn.TensorCriterion
+
 
 object sentenceToTensor {
   //Transfer one question one sentence to multi-represential tensorcom.intel.analytics.bigdl.visualization
@@ -33,6 +43,8 @@ object sentenceToTensor {
    val vectorLength:Int=50
   val sentenceWordCount:Int=40
 
+ 
+  
           def parseLine(line:String)={
                 val fields = line.split(" ")
                 val word = fields(0).toString()
@@ -110,11 +122,11 @@ object sentenceToTensor {
             var kind:Int =0
             var label:Tensor[Float] = Tensor[Float](T(-5f))
             if(inin._2._1 == 1){
-              label=Tensor[Float](T(1f))
+              label=Tensor[Float](T(2f))
               kind=1
             }
             if(inin._2._1 == 0){
-              label=Tensor[Float](T(2f))
+              label=Tensor[Float](T(1f))
               kind=1
             }
             if(inin._2._1 == -1){
@@ -130,12 +142,83 @@ object sentenceToTensor {
             (kind,sample)
         }
 
-                  
+        def sasa1(inin:(Long, (Int, Tensor[Float])))={
+            var kind:Int =0
+            var label:Tensor[Float] = Tensor[Float](T(T(-5f),T(-5f),T(-5f)))
+            if(inin._2._1 == 1){
+              label=Tensor[Float](T(T(2f),T(2f),T(2f)))
+              kind=1
+            }
+            if(inin._2._1 == 0){
+              label=Tensor[Float](T(T(2f),T(1f),T(1f)))
+              kind=1
+            }
+            if(inin._2._1 == -1){
+              label=Tensor[Float](T(T(1f),T(1f),T(1f)))
+              kind=0
+            }
+            if(inin._2._1 == -2){
+              label=Tensor[Float](T(T(2f),T(2f),T(2f)))
+              kind=0
+            }
+            //println(label)
+             val sample=Sample(inin._2._2,label)            
+            (kind,sample)
+        }
+            
+        def sasa2(inin:(Long, (Int, Tensor[Float])))={
+            var kind:Int =0
+            var label:Tensor[Float] = Tensor[Float](T(-5f,-5f,-5f))
+            if(inin._2._1 == 1){
+              label=Tensor[Float](T(2f,2f,2f))
+              kind=1
+            }
+            if(inin._2._1 == 0){
+              label=Tensor[Float](T(2f,1f,1f))
+              kind=1
+            }
+            if(inin._2._1 == -1){
+              label=Tensor[Float](T(1f,1f,1f))
+              kind=0
+            }
+            if(inin._2._1 == -2){
+              label=Tensor[Float](T(2f,2f,2f))
+              kind=0
+            }
+            //println(label)
+             val sample=Sample(inin._2._2,label)            
+            (kind,sample)
+        }
+        
+           def sasa3(inin:(Long, (Int, Tensor[Float])))={
+               var kind:Int =0
+                var label:Tensor[Float] = Tensor[Float](T(T(-5f),T(-5f),T(-5f)))
+                if(inin._2._1 == 1){
+                  label=Tensor[Float](T(T(2f,2f,2f),T(2f,2f,2f),T(2f,2f,2f)))
+                  kind=1
+                }
+                if(inin._2._1 == 0){
+                  label=Tensor[Float](T(T(2f,2f,2f),T(1f,2f,2f),T(1f,2f,2f)))
+                  kind=1
+                }
+                if(inin._2._1 == -1){
+                  label=Tensor[Float](T(T(1f,2f,2f),T(1f,2f,2f),T(1f,2f,2f)))
+                  kind=0
+                }
+                if(inin._2._1 == -2){
+                  label=Tensor[Float](T(T(2f,2f,2f),T(2f,2f,2f),T(2f,2f,2f)))
+                  kind=0
+                }
+                //println(label)
+                 val sample=Sample(inin._2._2,label)            
+                (kind,sample)
+        }
+        
           def Core(model:String):SparkContext={
          val conf = Engine.createSparkConf()
            .setAppName(model)
            .set("spark.task.maxFailures", "1")
-           .setMaster("local[2]")
+           .setMaster("local[1]")
          val sc = new SparkContext(conf)
          Engine.init
          return sc
@@ -146,21 +229,20 @@ object sentenceToTensor {
           val mappingGen:Boolean = false
           
           if(mappingGen){
-            
             val logdir = "/home/mhd/Desktop/Data_Set/Mapping.txt"
                     
               
              val writer = new PrintWriter(new File(logdir))
         
-             for(i <- 0 to 299)
-               if(i<100){
+             for(i <- 0 to 1599)
+               if(i<560){
                  writer.write(i+",0 \n")
                }
                else{
-                 if(i<200)
+                 if(i<1120)
                    writer.write(i+",1 \n")
                    else
-                     if((i<250))
+                     if((i<1360))
                       writer.write(i+",-1 \n")
                       else
                         writer.write(i+",-2 \n")
@@ -175,9 +257,9 @@ object sentenceToTensor {
 
           val sc=Core("testApp2")
 
-          val lines = sc.textFile("/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt")
+          val lines = sc.textFile("/home/mhd/Desktop/ARCANA Resources/glove.6B/glove.6B.50d.txt")
 
-          val questions = sc.textFile("/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt")
+          val questions = sc.textFile("/home/mhd/Desktop/WorkSpace/ARCANA/ARCANA Questions/Test_Data_Set/TestNow.txt")
 
           val questionInitializer=new QuestionsInitializer(sparkContext=sc) 
 
@@ -198,33 +280,24 @@ object sentenceToTensor {
           val great=groupedResultTest.map(testte)
     
           
-          val mappings = sc.textFile("/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt")
+          val mappings = sc.textFile("/home/mhd/Desktop/WorkSpace/ARCANA/ARCANA Questions/Test_Data_Set/Mapping.txt")
 
           val maps=mappings.map(labelTensors)
           
           val alla=maps.join(great)
-          val oof=alla.collect()
-
           
-          val sddf= alla.map(sasa)
+          val sddf= alla.map(sasa)   
+          
           val trainSamples=sddf.filter(x=>x._1==1).map{case(a,b)=>b}
           val testSamples=sddf.filter(x=>x._1==0).map{case(a,b)=>b}
-          
-                    
-          /*2)
-          val optim = new Adam[Float](learningRate=1e-3, learningRateDecay=0.0, beta1=0.9, beta2=0.999, Epsilon=1e-8)
-          val optimMethod =new SGD[Float](learningRate= 1e-3,learningRateDecay=0.0,
-                      weightDecay=0.0,momentum=0.0,dampening=Double.MaxValue,
-                      nesterov=false,learningRates=null,weightDecays=null)
-              */        
-          val optimMethod1 = new SGD[Float](learningRate= 0.001,learningRateDecay=0.0002)
-          
 
+          val optimMethod1 = new SGD[Float](learningRate= 0.1,learningRateDecay=0.0002)
           
           val optimizer = Optimizer(
               //model = DyLeNet5Model.build(40, 50, 2),
               model = AlexNetModel.build(40, 50, 2),
-              //model=GoogLeNetModel.build(40, 50, 2)
+              //1model=GoogLeNetModel.build(40, 50, 2),
+              //model=GoogLeNetModel.build_no(40, 50, 2),
               sampleRDD = trainSamples,
               criterion = ClassNLLCriterion[Float](),
               batchSize = 8
@@ -233,8 +306,8 @@ object sentenceToTensor {
             println("reach here")
             
    
-            val logdir = "/home/sony/Repository/Mohamad's_Dataset/Result"
-            val appName = "NieMapping"
+            val logdir = "/home/mhd/Desktop/bigdl_summaries"
+            val appName = "AlexUni"
             val trainSummary = TrainSummary(logdir, appName)
             val validationSummary = ValidationSummary(logdir, appName)
             optimizer.setTrainSummary(trainSummary)
@@ -243,19 +316,21 @@ object sentenceToTensor {
             //optimizer.setCheckpoint(logdir+"/"+appName, Trigger.everyEpoch)
             //val trainLoss = trainSummary.readScalar("Loss")
             //val validationLoss = validationSummary.readScalar("Loss")
+            //optimizer.setEndWhen(Trigger.minLoss(0.3f))
+            optimizer.setEndWhen(Trigger.maxEpoch(2))
+            println("reach here")
             val trained_model=optimizer.optimize()
+            println("end here")
             //val evaluateResult=trained_model.evaluate(sddf, Array(new Top1Accuracy), None)
             //val evaluateResult = trained_model.evaluate(testSet, Array(new Top1Accuracy), None)
             //evaluateResult.foreach(println)  
 
             println("--------------------------")
-            trained_model.predict(testSamples, 12, true).foreach(println)
+            //trained_model.predict(testSamples, 12, true).foreach(println)
             println("--------------------------")
             val re= trained_model.evaluate(testSamples, Array(new Top1Accuracy), None)
             re.foreach(println)
       }
-
-   
-
+  
     }
   }

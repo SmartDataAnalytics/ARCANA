@@ -10,7 +10,7 @@ import com.intel.analytics.bigdl.utils.Engine
  *  @param maxFailures the number of maximum failures allowed
  *  @param master Cluster URL to connect to (e.g. mesos://host:port, spark://host:port, local[4]).
  */
-class SparkBigDlInitializer(maxFailures: String = "1", master: String = "local[2]") {  
+class SparkBigDlInitializer(maxFailures: String = "1", master: String = "local[1]") {  
   val this.maxFailures:String=maxFailures
   val this.master:String=master
   
@@ -25,7 +25,7 @@ class SparkBigDlInitializer(maxFailures: String = "1", master: String = "local[2
    val conf = Engine.createSparkConf()
      .setAppName(model)
      .set("spark.task.maxFailures", maxFailures)
-     .setMaster(master)
+     //.setMaster(master)
    val sc = new SparkContext(conf)
    Engine.init
    return sc
