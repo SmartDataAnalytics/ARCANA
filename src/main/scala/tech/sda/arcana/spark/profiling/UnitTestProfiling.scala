@@ -21,7 +21,7 @@ import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.concat_ws
 import org.apache.spark.sql.functions._
-import scala.io.Source
+//import scala.io.Source
 import com.google.common.io.Files
 import edu.stanford.nlp.process.CoreLabelTokenFactory
 import edu.stanford.nlp.ling.CoreAnnotations.{PartOfSpeechAnnotation, SentencesAnnotation, TextAnnotation, TokensAnnotation}
@@ -56,7 +56,7 @@ object UnitTestProfiling {
   
        
     import spark.implicits._
-
+    /*
     val props: Properties = new Properties()
     props.put("annotators", "tokenize, ssplit, pos, lemma, parse, sentiment")
     val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
@@ -100,70 +100,75 @@ object UnitTestProfiling {
           DMC+=x.Uri
       }
       DMC.toList
+    }*/
+    def questionProcessSent(Line:String):(String,Double)={
+      val X = AppDBM.getExpFromSubject(Line.replaceAll(",", ""))
+      val result = APIData.getRankUclassify(X)
+      (X,result._2.toDouble -result._1.toDouble)
     }
     
+    @throws(classOf[java.io.IOException])
+    @throws(classOf[java.net.SocketTimeoutException])
+    def get(url: String,
+            connectTimeout: Int = 5000,
+            readTimeout: Int = 5000,
+            requestMethod: String = "GET") =
+    {
+        import java.net.{URL, HttpURLConnection}
+        val connection = (new URL(url)).openConnection.asInstanceOf[HttpURLConnection]
+        connection.setConnectTimeout(connectTimeout)
+        connection.setReadTimeout(readTimeout)
+        connection.setRequestMethod(requestMethod)
+        val inputStream = connection.getInputStream
+        val content = scala.io.Source.fromInputStream(inputStream).mkString
+        if (inputStream != null) inputStream.close
+        content
+    }
    def main(args: Array[String]) = {
-    val path = "/home/elievex/Repository/resources/"
-    val sc = spark.sparkContext
-    val textFile = sc.textFile("/home/elievex/Repository/resources/questionfake/*")
-    val noEmptyRDD = textFile.filter(x => (x != null) && (x.length > 0))
-    //noEmptyRDD.foreach(println)
-    val Dbpedia = RDFApp.readProcessedData("/home/elievex/Repository/resources/"+AppConf.processedDBpedia).cache().toDF()
-    val ds=noEmptyRDD.map(x=>questionProcess(x))
-    println("YES_1")
-    ds.collect()
+    val path = "/home/elievex/Repository/resources/URI/"
+    
+    // THIS IS FOR FETCHING URIS OF QUESTIONS
+    //val sc = spark.sparkContext
+    //val textFile = sc.textFile("/home/elievex/Repository/resources/questionfake/*")
+    //val noEmptyRDD = textFile.filter(x => (x != null) && (x.length > 0))
+    //val Dbpedia = RDFApp.readProcessedData("/home/elievex/Repository/resources/"+AppConf.processedDBpedia).cache().toDF()
+    //val ds=noEmptyRDD.map(x=>questionProcess(x))
+    //ds.collect()
+    //val dr= ds.flatMap(x => x)
+    //val dt = dr.distinct()
+    //dt.saveAsTextFile("TESTME")
+    //println("DONE")
+          
+    // Sentining the URIS
     /*
-    ds.foreach{
-      x => x.foreach{
-        y => println(y)
-      }
+    var a : List[(String,Double)] = List()
+    val rawDF = spark.sparkContext.textFile("/home/elievex/Repository/resources/URI/") 
+    val myList=rawDF.collect().toList
+    //myList.foreach(println)
+    for (x <- myList){
+      a=a:+questionProcessSent(x)
     }
+    //WRITE TO FILE
+    
     */
-    //var fruits = new ListBuffer[String]()
-    var TEXT : Set[String] = Set()
-    //var synSet : Set[String] = Set()
-    println("YES_2")
+   
+    // For Testing
 
-    val dr= ds.flatMap(x => x)
-    val dt = dr.distinct()
-    
-    dt.saveAsTextFile("TESTME")
+  /*
+    val sc = spark.sparkContext
+   
+    val lines = sc.textFile("URISent")
+    lines.foreach(print)
+    */  
+      
+      //<http://simple.dbpedia.org/resource/Soldier,_Iowa>
+      //<http://simple.dbpedia.org/resource/Template:Multi-listen_item>
+      //<http://simple.dbpedia.org/resource/Template:Multi-listen_item>
+      //<http://simple.dbpedia.org/resource/Internet>
+      //<http://simple.dbpedia.org/resource/Ministry_of_Family_Affairs,_Senior_Citizens,_Women_and_Youth>
+      //<http://simple.dbpedia.org/resource/Bad_Rodach>
+      
 
-    println("YES_3")
-    
-    //TEXT.foreach(println)      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
       /*
       val nounsLiteral = List("barack")
       

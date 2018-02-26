@@ -47,8 +47,6 @@ object APIData {
   def fetch(url: String) = scala.io.Source.fromURL(url).mkString
 
   def getSynomyns_bighugelabs(expression:String){
-
-    
     implicit val formats = net.liftweb.json.DefaultFormats
     val result = fetch(s"http://words.bighugelabs.com/api/2/fe297721a04ca9641ae3a5b1ae3033a2/$expression/json")
     val json = parse(result)
@@ -70,17 +68,30 @@ object APIData {
       
     } println( (e \\ "syn").text)
   }
+  
+      @throws(classOf[java.io.IOException])
+    @throws(classOf[java.net.SocketTimeoutException])
+    def get(url: String,
+            connectTimeout: Int = 5000,
+            readTimeout: Int = 5000,
+            requestMethod: String = "GET") =
+    {
+        import java.net.{URL, HttpURLConnection}
+        val connection = (new URL(url)).openConnection.asInstanceOf[HttpURLConnection]
+        connection.setConnectTimeout(connectTimeout)
+        connection.setReadTimeout(readTimeout)
+        connection.setRequestMethod(requestMethod)
+        val inputStream = connection.getInputStream
+        val content = scala.io.Source.fromInputStream(inputStream).mkString
+        if (inputStream != null) inputStream.close
+        content
+    }
   def getRankUclassify(expression:String):(String,String)={
     implicit val formats = net.liftweb.json.DefaultFormats
-    //val TERE= "How+to+kill+a+person?"
-    //var test = "death kiss"
-    val query = s"https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text='$expression'"
-    //println(query)
-    def get(url: String) = scala.io.Source.fromURL(query.replaceAll(" ", "+")).mkString
-    //println(get(query))
-    //println("ye")
-    
-    //val result3 = fetch(query)
+    val Nexpression=expression.trim().replaceAll(" ", "+")
+    val query = s"https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text=$Nexpression"
+
+    //def get(url: String) = scala.io.Source.fromURL(query).mkString
     val result3 = get(query)
     var Negative =""
     var Positive =""
@@ -104,14 +115,13 @@ object APIData {
       return resulturi.mkString.dropRight(3)
   }
   def main(args: Array[String]) = {
-        
-        val word = "bad"
+
+        val word = "bad as fuck "
         val result = getRankUclassify(word)
         
-        
         print(s"word: $word, "+"Negative: "+result._1+", Positive: "+result._2)
-        println("RES")
         println(result._2.toDouble -result._1.toDouble)
+
         /*
         getRankUclassify("kill")
         getRankUclassify("hunt")
