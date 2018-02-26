@@ -31,6 +31,7 @@ object AppConf {
   val SentiWordFilefeedback = "SentiWordNet/SentiWordNetFeedback.txt"
   // Questions
   val Questions = "Questions/*"
+  val fakeQuestions = "questionfake/*"
   // StopWords
   val StopWords = "Stopwords/stopwords.txt"
   // Malicious categories that we don't wish to answer
