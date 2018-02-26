@@ -16,7 +16,16 @@ cd SANSA-Template-Maven-Spark
 
 mvn clean package
 ````
+Database
+----------
 
+```
+The application make use of MongoDB (NoSQL database), so it is important to have it installed and running.
+To install it, refer to [Mongodb Docs](https://docs.mongodb.com/manual/administration/install-on-linux/)
+````
+
+Remarks
+----------
 If you wish to change something in the project, be sure to use Scala-2.11. 
 For example (Using Scala IDE):
-###### Project >> Properties >> Scala Compiler >> Scala Installation : Latest 2.11 bundle (dynamic) 
+> Project >> Properties >> Scala Compiler >> Scala Installation : Latest 2.11 bundle (dynamic) 
