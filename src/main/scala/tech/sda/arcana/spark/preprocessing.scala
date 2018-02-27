@@ -22,32 +22,35 @@ object ExecuteOperations {
     //| should be entered like this val path = "/xx/resources/"    
     //> val path = if (args.length == 0) "src/main/resources/rdf2.nt" else args(0) // or use System.exit(0);
     val path = "/home/elievex/Repository/resources/"
-
-    //| Read Data & Clean and transform it   
-    val RDFDs=RDFApp.importingData(path) 
-    
     //| 1 for category, 2 for dataset
     val Word2VecDataType = 1 
     
-    //| Prepare Data for the Word2Vec Model  
-    Dataset2Vec.MakeWord2VecData(path,Word2VecDataType)
+    //| STEP_1: Read Data & Clean and transform it   
+    //> val RDFDs=RDFApp.importingData(path) 
     
-    //| Create the Word2Vec Model
-    Word2VecModelMaker.MakeWord2VecModel(path,Word2VecDataType)
+    //| STEP_2: Prepare Data for the Word2Vec Model  
+    //> Dataset2Vec.MakeWord2VecData(path,Word2VecDataType) // 447.393016719 <=> 519.455495196
     
-    //| Create the SentiWord Data
-    SentiWord.writeProcessedSentiWord(path)
+    //| STEP_3: Create the Word2Vec Model
+    //> Word2VecModelMaker.MakeWord2VecModel(path,Word2VecDataType)
+    
+    //| STEP_4: Create the SentiWord Data
+    //> SentiWord.writeProcessedSentiWord(path)
 
-    //| Build URI Data
-    AppDBM.buildCategoriesDB(RDFDs,path)
+    //| STEP_5: Build URI Data
+    //> val RDFDs=RDFApp.readProcessedData(path+AppConf.processedDBpedia)
+    //> AppDBM.buildCategoriesDB(RDFDs,path)
     
-    //| Set up Expression Collection
-    AppDBM.buildExpressionsDB(path)
+    //| STEP_6: Set up Expression Collection
+    //> AppDBM.buildExpressionsDB(path)
 
     println("~Preprocessing is done~")
     spark.stop()
   }
 }
+// -> Making dataset/dataframe loadable from file in word2vec maker
+// -> try map instead of categories in DBgateway 
+
 
 /* Measure Time:
  *  val t1 = System.nanoTime
@@ -55,3 +58,4 @@ object ExecuteOperations {
     val duration = (System.nanoTime - t1) / 1e9d
     println("Duration of Task-processing is:"+duration)
  */
+

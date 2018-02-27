@@ -125,8 +125,96 @@ object UnitTestProfiling {
         content
     }
    def main(args: Array[String]) = {
-    val path = "/home/elievex/Repository/resources/URI/"
+     println("YA")
+    var DBRows = ArrayBuffer[Row]()
+    //DBRows += Row("URI", "EXPRESSION", "X",1.1,1.2,1.3,1.4,1.5, "", 0.0)
+    var a : List[(String,Double)] = List()
+    val rawDF = spark.sparkContext.textFile("/home/elievex/Repository/resources/URI/") 
+    val myList=rawDF.collect().toList
+    //myList.foreach(println)
+   
+    for (x <- myList){
+      val Temp=questionProcessSent(x)
+      DBRows += Row(x, Temp._1, "X",-9.0,-9.0,-9.0,-9.0,Temp._2, "", 0.0)
+    }
+    val dbRdd = sc.makeRDD(DBRows)
+    val df = dbRdd.map {
+    case Row(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9) => DBRecord(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[Double], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[Double],s7.asInstanceOf[Double],s8.asInstanceOf[String],s9.asInstanceOf[Double])
+    }.toDF()
+    MongoSpark.save(df.write.option("collection", AppConf.firstPhaseCollection).mode("append"))
+     
+     println("Written")
+     
+     
+     
+    // val DF = AppDBM.readDBCollection(AppConf.firstPhaseCollection)
+   //AppDBM.readDBCollection(AppConf.firstPhaseCollection).select("category","cosine_similary","expression","relatedTo","senti_a","senti_n","senti_r","senti_uclassify","senti_v","uri").distinct().show()
+  
+     //val DF = MongoSpark.load(spark, ReadConfig(Map("collection" -> AppConf.firstPhaseCollection), Some(ReadConfig(spark))))
+   // val distinctDF= DF.select("category","cosine_similary","expression","relatedTo","senti_a","senti_n","senti_r","senti_uclassify","senti_v","uri").distinct().show()
+    // MongoSpark.save(distinctDF.write.option("collection", AppConf.firstPhaseCollection).mode("overwrite"))
     
+    //,cosine_similary,"expression","relatedTo","senti_a","senti_n","senti_r","senti_uclassify","senti_v","uri"
+   /* WRITE TO DB 
+   var DBRows = ArrayBuffer[Row]()
+     DBRows += Row("URI", "EXPRESSION", "X",1.1,1.2,1.3,1.4,1.5, "", 0.0)
+    val dbRdd = sc.makeRDD(DBRows)
+    val df = dbRdd.map {
+    case Row(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9) => DBRecord(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[Double], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[Double],s7.asInstanceOf[Double],s8.asInstanceOf[String],s9.asInstanceOf[Double])
+    }.toDF()
+    MongoSpark.save(df.write.option("collection", AppConf.firstPhaseCollection).mode("append"))
+     */
+     /* TESTING WORD2VEC
+     val path = "/home/elievex/Repository/resources/"
+     val Word2VecModel = Word2VecModelMaker.loadWord2VecModel(path+AppConf.Word2VecModel)
+         var s : Set[String] = Set()
+  
+    var synSet=Word2VecModelMaker.getWord2VecSynonyms(Word2VecModel,"<http://simple.dbpedia.org/resource/Nuclear_fusion>")
+    println(synSet.size)
+    synSet.foreach{syn=>
+      println(syn.word)
+    }*/
+     /*
+    //<http://simple.dbpedia.org/resource/Detachment_(military)>
+    val path = "/home/elievex/Repository/resources/URI/"
+    val Dbpedia = RDFApp.readProcessedData("/home/elievex/Repository/resources/"+AppConf.processedDBpedia).cache().toDF()
+    //println(APIData.fetchDbpediaSpotlight("president"))
+    //http://dbpedia.org/ontology/president
+
+    /*
+    val X = Dataset2Vec.fetchAllOfWordAsSubject(Dbpedia.toDF(),"president")
+    X.foreach{
+      c=>println(c.Uri)
+    }
+		*/
+    
+    val DF=Dataset2Vec.fetchSubjectNObjectOfSubject(Dbpedia.toDF(), "<http://simple.dbpedia.org/resource/President_of_the_Czech_Republic>")
+    DF.show(false)
+    * 
+    */
+    /*
+     * 
+ <http://simple.dbpedia.org/resource/President_of_the_Czech_Republic>
+<http://simple.dbpedia.org/resource/President_of_Pakistan>
+<http://simple.dbpedia.org/resource/University_President>
+<http://simple.dbpedia.org/resource/President_of_the_European_Parliament>
+<http://simple.dbpedia.org/resource/President_of_Iran>
+<http://simple.dbpedia.org/resource/President_of_the_Republic_of_Poland>
+<http://simple.dbpedia.org/resource/Wife_of_the_Vice_President_of_the_United_States>
+<http://simple.dbpedia.org/resource/President_of_the_French_Republic>
+<http://simple.dbpedia.org/resource/President_of_the_Republic_of_China>
+     * 
+     * 
+     */
+    
+    
+    /*
+    val X =Dataset2Vec.fetchObjectsURIOfSubject(Dbpedia,"<http://dbpedia.org/ontology/president>")
+      X.foreach{
+      c=>println(c.Uri)
+    }
+    */
+     ///////////////////////////////////////////////////
     // THIS IS FOR FETCHING URIS OF QUESTIONS
     //val sc = spark.sparkContext
     //val textFile = sc.textFile("/home/elievex/Repository/resources/questionfake/*")

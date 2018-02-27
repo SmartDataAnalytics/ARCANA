@@ -12,7 +12,7 @@ object AppConf {
   val inputUri = "spark.mongodb.input.uri"
   val outputUri = "spark.mongodb.output.uri"
   // Word2Vec
-  val VectorSize=100
+  val VectorSize=200
   val MinCount=0
   
   // dbpedia
