@@ -175,7 +175,7 @@ object ProcessQuestion {
     
     sentence
   }   
-  def expressionCheck(questionObj:QuestionObj):Int={
+  def expressionCheck(questionObj:QuestionObj,DFDB2:DataFrame):Int={
     val extractCase = raw"V\s(.+)?N\s?".r
     //println(questionObj.PosSentence)
     var flag=0
@@ -198,7 +198,8 @@ object ProcessQuestion {
         }
       }
       //| Get DB Info
-      val DF = AppDBM.readDBCollection(AppConf.secondPhaseCollection)
+      //val DF = AppDBM.readDBCollection(AppConf.secondPhaseCollection)
+      val DF = DFDB2
       DF.createOrReplaceTempView("DB")
 
       //| check if Verb is present in DB
@@ -255,24 +256,18 @@ object ProcessQuestion {
   /** Fetch the tokens of a uri 
     */
   def fetchTokenUris(word:String,DFpedia:DataFrame,modelvec: Word2VecModel):Set[String]={
-    println(word)
-
-    //val URI=APIData.fetchDbpediaSpotlight(word)
+    // Fetching URIs of word
     val T1=Dataset2Vec.fetchAllOfWordAsSubject(DFpedia,word)
-    //val T2=Dataset2Vec.fetchAllOfWordAsSubject(DFpedia,word)
-
     var s : Set[String] = Set()
     T1.foreach(f=>s+=f.Uri)
-    val synonyms = modelvec.findSynonyms(word, 1000)
-    val synResult = synonyms.filter("similarity>=0.3").as[Synonym].collect
-    if(synResult.size>0){
-      synResult.foreach{
-        f=>s+=f.word
-      }
-    }
-    //s+=URI
-    //T2.foreach(f=>s+=f.Uri)
-    //listBuff.foreach(f=>s+=f)
+    // Fetching Uris from Word2Vec
+    /*
+    T1.foreach{
+      f=> var synSet=Word2VecModelMaker.getWord2VecSynonyms(modelvec,f.Uri,10)
+      synSet.foreach{syn=>
+       s+=syn.word
+      }  
+    }*/
     s
   }
    /** Map between stanford and sentword notations 
@@ -324,12 +319,13 @@ object ProcessQuestion {
     *   @param list of Uris, Pos tag of word 
     *   @return Uri and its general score 
     */
-   def getTokenUrisSentiScore(myList:List[String],posString:String):ListBuffer[(String,Double)]={
+   def getTokenUrisSentiScore(myList:List[String],posString:String,DFDB1:DataFrame):ListBuffer[(String,Double)]={
      var UrisScore = new ListBuffer[(String,Double)]()
-     //println("LET ME GO 0")
-     val DF = AppDBM.readDBCollection(AppConf.firstPhaseCollection)
+     val DF = DFDB1 //.select("category","cosine_similary","expression","relatedTo","senti_a","senti_n","senti_r","senti_uclassify","senti_v","uri").distinct()
+     //val DF = AppDBM.readDBCollection(AppConf.firstPhaseCollection)//.select("category","cosine_similary","expression","relatedTo","senti_a","senti_n","senti_r","senti_uclassify","senti_v","uri").distinct()
+     //val distinctDF= DF.select("category","cosine_similary","expression","relatedTo","senti_a","senti_n","senti_r","senti_uclassify","senti_v","uri").distinct()
      DF.createOrReplaceTempView("DB")
-     //println("LET ME GO IN")
+
      myList.foreach{uriString=>
        
        var resultList : List[(String,Double)] = List()
@@ -343,13 +339,11 @@ object ProcessQuestion {
        var sentiScore=new DBRecord("","","",0.0,0.0,0.0,0.0,0.0,"",0.0)
        var sentiIndicator=""
        // Grabbing all info about URI
-       val allDB = spark.sql(s"SELECT  * FROM DB where uri = '$uriString'  ") 
+       val allDB = spark.sql(s"""SELECT  * FROM DB where uri = "$uriString"  """) 
        if(allDB.count()>0){
-         
-         //allDB.show(false)
          allDB.createOrReplaceTempView("QuestionURI")
          // Grabbing the required POS 
-         val specDB = spark.sql(s"SELECT * FROM DB WHERE (uri,$dbPOS) IN ( SELECT  uri,min($dbPOS) FROM QuestionURI where uri = '$uriString' group by(uri))")
+         val specDB = spark.sql(s"""SELECT * FROM DB WHERE (uri,$dbPOS) IN ( SELECT  uri,min($dbPOS) FROM QuestionURI where uri = "$uriString" group by(uri))""")
          if(specDB.count()>0){
            //specDB.show()
            val result = specDB.as[DBRecord].collect()
@@ -357,13 +351,14 @@ object ProcessQuestion {
            if(isScoreNine(result(0),dbPOS)){
                sentiArray.foreach{x=>
                  if(x!=dbPOS){
-                    val sentiDB = spark.sql(s"SELECT * FROM DB WHERE (uri,$x) IN ( SELECT  uri,min($x) FROM QuestionURI where uri = '$uriString' group by(uri))")
+                    val sentiDB = spark.sql(s"""SELECT * FROM DB WHERE (uri,$x) IN ( SELECT  uri,min($x) FROM QuestionURI where uri = "$uriString" group by(uri))""")
                     val sentiResult = sentiDB.as[DBRecord].collect()
                     if(!isScoreNine(sentiResult(0),x)){
                        myVoteScore+=((sentiResult(0),x)) 
                     }
                  }
                }
+               // if not -9 take it already
            }else{
              foundFlag=true
              sentiScore=result(0)
@@ -387,7 +382,6 @@ object ProcessQuestion {
         }
         UrisScore+=((uriString,finalResult))
      }
-     
      UrisScore
    }
  
@@ -407,7 +401,7 @@ object ProcessQuestion {
        tokenList.foreach{t=>       
          var counter = 0 
          var sum = 0.0
-         
+         var totalScoreTokenUris=0
          if(t.uriTuple.size>0){
            // Loop the URIS
            t.uriTuple.foreach{f=>
@@ -416,17 +410,19 @@ object ProcessQuestion {
                 counter+=1
                 totalFoundUris+=1
                 totalScoreUris+=1
+                totalScoreTokenUris+=1
               }else if(f._2== -99){
                 totalFoundUris+=1
-                counter+=1
+                //totalScoreTokenUris+=1
+                //counter+=1
               }
            }
-           t.tokenUrisSentiScore += (if ((sum/counter.toDouble).isNaN) 0.0 else (sum/counter.toDouble) )
+           t.tokenUrisSentiScore += (if ((sum/totalScoreTokenUris.toDouble).isNaN) 0.0 else (sum/totalScoreTokenUris.toDouble) )
            TotalTokenSentiScore+=t.tokenUrisSentiScore
          }
        }
      //}
-     val summary="We found a total of "+totalFoundUris+ " Uris related to this question, "+totalScoreUris+" of them are present in the DB, with a total Sentiment score of "+(if ((TotalTokenSentiScore/tokenNum.toDouble.toDouble).isNaN) 0.0 else (TotalTokenSentiScore/tokenNum.toDouble) )
+     val summary="We found a total of "+totalFoundUris+ " Uris related to this question, "+totalScoreUris+" of them are present in the DB, with a total Sentiment score of "+(if ((TotalTokenSentiScore/tokenNum.toDouble).isNaN) 0.0 else (TotalTokenSentiScore/tokenNum.toDouble) )
      //println("Found in DB "+totalScoreUris+" from a total number of Uris: "+totalFoundUris)
      summary
    }
@@ -436,7 +432,7 @@ object ProcessQuestion {
   *   @param Question, path to resources 
   *   @return list of token and posTagString
   */
-  def ProcessSentence(text:String,path:String,DFpedia:DataFrame):(List[Token],String)={
+  def ProcessSentence(text:String,path:String,DFpedia:DataFrame,DFDB1:DataFrame):(List[Token],String)={
     val Word2VecModel = Word2VecModelMaker.loadWord2VecModel(path+AppConf.Word2VecModel)
       val extractNumber = raw"(\d+)".r
       var tokens = new ListBuffer[Token]()
@@ -448,7 +444,6 @@ object ProcessQuestion {
   
       val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
       val listOfLines = Source.fromFile(path+AppConf.StopWords).getLines.toList
-        
       val Tokens=  (for {
           sentence: CoreMap <- sentences
           token: CoreLabel <- sentence.get(classOf[TokensAnnotation]).asScala.toList
@@ -465,7 +460,8 @@ object ProcessQuestion {
             var scoredUrisList=  List[(String,Double)]()
             // Sentiment Score
             if(list.size>0){
-              scoredUrisList=getTokenUrisSentiScore(list.toList,t._3.toString()).toList
+              //DB required Columns in here
+              scoredUrisList=getTokenUrisSentiScore(list.toList,t._3.toString(),DFDB1).toList
             }else{
               scoredUrisList=List()
             }
@@ -487,24 +483,26 @@ object ProcessQuestion {
   *   @param Question, path to resources 
   *   @return Processed Question Object 
   */
-  def processQuestion(input:String,path:String,DF:DataFrame): QuestionObj = {
+  def processQuestion(input:String,path:String,DF:DataFrame,DFDB1:DataFrame,DFDB2:DataFrame): QuestionObj = {
     val question = input.toLowerCase()
-    val questionInfo = ProcessSentence(question,path,DF)
+    val questionInfo = ProcessSentence(question,path,DF,DFDB1)
     var summary = calcFinalScore(questionInfo._1)
     val questionObj = new QuestionObj(question,removeStopWords(stringToDF(question)),sentiment(question),questionInfo._1,questionInfo._2,0,summary)
-    questionObj.phaseTwoScore=expressionCheck(questionObj)
- 
+    questionObj.phaseTwoScore=expressionCheck(questionObj,DFDB2)
     questionObj
   }
 
   def main(args: Array[String]) = {
 
-    val myList = List("<http://simple.dbpedia.org/resource/Category:Armenian_military>","<http://simple.dbpedia.org/resource/Detachment_(military)>")
-    var list = getTokenUrisSentiScore(myList,"NN")
-    list.foreach(println)
+    //val myList = List("<http://simple.dbpedia.org/resource/Category:Armenian_military>","<http://simple.dbpedia.org/resource/Detachment_(military)>")
+    //var list = getTokenUrisSentiScore(myList,"NN")
+    //list.foreach(println)
   }
   
 }
 //QuestionObj(sentence:String,sentenceWoSW:String,SentimentExtraction:Int,tokens:List[Token],PosSentence:String,var phaseTwoScore:Int)
 //Token(index:String,word:String,posTag:String,lemma:String,var relationID:Int)
     
+
+
+//SELECT  * FROM DB where uri = '<http://dbpedia.org/resource/Stronger_(What_Doesn't_Kill_You)>'  

@@ -18,21 +18,42 @@ object processing {
   def main(args: Array[String]) = {
     //| should be entered like this val path = "/xx/resources/"    
     //> val path = if (args.length == 0) "src/main/resources/rdf2.nt" else args(0) // or use System.exit(0);
-    val path = "/home/elievex/Repository/resources/"
-
+    //val path = "/home/elievex/Repository/resources/"
+    val path= args(0)
     // Read the Questions
     val noEmptyRDD=ProcessQuestion.readQuestions(path+AppConf.Questions)
-    
-    // val DF1 = AppDBM.readDBCollection(AppConf.firstPhaseCollection)
-    // val DF2 = AppDBM.readDBCollection(AppConf.secondPhaseCollection)
-    // RDFApp.readProcessedData(path+AppConf.processedDatafake)
-    // Mapping the questions for processing; Note that I have here functions <DBpedia & DBS> that pass Dataframes to the mapping process 
+    val t1 = System.nanoTime
+  
     // val ds= noEmptyRDD.map(t=>ProcessQuestion.processQuestion(t,path)).toDS().cache()
-    val test = RDFApp.readProcessedData(path+AppConf.processedDatafake)
-    val ds= noEmptyRDD.map(t=>ProcessQuestion.processQuestion(t,path,test)).toDS().cache()
-    ds.show(false)
+    // val test = RDFApp.readProcessedData(path+AppConf.processedDBpedia).cache()
+    //sc.broadcast(test)
     
+    
+    // METHOD 1
+    /*
+    val ds= noEmptyRDD.map(t=>ProcessQuestion.processQuestion(t,path,RDFApp.readProcessedData(path+AppConf.processedDBpedia))).toDS().cache()
+    ds.show(false)
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("Duration of Task-processing is:"+duration)
+    */
+    // METHOD 2
+    val DBpedia = RDFApp.readProcessedData(path+AppConf.processedDBpedia).cache()
+    val DFDB1 = AppDBM.readDBCollection(AppConf.firstPhaseCollection)
+    val DFDB2 = AppDBM.readDBCollection(AppConf.secondPhaseCollection)
+    val myList=noEmptyRDD.collect().toList
+    myList.foreach{
+      f=>ProcessQuestion.processQuestion(f,path,DBpedia,DFDB1,DFDB2)
+    }
     println("~Processing is done~")
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("Duration of Task-processing is:"+duration)
     spark.stop()
   }
 }
+/*
+    val test = RDFApp.readProcessedData(path+AppConf.processedDBpedia).cache()
+    val myList=noEmptyRDD.collect().toList
+    myList.foreach{
+      f=>ProcessQuestion.processQuestion(f,path,test)
+      }
+*/
