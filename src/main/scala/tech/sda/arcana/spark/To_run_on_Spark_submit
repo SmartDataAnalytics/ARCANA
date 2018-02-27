@@ -68,37 +68,37 @@ sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcan
 sudo ./spark-submit --driver-memory 10g --master local[2] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/TestNow.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping.txt" "AC_Test12_Alex" "30" "50" "true" "0.001" "20" "0" "4" "1" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "4"
 -------------------------------------------------------------------------------------------------------------------
 Scalability: constants: epoch 2, Batch 8, learning rate 0.1
-1)
+1)[Wall Clock 38.850558095s] Duration of Data-processing is:2.045640404
 sudo ./spark-submit --driver-memory 10g --master local[1] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q2000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_2000.txt" "SC_Test1_LeN" "35" "50" "false" "0.1" "5" "0" "6" "3" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
-2)
+2)[Wall Clock 75.113577358s] Duration of Data-processing is:2.066630802
 sudo ./spark-submit --driver-memory 10g --master local[1] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q4000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_4000.txt" "SC_Test2_LeN" "35" "50" "false" "0.1" "5" "0" "6" "3" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
-3)
+3)[Wall Clock 34.280706274s] Duration of Data-processing is:4.498973993
 sudo ./spark-submit --driver-memory 10g --master local[3] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q2000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_2000.txt" "SC_Test3_LeN" "35" "50" "false" "0.1" "5" "0" "6" "3" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
-4)
+4)[Wall Clock 67.65807398s] Duration of Data-processing is:5.917437356
 sudo ./spark-submit --driver-memory 10g --master local[3] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q4000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_4000.txt" "SC_Test4_LeN" "35" "50" "false" "0.1" "5" "0" "6" "3" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
 5)
 sudo ./spark-submit --driver-memory 10g --master local[6] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q2000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_2000.txt" "SC_Test5_LeN" "35" "50" "false" "0.1" "5" "0" "6" "3" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
 6)
 sudo ./spark-submit --driver-memory 10g --master local[6] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q4000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_4000.txt" "SC_Test6_LeN" "35" "50" "false" "0.1" "5" "0" "6" "3" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
-7)
+7)[Wall Clock 2060.85430651s] Duration of Data-processing is:2.126256556
 sudo ./spark-submit --driver-memory 10g --master local[1] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q2000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_2000.txt" "SC_Test7_Goo" "35" "50" "false" "0.1" "5" "0" "6" "2" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
-8)
+8)[Wall Clock 4110.15966561s] Duration of Data-processing is:2.197066428
 sudo ./spark-submit --driver-memory 10g --master local[1] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q4000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_4000.txt" "SC_Test8_Goo" "35" "50" "false" "0.1" "5" "0" "6" "2" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
-9)
+9)[Wall Clock 768.464214831s] Duration of Data-processing is:5.112477912
 sudo ./spark-submit --driver-memory 10g --master local[3] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q2000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_2000.txt" "SC_Test9_Goo" "35" "50" "false" "0.1" "5" "0" "6" "2" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
-10)
+10)[Wall Clock 1538.818994978s] Duration of Data-processing is:5.157406599
 sudo ./spark-submit --driver-memory 10g --master local[3] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q4000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_4000.txt" "SC_Test10_Goo" "35" "50" "false" "0.1" "5" "0" "6" "2" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
 11)
 sudo ./spark-submit --driver-memory 10g --master local[6] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q2000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_2000.txt" "SC_Test11_Goo" "35" "50" "false" "0.1" "5" "0" "6" "2" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
 12)
 sudo ./spark-submit --driver-memory 10g --master local[6] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q4000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_4000.txt" "SC_Test12_Goo" "35" "50" "false" "0.1" "5" "0" "6" "2" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
-13)
+13)[Wall Clock 1393.62407594s] Duration of Data-processing is:2.135748705
 sudo ./spark-submit --driver-memory 10g --master local[1] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q2000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_2000.txt" "SC_Test13_Alex" "35" "50" "false" "0.1" "5" "0" "6" "1" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
-14)
+14)[Wall Clock 2788.259439721s] Duration of Data-processing is:2.128823166
 sudo ./spark-submit --driver-memory 10g --master local[1] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q4000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_4000.txt" "SC_Test14_Alex" "35" "50" "false" "0.1" "5" "0" "6" "1" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
-15)
+15)[Wall Clock 756.725718527s] Duration of Data-processing is:4.583056995
 sudo ./spark-submit --driver-memory 10g --master local[3] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q2000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_2000.txt" "SC_Test15_Alex" "35" "50" "false" "0.1" "5" "0" "6" "1" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
-16)
+16)[Wall Clock 1504.272969048s] Duration of Data-processing is:4.331690288
 sudo ./spark-submit --driver-memory 10g --master local[3] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q4000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_4000.txt" "SC_Test16_Alex" "35" "50" "false" "0.1" "5" "0" "6" "1" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
 17)
 sudo ./spark-submit --driver-memory 10g --master local[6] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q2000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_2000.txt" "SC_Test17_Alex" "35" "50" "false" "0.1" "5" "0" "6" "1" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
