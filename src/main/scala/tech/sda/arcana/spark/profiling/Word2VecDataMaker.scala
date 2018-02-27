@@ -120,13 +120,27 @@ object Dataset2Vec {
       val UriList=Res.select("Object").rdd.map(r => r(0)).collect()
       UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
   }
+  ///////////////////////////////////////
+  def fetchSubjectNObjectOfSubject(DF: DataFrame, word: String):DataFrame={
+      DF.createOrReplaceTempView("triples")
+      val Res = spark.sql(s"""SELECT distinct Subject, Object from triples where Subject = "$word"  LIMIT 10  """) 
+      Res
+  }
+  def fetchSubjectNObjectOfObject(DF: DataFrame, word: String):DataFrame={
+      DF.createOrReplaceTempView("triples")
+      val Res = spark.sql(s"""SELECT distinct Subject, Object from triples where Object = "$word"  LIMIT 10  """) 
+      Res
+  }
+  ////////////////////////////////////////
+  
+  
   
     def fetchObjectsURIOfSubject(DF: DataFrame, word: String):List[RDFURI]={
       DF.createOrReplaceTempView("triples")
       //val REG1 = raw"(http://)".r
       //val REG2 = raw"(XMLSchema#)".r
       //and Object RLIKE  "$REG1" and Object NOT RLIKE  "$REG2"
-      val Res = spark.sql(s"""SELECT distinct Object from triples where Subject = "$word"  LIMIT 5  """) 
+      val Res = spark.sql(s"""SELECT distinct Object from triples where Subject = "$word"  LIMIT 10  """) 
       val UriList=Res.select("Object").rdd.map(r => r(0)).collect().take(5)
       UriList.toList.distinct.map(x => new RDFURI(x.asInstanceOf[String]))
   }
@@ -135,7 +149,7 @@ object Dataset2Vec {
       DF.createOrReplaceTempView("triples")
       //println("Word is: "+word)
       val REG = raw"(?i)(?<![a-zA-Z])$word(?![a-zA-Z])".r
-      val Res = spark.sql(s"""SELECT distinct * from triples where Subject RLIKE "$REG" LIMIT 5 """)
+      val Res = spark.sql(s"""SELECT distinct * from triples where Subject RLIKE "$REG" LIMIT 10 """)
       //val Res = spark.sql(s"SELECT * from triples where Subject like '%$word%'") 
       val UriList=Res.select("Subject").rdd.map(r => r(0)).collect()
       //UriList.foreach(println)

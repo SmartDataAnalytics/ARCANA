@@ -89,8 +89,9 @@ object APIData {
   def getRankUclassify(expression:String):(String,String)={
     implicit val formats = net.liftweb.json.DefaultFormats
     val Nexpression=expression.trim().replaceAll(" ", "+")
-    val query = s"https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=L5ZjO3PO2YlO&text=$Nexpression"
-
+    // L5ZjO3PO2YlO || ZS0M9b0sQN1k || 8hk7Sw5l8jKf
+    val query = s"https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=8hk7Sw5l8jKf&text=$Nexpression"
+    
     //def get(url: String) = scala.io.Source.fromURL(query).mkString
     val result3 = get(query)
     var Negative =""
@@ -104,11 +105,8 @@ object APIData {
   }
   import scala.sys.process._
   def fetchDbpediaSpotlight(term:String):String={
-          
-      //var term="terrorism"
       val cmd = Seq("curl",s"http://api.dbpedia-spotlight.org/en/annotate?text=$term.&confidence=0&support=0","-H", "Accept:application/json")
       val res = cmd.!!
-      //println(res)
       val UriReg = raw"""(?<=@URI\"\:\")(.*?)(\"\,\")""".r
       val resulturi=UriReg.findFirstIn(res)
       //println(resulturi.mkString.dropRight(3))
@@ -116,12 +114,12 @@ object APIData {
   }
   def main(args: Array[String]) = {
 
-        val word = "bad as fuck "
+        val word = "good"
         val result = getRankUclassify(word)
         
-        print(s"word: $word, "+"Negative: "+result._1+", Positive: "+result._2)
-        println(result._2.toDouble -result._1.toDouble)
-
+        println(s"word: $word, "+"Negative: "+result._1+", Positive: "+result._2)
+        println((result._2.toDouble - result._1.toDouble))
+        //println(fetchDbpediaSpotlight("Kill"))
         /*
         getRankUclassify("kill")
         getRankUclassify("hunt")

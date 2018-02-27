@@ -97,11 +97,11 @@ object Word2VecModelMaker {
   }
  import spark.implicits._
   // get Synonyms
-    def getWord2VecSynonyms(Word2VecModel:Word2VecModel,word:String):Set[Synonym]={
+    def getWord2VecSynonyms(Word2VecModel:Word2VecModel,word:String,NumSyn:Int):Set[Synonym]={
     var synSet : Set[Synonym] = Set()
     try{
-      val synonyms = Word2VecModel.findSynonyms(word, 1000)
-      val synResult = synonyms.filter("similarity>=0.3").as[Synonym].collect
+      val synonyms = Word2VecModel.findSynonyms(word, NumSyn)
+      val synResult = synonyms.filter("similarity>=0.4").as[Synonym].collect
       synResult.foreach{
         f=>synSet+=f
       }

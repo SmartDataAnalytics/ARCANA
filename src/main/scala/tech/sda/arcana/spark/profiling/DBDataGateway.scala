@@ -165,7 +165,7 @@ object AppDBM {
         if(sentiPosScore(0)=="-9" && sentiPosScore(1)=="-9" && sentiPosScore(2)=="-9" && sentiPosScore(3)=="-9")
         {
           val result = APIData.getRankUclassify(word)
-          resultneg = result._1
+          resultneg = (result._2.toDouble -result._1.toDouble).toString
         }
         sentiPosScore(4) = resultneg
         sentiPosScore
@@ -176,7 +176,6 @@ object AppDBM {
     import sqlContext.implicits._
     val categories = AppConf.categories
     var DBRows = ArrayBuffer[Row]()
-    
     for (x <- categories) {
       val myUriList = Dataset2Vec.fetchAllOfWordAsSubject(DF.toDF(), x)
       //val sentiPosScore = getSentiScores(x,sentiDF)        
@@ -184,7 +183,7 @@ object AppDBM {
         val uriSentiPosScore = getSentiScores(AppDBM.getExpFromSubject(y.Uri),sentiDF)
         DBRows += Row(y.Uri, AppDBM.getExpFromSubject(y.Uri), x,uriSentiPosScore(0).toDouble,uriSentiPosScore(1).toDouble,uriSentiPosScore(2).toDouble,uriSentiPosScore(3).toDouble, uriSentiPosScore(4).toDouble, "", 0.0)
         // Word2Vec Synonyms
-        var synSet=Word2VecModelMaker.getWord2VecSynonyms(modelvec,y.Uri)
+        var synSet=Word2VecModelMaker.getWord2VecSynonyms(modelvec,y.Uri,20)
         synSet.foreach{syn=>
           val synSentiPosScore = getSentiScores(AppDBM.getExpFromSubject(syn.word),sentiDF)
           DBRows += Row(syn.word, AppDBM.getExpFromSubject(syn.word), x,synSentiPosScore(0).toDouble,synSentiPosScore(1).toDouble,synSentiPosScore(2).toDouble,synSentiPosScore(3).toDouble,synSentiPosScore(4).toDouble,y.Uri, syn.similarity)

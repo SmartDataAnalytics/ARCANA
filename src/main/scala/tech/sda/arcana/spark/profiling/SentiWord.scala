@@ -146,11 +146,9 @@ object SentiWord {
       sc.read.format("com.databricks.spark.csv").option("header", "true").option("inferSchema", "true").load(path+AppConf.ProcessedSentiWordFile)
     }
     def main(args: Array[String]) = {
-      
-      
       val path = "/home/elievex/Repository/resources/"
       val sentiDF = SentiWord.readProcessedSentiWord(path)
-      val sentiPosScore= SentiWord.getSentiScoreForAllPOS("military ranks",sentiDF)
+      val sentiPosScore= SentiWord.getSentiScoreForAllPOS("good",sentiDF)
       println(sentiPosScore(0),sentiPosScore(1),sentiPosScore(2),sentiPosScore(3))
       //FEEDBACK sentiword
       /*
