@@ -53,7 +53,14 @@ object AppDBM {
     println("S3")
     sc.parallelize(docs.map(Document.parse)).saveToMongoDB(WriteConfig(Map("uri" -> s"mongodb://127.0.0.1/myDBN.$collection")))
   }
+  def MongoDB2File(collectionName: String,pathDb: String){
+     val collection = "ArcanaCAT"
+     val path="/home/elievex/Repository/resources/TempoMongo/data"
 
+     val DBDF = MongoSpark.load(spark, ReadConfig(Map("collection" -> collection), Some(ReadConfig(spark))))
+     val rows: RDD[Row] = DBDF.rdd
+     rows.saveAsTextFile(path)
+   }		
   def formRecord(id: Integer, word: String, rank: Double, rsclist: List[String]): String = {
     val rsc = rsclist.asJson
     val x = s"""{"_id":$id,"word":"$word","rank":$rank,"rsc":$rsc}"""
