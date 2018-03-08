@@ -7,6 +7,8 @@ import tech.sda.arcana.spark.profiling.AppDBM
 import tech.sda.arcana.spark.profiling.AppConf
 import tech.sda.arcana.spark.profiling.SentiWord
 import tech.sda.arcana.spark.profiling.ProcessQuestion
+import scala.collection.mutable.ListBuffer
+import tech.sda.arcana.spark.profiling.QuestionObj
 object processing {
       val spark = SparkSession.builder()
       .config(AppConf.inputUri, AppConf.host + AppConf.dbName + "." + AppConf.firstPhaseCollection)
@@ -41,12 +43,18 @@ object processing {
     val DFDB1 = AppDBM.readDBCollection(AppConf.firstPhaseCollection)
     val DFDB2 = AppDBM.readDBCollection(AppConf.secondPhaseCollection)
     val myList=noEmptyRDD.collect().toList
+    var result = new ListBuffer[QuestionObj]()
+
     myList.foreach{
-      f=>ProcessQuestion.processQuestion(f,path,DBpedia,DFDB1,DFDB2)
+      f=> 
+        result+=ProcessQuestion.processQuestion(f,path,DBpedia,DFDB1,DFDB2)
     }
     println("~Processing is done~")
     val duration = (System.nanoTime - t1) / 1e9d
     println("Duration of Task-processing is:"+duration)
+    result.foreach{
+      x=>println(x.sentence+"::"+x.phaseTwoScore+"::"+x.summary)
+    }
     spark.stop()
   }
 }

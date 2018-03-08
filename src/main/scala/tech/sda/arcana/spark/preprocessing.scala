@@ -42,7 +42,7 @@ object ExecuteOperations {
     //> AppDBM.buildCategoriesDB(RDFDs,path)
     
     //| STEP_6: Set up Expression Collection
-    //> AppDBM.buildExpressionsDB(path)
+    AppDBM.buildExpressionsDB(path)
 
     println("~Preprocessing is done~")
     spark.stop()
