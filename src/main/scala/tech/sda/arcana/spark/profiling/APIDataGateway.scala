@@ -90,8 +90,9 @@ object APIData {
     implicit val formats = net.liftweb.json.DefaultFormats
     val Nexpression=expression.trim().replaceAll(" ", "+")
     // L5ZjO3PO2YlO || ZS0M9b0sQN1k || 8hk7Sw5l8jKf || Af0l0ZeVP2OT || 7ZNSNNS2KZqY
+
     val query = s"https://api.uclassify.com/v1/uClassify/Sentiment/classify/?readKey=7ZNSNNS2KZqY&text=$Nexpression"
-    
+
     //def get(url: String) = scala.io.Source.fromURL(query).mkString
     val result3 = get(query)
     var Negative =""
