@@ -124,7 +124,59 @@ object UnitTestProfiling {
         if (inputStream != null) inputStream.close
         content
     }
+    
+   def MongoDB2File(collectionName: String,pathDb: String){
+     val collection = "ArcanaCAT"
+     val path="/home/elievex/Repository/resources/TempoMongo/data"
+
+     val DBDF = MongoSpark.load(spark, ReadConfig(Map("collection" -> collection), Some(ReadConfig(spark))))
+     val rows: RDD[Row] = DBDF.rdd
+     rows.saveAsTextFile(path)
+   }
+   def File2MongoDB(pathFile: String){
+     var DBRows = ArrayBuffer[Row]()
+     val dbRdd = sc.makeRDD(DBRows)
+     val df = dbRdd.map {
+     case Row(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9) => DBRecord(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[Double], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[Double],s7.asInstanceOf[Double],s8.asInstanceOf[String],s9.asInstanceOf[Double])
+     }.toDF()
+     MongoSpark.save(df.write.option("collection", AppConf.firstPhaseCollection).mode("overwrite"))
+     
+   }
+   def MongodbColledtion2JsonFile(collectionName: String,pathDb: String){
+     val DF= MongoSpark.load(spark, ReadConfig(Map("collection" -> collectionName), Some(ReadConfig(spark))))
+     DF.write.json(pathDb)
+   }
+   def JsonFile2MongodbColledtion(collectionName: String,pathDb: String){
+     val df = spark.read.json(pathDb)
+     MongoSpark.save(df.write.option("collection", collectionName).mode("overwrite"))
+   }
+   
    def main(args: Array[String]) = {
+
+     /*
+     var DBRows = ArrayBuffer[Row]()
+     val dbRdd = sc.makeRDD(DBRows)
+     DBRows += Row("x1","expression","x3",0.0,0.1,0.2,0.3,0.4,"Uri",0.5)
+     val df = dbRdd.map {
+     case Row(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9) => DBRecord(s0.asInstanceOf[String], s1.asInstanceOf[String], s2.asInstanceOf[String], s3.asInstanceOf[Double], s4.asInstanceOf[Double], s5.asInstanceOf[Double], s6.asInstanceOf[Double],s7.asInstanceOf[Double],s8.asInstanceOf[String],s9.asInstanceOf[Double])
+     }.toDF()
+     MongoSpark.save(df.write.option("collection", "TestCollection").mode("overwrite"))
+     */
+    // MongodbColledtion2JsonFile(AppConf.firstPhaseCollection,"/home/elievex/Desktop/dumpFile/toServer/First/")
+    // MongodbColledtion2JsonFile(AppConf.secondPhaseCollection,"/home/elievex/Desktop/dumpFile/toServer/Second/")
+    JsonFile2MongodbColledtion("FirstTest","/home/elievex/Desktop/dumpFile/toServer/First/")
+    JsonFile2MongodbColledtion("SecondTest","/home/elievex/Desktop/dumpFile/toServer/Second/")
+     /*
+     println("READING DB")
+     val DF= MongoSpark.load(spark, ReadConfig(Map("collection" -> AppConf.firstPhaseCollection), Some(ReadConfig(spark))))
+     DF.show()
+     val pathjason="/home/elievex/Desktop/dumpFile/TEST/result1"
+     DF.write.json(pathjason)*/
+     //val df = spark.read.json(pathjason)
+     //df.show()
+     //MongoSpark.save(df.write.option("collection", "WebaColl").mode("overwrite"))
+
+     /* Sentiment the question
      println("YA")
     var DBRows = ArrayBuffer[Row]()
     //DBRows += Row("URI", "EXPRESSION", "X",1.1,1.2,1.3,1.4,1.5, "", 0.0)
@@ -144,9 +196,7 @@ object UnitTestProfiling {
     MongoSpark.save(df.write.option("collection", AppConf.firstPhaseCollection).mode("append"))
      
      println("Written")
-     
-     
-     
+     */
     // val DF = AppDBM.readDBCollection(AppConf.firstPhaseCollection)
    //AppDBM.readDBCollection(AppConf.firstPhaseCollection).select("category","cosine_similary","expression","relatedTo","senti_a","senti_n","senti_r","senti_uclassify","senti_v","uri").distinct().show()
   
@@ -228,17 +278,17 @@ object UnitTestProfiling {
     //println("DONE")
           
     // Sentining the URIS
-    /*
+   /*
     var a : List[(String,Double)] = List()
     val rawDF = spark.sparkContext.textFile("/home/elievex/Repository/resources/URI/") 
     val myList=rawDF.collect().toList
     //myList.foreach(println)
     for (x <- myList){
       a=a:+questionProcessSent(x)
-    }
+    }*/
     //WRITE TO FILE
     
-    */
+
    
     // For Testing
 
@@ -607,7 +657,7 @@ object UnitTestProfiling {
   }
  */
 
-    println("-------")
+    println("----Spark Stopped----")
     spark.stop()
    }
 }

@@ -37,5 +37,5 @@ object AppConf {
   // Malicious categories that we don't wish to answer
   var categories = List("military")
   // Malicious expression that we don't wish to answer
-  var tuples = List(("kill", "person"),("bomb", "building"),("make","bomb"),("assassinate", "president"))
+  var tuples = List(("kill", "person"),("bomb", "city"),("make","bomb"),("assassinate", "president"))
 }

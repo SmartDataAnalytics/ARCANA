@@ -175,7 +175,7 @@ object ProcessQuestion {
     
     sentence
   }   
-  def expressionCheck(questionObj:QuestionObj,DFDB2:DataFrame):Int={
+  def expressionCheck(questionObj:QuestionObj,DFDB2:DataFrame):Int={ // 2 or 3 = BLOCK
     val extractCase = raw"V\s(.+)?N\s?".r
     //println(questionObj.PosSentence)
     var flag=0
@@ -226,7 +226,7 @@ object ProcessQuestion {
             UriList.foreach{
             f => 
               if(questionObj.sentence contains f){
-              flag = 3
+              flag =3
               //println("FOUND EM OB")
               break
              }
@@ -261,13 +261,12 @@ object ProcessQuestion {
     var s : Set[String] = Set()
     T1.foreach(f=>s+=f.Uri)
     // Fetching Uris from Word2Vec
-    /*
     T1.foreach{
       f=> var synSet=Word2VecModelMaker.getWord2VecSynonyms(modelvec,f.Uri,10)
       synSet.foreach{syn=>
        s+=syn.word
       }  
-    }*/
+    }
     s
   }
    /** Map between stanford and sentword notations 
