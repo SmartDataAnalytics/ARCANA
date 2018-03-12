@@ -39,6 +39,9 @@ object processing {
     println("Duration of Task-processing is:"+duration)
     */
     // METHOD 2
+    val sc=spark.sparkContext
+    val sourceRecords = sc.textFile(path+AppConf.StopWords).collect().toList
+    val listOfStopwords=sourceRecords
     val DBpedia = RDFApp.readProcessedData(path+AppConf.processedDBpedia).cache()
     val DFDB1 = AppDBM.readDBCollection(AppConf.firstPhaseCollection)
     val DFDB2 = AppDBM.readDBCollection(AppConf.secondPhaseCollection)
