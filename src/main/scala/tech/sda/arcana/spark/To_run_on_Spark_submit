@@ -105,3 +105,25 @@ sudo ./spark-submit --driver-memory 10g --master local[6] --class tech.sda.arcan
 18)
 sudo ./spark-submit --driver-memory 10g --master local[6] --class tech.sda.arcana.spark.flow ARCANA-0.0.1-SNAPSHOT.jar "/home/sony/Repository/Mohamad's_Dataset/Glove/glove.6B.50d.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/q4000.txt" "/home/sony/Repository/Mohamad's_Dataset/Test_Data_Set/Mapping_4000.txt" "SC_Test18_Alex" "35" "50" "false" "0.1" "5" "0" "6" "1" "2" "/home/sony/Repository/Mohamad's_Dataset/Result" "6"
 -------------------------------------------------------------------------------------------------------------------
+
+Navigate to spark_submit location first:
+cd /data/home/MohamedMami/spark-2.1.0-bin-hadoop2.7/
+
+
+//New experiments done on the Server
+For LeNetModel:
+
+./bin/spark-submit --class tech.sda.arcana.spark.flow --master spark://172.18.160.16:3077 --executor-cores 2 --total-executor-cores 2 /home/MohamadDenno/App.jar "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/glove.6B.50d.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/q4000.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Mapping_q4000.txt" "SC_2_4000" "35" "50" "false" "0.1" "1" "0" "100" "3" "2" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Result" "100"
+
+./bin/spark-submit --class tech.sda.arcana.spark.flow --master spark://172.18.160.16:3077 --executor-cores 4 --total-executor-cores 4 /home/MohamadDenno/App.jar "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/glove.6B.50d.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/q4000.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Mapping_q4000.txt" "SC_2_4000_4" "35" "50" "false" "0.1" "1" "0" "100" "3" "2" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Result" "100"
+
+./bin/spark-submit --class tech.sda.arcana.spark.flow --master spark://172.18.160.16:3077 --executor-cores 5 --total-executor-cores 5 /home/MohamadDenno/App.jar "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/glove.6B.50d.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/q4000.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Mapping_q4000.txt" "SC_2_4000_5" "35" "50" "false" "0.1" "1" "0" "100" "3" "2" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Result" "100"
+
+./bin/spark-submit --class tech.sda.arcana.spark.flow --master spark://172.18.160.16:3077 --executor-cores 10 --total-executor-cores 10 /home/MohamadDenno/App.jar "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/glove.6B.50d.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/q4000.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Mapping_q4000.txt" "SC_2_4000_10" "35" "50" "false" "0.1" "1" "0" "100" "3" "2" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Result" "100"
+
+./bin/spark-submit --class tech.sda.arcana.spark.flow --master spark://172.18.160.16:3077 --executor-cores 20 --total-executor-cores 20 /home/MohamadDenno/App.jar "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/glove.6B.50d.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/q4000.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Mapping_q4000.txt" "SC_2_4000_20" "35" "50" "false" "0.1" "1" "0" "100" "3" "2" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Result" "100"
+
+./bin/spark-submit --class tech.sda.arcana.spark.flow --master spark://172.18.160.16:3077 --executor-cores 25 --total-executor-cores 25 /home/MohamadDenno/App.jar "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/glove.6B.50d.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/q4000.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Mapping_q4000.txt" "SC_2_4000_25" "35" "50" "false" "0.1" "1" "0" "100" "3" "2" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Result" "100"
+
+./bin/spark-submit --class tech.sda.arcana.spark.flow --master spark://172.18.160.16:3077 --executor-cores 50 --total-executor-cores 50 /home/MohamadDenno/App.jar "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/glove.6B.50d.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/q4000.txt" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Mapping_q4000.txt" "SC_2_4000_50" "35" "50" "false" "0.1" "1" "0" "100" "3" "2" "hdfs://172.18.160.17:54310/MohamadDenno/Scalability_Test/Result" "100"
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
