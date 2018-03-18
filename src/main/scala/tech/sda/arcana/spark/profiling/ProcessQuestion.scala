@@ -454,8 +454,8 @@ object ProcessQuestion {
         Tokens.foreach{t => 
           //Removing stop words before operating on a token
           if(!listOfLines.contains(t._2)){
-            // fetching URIS of each token
-            val list = fetchTokenUris(t._2,DFpedia,Word2VecModel)
+            // fetching URIS of each token(lemma)
+            val list = fetchTokenUris(t._4,DFpedia,Word2VecModel)
             var scoredUrisList=  List[(String,Double)]()
             // Sentiment Score
             if(list.size>0){
